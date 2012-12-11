@@ -1,14 +1,22 @@
    XamlImageConverter 3.4 by Chris Cavanagh & David Egli
    MakeImages.xic.xaml:
-  Error 23 (108,45):    Invalid content
-  Error 23 (113,14):    Invalid content
-  Error 23 (114,43):    Invalid content
-  Error 23 (115,54):    Invalid content
+  Error 23 (108,45):    Invalid content 
+		
+  Error 23 (113,14):    Invalid content 
+		
+  Error 23 (114,43):    Invalid content 
+		
+  Error 23 (115,54):    Invalid content 
+	
    MakeImages.xic.xaml:
-  Error 23 (108,45):    Invalid content
-  Error 23 (113,14):    Invalid content
-  Error 23 (114,43):    Invalid content
-  Error 23 (115,54):    Invalid content
+  Error 23 (108,45):    Invalid content 
+		
+  Error 23 (113,14):    Invalid content 
+		
+  Error 23 (114,43):    Invalid content 
+		
+  Error 23 (115,54):    Invalid content 
+	
   Warning 2 (114,4):    An internal error occurred
 
 Object reference not set to an instance of an object.
