@@ -1,0 +1,81 @@
+﻿<xs:schema id="XamlImageConverter" 
+		targetNamespace="http://schemas.johnshope.com/XamlImageConverter/2012"
+		xmlns:mstns="http://schemas.johnshope.com/XamlImageConverter/2012" 
+		xmlns="http://schemas.johnshope.com/XamlImageConverter/2012"
+		xmlns:xs="http://www.w3.org/2001/XMLSchema"
+		xmlns:msdata="urn:schemas-microsoft-com:xml-msdata"
+		attributeFormDefault="qualified" elementFormDefault="qualified"
+		xmlns:app1="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+		msdata:schemafragmentcount="2">
+
+	<xs:import namespace="http://schemas.microsoft.com/winfx/2006/xaml/presentation" />
+	<xs:element name="XamlImageConverter" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msdata:Prefix="xic">
+		<xs:complexType>
+			<xs:choice minOccurs="1" maxOccurs="unbounded">
+				<xs:element name="Scene" msdata:Prefix="xic">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Xaml" msdata:Prefix="xic" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+									</xs:sequence>
+									<xs:attribute name="File" form="unqualified" type="xs:string" />
+									<xs:attribute name="Type" form="unqualified" type="xs:string" />
+									<xs:attribute name="Assembly" form="unqualified" type="xs:string" />
+									<xs:attribute name="Source" form="unqualified" type="xs:string" />
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Group" msdata:Prefix="xic" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Set" msdata:Prefix="xic" type="xs:string" minOccurs="0" msdata:Ordinal="0" />
+										<xs:element name="Reset" msdata:Prefix="xic" type="xs:string" minOccurs="0" msdata:Ordinal="1" />
+										<xs:element name="Undo" msdata:Prefix="xic" type="xs:string" minOccurs="0" msdata:Ordinal="2" />
+										<xs:element name="Snapshot" msdata:Prefix="xic" minOccurs="0" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:attribute name="File" form="unqualified" type="xs:string" />
+												<xs:attribute name="Filename" form="unqualified" type="xs:string" />
+												<xs:attribute name="Dpi" form="unqualified" type="xs:float" />
+												<xs:attribute name="Frames" form="unqualified" type="xs:float" />
+												<xs:attribute name="Storyboard" form="unqualified" type="xs:string" />
+												<xs:attribute name="Filmstrip" form="unqualified" type="xs:string" />
+												<xs:attribute name="Quality" form="unqualified" type="xs:float" />
+												<xs:attribute name="Page" form="unqualified" type="xs:string" />
+												<xs:attribute name="FitToPage" form="unqualified" type="xs:boolean" />
+												<xs:attribute name="Left" form="unqualified" type="xs:float" />
+												<xs:attribute name="Right" form="unqualified" type="xs:float" />
+												<xs:attribute name="Top" form="unqualified" type="xs:float" />
+												<xs:attribute name="Bottom" form="unqualified" type="xs:float" />
+												<xs:attribute name="Width" form="unqualified" type="xs:float" />
+												<xs:attribute name="Height" form="unqualified" type="xs:float" />
+												<xs:attribute name="Element" form="unqualified" type="xs:string" />
+												<xs:attribute name="OutputPath" form="unqualified" type="xs:string" />
+												<xs:attribute name="Version" form="unqualified" type="xs:string" />
+												<xs:attribute name="Cultures" form="unqualified" type="xs:string" />
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="Left" form="unqualified" type="xs:float" />
+									<xs:attribute name="Right" form="unqualified" type="xs:float" />
+									<xs:attribute name="Top" form="unqualified" type="xs:float" />
+									<xs:attribute name="Bottom" form="unqualified" type="xs:float" />
+									<xs:attribute name="Width" form="unqualified" type="xs:float" />
+									<xs:attribute name="Height" form="unqualified" type="xs:float" />
+									<xs:attribute name="Element" form="unqualified" type="xs:string" />
+									<xs:attribute name="OutputPath" form="unqualified" type="xs:string" />
+									<xs:attribute name="Version" form="unqualified" type="xs:string" />
+									<xs:attribute name="Cultures" form="unqualified" type="xs:string" />
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="OutputPath" form="unqualified" type="xs:string" />
+						<xs:attribute name="File" form="unqualified" type="xs:string" />
+						<xs:attribute name="Type" form="unqualified" type="xs:string" />
+						<xs:attribute name="Assembly" form="unqualified" type="xs:string" />
+						<xs:attribute name="Source" form="unqualified" type="xs:string" />
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

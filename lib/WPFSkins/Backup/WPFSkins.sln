@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkinLoader", "SkinLoaderAdapter\SkinLoader.csproj", "{1F530349-3F69-4ECA-9189-0255C30F2E6E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkinLoaderTester", "SkinLoaderTester\SkinLoaderTester.csproj", "{FE4A6CA0-7E98-40B0-BBBF-FD2BE724B46B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleSkin", "SimpleSkin\SimpleSkin.csproj", "{D460F1CB-0681-48CE-9524-1E71040DCFB4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1F530349-3F69-4ECA-9189-0255C30F2E6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F530349-3F69-4ECA-9189-0255C30F2E6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F530349-3F69-4ECA-9189-0255C30F2E6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F530349-3F69-4ECA-9189-0255C30F2E6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE4A6CA0-7E98-40B0-BBBF-FD2BE724B46B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE4A6CA0-7E98-40B0-BBBF-FD2BE724B46B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE4A6CA0-7E98-40B0-BBBF-FD2BE724B46B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE4A6CA0-7E98-40B0-BBBF-FD2BE724B46B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D460F1CB-0681-48CE-9524-1E71040DCFB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D460F1CB-0681-48CE-9524-1E71040DCFB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D460F1CB-0681-48CE-9524-1E71040DCFB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D460F1CB-0681-48CE-9524-1E71040DCFB4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

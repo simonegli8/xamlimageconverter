@@ -1,0 +1,19 @@
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+	<TemplateData>
+		<Name>XamlImageConverter Image Conversion</Name>
+		<Description>A XamlImageConverter configuration describing snapshots of XAML, SVG or Photoshop files.</Description>
+		<ProjectType>CSharp</ProjectType>
+		<TemplateGroupID>Web</TemplateGroupID>
+		<NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
+		<DefaultName>CreateImages</DefaultName>
+		<Icon>__TemplateIcon.ico</Icon>
+	</TemplateData>
+	<TemplateContent>
+		<References />
+		<ProjectItem SubType="Code" TargetFileName="$fileinputname$.xic.xaml" ReplaceParameters="true">CreateImages.xic.xaml</ProjectItem>
+	</TemplateContent>
+	<WizardExtension>
+		<Assembly>XamlImageConverter.ItemWizard, Version=3.4.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45</Assembly>
+		<FullClassName>XamlImageConverter.ItemWizard</FullClassName>
+	</WizardExtension>
+</VSTemplate>

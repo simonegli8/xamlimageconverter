@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<xic:XamlImageConverter Theme="Aero" TextMode="ClearType, Display" OutputPath="~/DemoXamlImageConverter/Images"
+	xmlns:xic="http://schemas.johnshope.com/XamlImageConverter/2012"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<xic:Scene>
+		
+		<xic:Xaml Source="Homepage.xaml"/>
+
+		<xic:Snapshot Width="10" Height="173" File="background_top_gradient.png" />
+		
+		<xic:Group Element="mainPage" OutputPath="Homepage">
+
+			<xic:Snapshot Left="14" Top="0" Width="748" Height="164" File="page_header_ctr.png" />
+			
+			<xic:Snapshot Element="rotatingTest" Storyboard="rotation" Frames="20" File="animated-loader.gif" Loop="0" />
+			<xic:Snapshot Element="rotatingTest" Storyboard="rotation" Frames="5" Filmstrip="true" File="animated-loader-filmstrip.jpg" />
+
+			<xic:Set>
+				<Copyright.Content>
+					<Button>Chris Cavanagh &amp; johnshope.com</Button>
+				</Copyright.Content>
+			</xic:Set> 
+			
+			<xic:Snapshot Left="0" Bottom="0" Height="29" File="copyright_bar.png" />
+			<xic:Snapshot Element="Copyright" File="copyright_bar_element.png" />
+			<xic:Snapshot File="modified.page.png" />
+			
+			<xic:Reset/>
+
+		</xic:Group>
+
+		<xic:Snapshot File="full.xps" />
+		<xic:Snapshot File="full.png" />
+		<xic:Snapshot File="full.eps" />
+		<xic:Snapshot File="full.pdf" />
+
+	</xic:Scene>
+
+
+	<xic:Scene>
+
+		<xic:Xaml Source="Kaxaml.xaml"/>
+
+		<xic:Snapshot File="Kaxaml.png" />
+		<xic:Snapshot Storyboard="rotate" Frames="50" Width="200" Height="200" File="Kaxaml.gif" Loop="0"/>
+		<xic:Snapshot File="Kaxaml.xps" Page="A4" FitToPage="true" />
+				
+	</xic:Scene>
+	
+	<!--
+	<xic:Scene>
+		<xic:Xaml Source="Card7.de.xaml" />
+		<xic:Snapshot File="Karte7.png" Dpi="600" />
+	</xic:Scene>
+	-->
+	
+	<xic:Scene Source="Planet.psd">
+		<xic:Snapshot File="Planet.png" />
+		<xic:Snapshot File="Planet.xaml" />
+	</xic:Scene>
+
+	<xic:Scene Source="Tux.svg">
+		<xic:Snapshot File="tux.xaml" />
+		<xic:Snapshot File="tux.png" />
+	</xic:Scene>
+
+	<xic:Scene Source="Usa.Map.svg">
+		<xic:Snapshot File="Usa.Map.png" />
+		<xic:Snapshot File="Usa.Map.xaml" />
+
+		<xic:ImageMap Image="Usa.Map.png" File="Usa.Map.html;Readme.aspx" ID="usamap">
+			<Areas Elements="WA;OR;CA;AK;ID;NV;AZ;UT;MT;WY;CO;NM;TX;OK;KS;NE;SD;ND;MN;IA;MO;AR;LA;WI;IL;TN;MS;MI;IN;KY;AL;FL;GA;SC;NC;VA;WV;OH;PA;MD;NJ;NY;CT;MA;VT;NH;ME;RI;DE" onclick="alert('State %ID% clicked...');" style="cursor:help;"/>
+		</xic:ImageMap>
+	</xic:Scene>
+	
+	<xic:Scene OutputPath="~/img" Theme="Aero">
+		<xic:Xaml>
+			<Button Content="This is a button..." />
+		</xic:Xaml>
+		<xic:Snapshot File="button.png" />
+	</xic:Scene>
+	
+</xic:XamlImageConverter>

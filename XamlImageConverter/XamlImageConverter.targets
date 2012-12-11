@@ -1,0 +1,61 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<!--Reference the assembly where our tasks are defined-->
+	<UsingTask TaskName="XamlImageConverter" AssemblyFile=".\XamlImageConverter.dll"   />
+
+	<PropertyGroup>
+		<PrepareResourcesDependsOn>XamlImageConverterPreCompiler;$(PrepareResourcesDependsOn)</PrepareResourcesDependsOn>
+		<OriginalCoreBuildDependsOn>$(CoreBuildDependsOn)</OriginalCoreBuildDependsOn>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<CoreBuildDependsOnItems Include="$(OriginalCoreBuildDependsOn)" Exclude="PostBuildEvent" />		
+	</ItemGroup>
+
+	<PropertyGroup>
+		<CoreBuildDependsOn>@(CoreBuildDependsOnItems);XamlImageConverterPostCompiler;PostBuildEvent;</CoreBuildDependsOn>
+	</PropertyGroup>
+	
+	<PropertyGroup>
+		<XamlImageConverterDependsOn />
+		<XamlImageConverterPreCompilerDependsOn>$(XamlImageConverterDependsOn)</XamlImageConverterPreCompilerDependsOn>
+		<XamlImageConverterPostCompilerDependsOn>$(XamlImageConverterDependsOn)</XamlImageConverterPostCompilerDependsOn>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<AvailableItemName Include="XamlImageConverterPreCompile" />
+		<AvailableItemName Include="XamlImageConverterPostCompile" />
+	</ItemGroup>
+
+	<!--Compile target (this is the target that calls the compiler task)-->
+	<Target Name="XamlImageConverterPreCompiler" DependsOnTargets="$(XamlImageConverterPreCompilerDependsOn)">
+		<XamlImageConverter
+			SourceFiles="@(XamlImageConverterPreCompile)"
+			ProjectPath="$(MSBuildProjectDirectory)" />
+	</Target>
+
+	<Target Name="XamlImageConverterPostCompiler" DependsOnTargets="$(XamlImageConverterPostCompilerDependsOn)">
+		<XamlImageConverter
+			SourceFiles="@(XamlImageConverterPostCompile)"
+			ProjectPath="$(MSBuildProjectDirectory)"
+			LibraryPath="$(OutputPath)" />
+	</Target>
+
+	<!--This is an override of CoreCompile to have our XamlImageConverter be called at compile time-->
+	<!--<Target
+      Name="CoreCompile"
+      Inputs="@(Compile)"
+      Outputs="@(XamlImageConverterImages)" 
+      DependsOnTargets="$(CoreCompileDependsOn);XamlImageConverterCompilerTarget">
+  </Target>-->
+
+	<Target Name="InstallXamlImageConverter">
+		<MakeDir Directories="$(MSBuildExtensionsPath)\JohnsHope Software\XamlImageConverter\2.0" />
+		<Copy SourceFiles="XamlImageConverter.targets" DestinationFolder="$(MSBuildExtensionsPath)\JohnsHope Software\XamlImageConverter\2.0" />
+	</Target>
+
+	<Target Name="RemoveXamlImageConverter">
+		<Delete Files="$(MSBuildExtensionsPath)\JohnsHope Software\XamlImageConverter\2.0\XamlImageConverter.targets" />
+	</Target>
+
+</Project>

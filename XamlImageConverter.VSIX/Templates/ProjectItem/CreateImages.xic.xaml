@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xic:XamlImageConverter Theme="Default" TextMode="ClearType, Display"
+	xmlns:xic="http://schemas.johnshope.com/XamlImageConverter/2012"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<xic:Scene OutputPath="~/Images" Source="~/Images/Sources/button.xaml">
+
+		<xic:Snapshot File="button.png" />
+
+	</xic:Scene>
+	
+	<!-- Documentation:
+	
+		For some usage examples have a look at the folder ~/DemoXamlImageConverter in your solution, or natigate to the page
+		~/DemoXamlImageConverter in your browser.
+
+		A XamlImageConverter xaml batch file consists of one or several Scene elements.
+		Each Scene has a Source file that is either a xaml, svg or psd file, or, for compiled xaml, a Type name must be specified,
+		or alternatively the Scene contains a xaml element that contains the source xaml as child elements in the batch file.
+
+
+		A Scene has the following properties:
+		- Xaml, Source or File: The path to the file containing the xaml, svg, svgz or psd source (This way you can only load loose xaml.)
+		- Type: A Fully Qualifies type name including assembly, specifying a compiled xaml class as xaml source
+		- OutputPath: The common path all images with a relative path will be stored in.
+		- DependsOn: A list of files the source depends on, and if modified will force a re-rendering of the images.
+		- Height, Width: The desired size for the root xaml source element.
+		- Cultures: A list of culture names like "en-US, fr-FR, es-ES, de-CH" that images will be generated for for localized xaml.
+		- Dynamic: When true, the Scene will always be rendered, regardless of the images being up to date. Default is false.
+		- Theme: A string denoting a OS Theme like Aero, Aero2, AeroLite, Royale, Classic, Luna, Luna.Metallic, Luna.Homestead.
+		- Skin: A custom xaml skin to apply to the Scene.
+
+		The Theme and Skin attributes can also be applied to the root XamlImageConverter element, so they apply for the whole batch file.
+
+		Examples:
+
+		<xic:Scene OutputPath="~/Images" Source="~/Images/Sources/button.xaml">
+
+		This describes a Scene that outputs images to ~/Images and reads the source xaml from ~/Images/Sources/button.xaml".
+
+		<xic:Scene Type="MyNamespace.MyClass, MyAssembly">
+
+		This describes a Scene that loads the xaml source from the specified compiled xaml class.
+
+		<xic:Scene>
+		<xic:Xaml>
+				<Button Content="I'm a Button" />
+		</xic:Xaml>
+
+		This describes a Scene that describes the source xaml inline in the xaml element.
+
+
+		A Scene may contain Snapshots that render images.
+		Snapshots can refer to a child Element in the xaml source that should be rendered and also can specify a rectangle
+		that should be rendered through their Left, Top, Right & Bottom properties.
+		Supported output formats are: gif, png, jpeg, jpg, tif, tiff, wdp, xsp, pdf, xaml, eps & ps.
+		Snapshots have the following additional properties:
+		- Element: Specifies the source element in the source xaml that should be rendered. If omitted, the root element of the xaml is rendered.
+		- File: The filename of the image file to create, either an application relative path (as in ASP.NET) like ~/Images/logo.png or a path
+		  relative the the OutputPath of the Scene or last Group like logo.png .
+		- Left, Top, Right, Bottom, Width, Height: Specifies a rectangle relative to the Element that should be rendered.  
+		- Dpi: The rendered dpi of the image.
+		- Quality:The jpeg quality in percent in case of a jpeg image.
+		- Storyboard: To generate an animated gif from a Storyboard.
+		- Frames: The number of images in the animation.
+		- Loop: To animate the animated gif several times or infinitely when Loop="0".
+		- Pause: To pause between loops.
+		- Filmstrip: To create a vertical filmstrip instead of an animated gif, that can be animated with JavaScript & CSS.
+		- Page: The size of the document for PDF, XPS and PostScript output.
+		  You can specify a Size like "11.3cmx5cm" or "10inx3.5in" or common formats like "A4" or "Letter".
+		  The following formats are predefined: A0-A10, A0L-A10L (Landscape), Letter, LetterL (Landscape), Legal, LegalL (Landscape), Junior, JuniorL (Landscape), Ledger, Tabloid.
+		- FitToPage: Fits the image's size to the page size for PDF, XPS and PostScript output.
+		- Cultures: A list of culture names like "en-US, fr-FR, es-ES, de-CH" that images will be generated for for compiled localized xaml. The images will be named as 
+		  specified in Filename with culture name appended to the file extension, e.g. for a Filename of logo.png and the aforementioned Cultures property,
+		  the files logo.en-US.png, logo.fr-FR.png, logo.es-ES.png and so on would be rendered.
+		- Theme: A string denoting a OS Theme like Aero, Aero2, AeroLite, Royale, Classic, Luna, Luna.Metallic, Luna.Homestead.
+		- Skin: A custom xaml skin to apply to the Snapshot.
+
+		Example:
+
+		Creating an animated gif from a xaml Storyboard for an endlessly rotating arrow:
+
+		<xic:Snapshot Element="RotatingArrow" Storyboard="ArrowRotation" Frames="50" Loop="0" />
+
+
+		Snapshots can be grouped by the Group element.
+		The Group element has the following properties:
+		- Element: Specifies the source element in the source xaml that should be rendered. If omitted, the root element of the xaml is rendered.
+		- Left, Top, Right, Bottom, Width, Height: Specifies a rectangle relative to the Element that should be rendered.  
+		- OutputPath: The common path all images with a relative path will be stored in.
+		- Theme: A string denoting a OS Theme like Default, Aero, Aero2, AeroLite, Royale, Classic, Luna, Luna.Metallic, Luna.Homestead.
+		- Skin: A custom xaml skin to apply to the Group.
+
+
+		You can modify an element in the xaml DOM through the Set, Undo and Reset elements. For example you can make a Snapshot of a button,
+		and then change the Text of the button to another language through the Set command and make another snapshot for that language.
+
+		The Set element looks as follows:
+
+		If you have a button in your xaml like this:
+
+		<Button x:Name="MyButton" Content="I'm a button" />
+
+		You could say
+
+		<xic:Set MyButton.Content="Je suis un bouton" /> 
+
+		for a French button with a modified Content property with text content, or
+
+		<xic:Set>
+			<MyButton.Content>
+					<TextBlock FontFamily="Syntax">Ich bin ein Knopf</TextBlock>
+			</MyButton.Content>
+		</xic:Set>
+
+		for a German button with a modified Content property with xaml content.
+
+		After you have done a snapshot of the modified xaml, you can Undo the last Set command with the Undo element (that has no properties),
+		or you can revert to the initial xaml with the Reset element (that has also no properties).
+		Note that if you use this feature for localization you might be better off using compiled localized xaml and apply the Cultures property to your Scene element.
+
+
+		Finally it is also possible to generate html image maps from visual shapes of xaml elements or svg paths with the ImageMap or Map element.
+		The ImageMap or Map element can generate a UserControl .ascx file or an include file containing the image map, and it can generate an ordinary html map or an ASP.NET WebForms
+		ImageMap element. Whereas the ImageMap creates an asp:ImageMap element, the Map creates a standard html map element.
+		The ImageMap or Map has the following parameters:
+		- Image: The filename of the Image to determine the Snapshot's parameters which created the image.
+		- File: The filename of the UserControl or include file to generate.
+		- Scale: The Zooming Scale to apply to the map's area's coordinates.
+		- Dpi: The dpi value of the image. Usually this value is determined from the Snapshot that created the image.
+		- Flattness: The quality of the polygon approximation for bezier and arc curves.
+		- Type: Either AspNet (default for ImageMap) or Html (default for Map).
+		- FileType: Either UserControl, IncludeFile or Insert.
+		- Ident: Either Tab(default) or Space for the identation characters used. If Space is used and FileType is not Insert, 2 spaces are used for identation.
+	
+		Type and FileType are set by the created file type by default. For .aspx files the defaults are Type="AspNet" and FileType="Insert",
+		for .ascx, Type="AspNet" and FileType="UserControl", for all others Type="Html" and FileType="Insert".
+
+		All the other attributes you specify to the ImageMap are applied to the generated asp:ImageMap or map element, or to the UserControl, if it is a parameter 
+		that applies to UserControls and a UserControl is generated.
+
+		The ImageMap can contain area or areas tags or the ASP HotSpot tags. You can specify tags that are copied unchanged to the generated map or you can specify Area elements 
+		that have a property Element, so the shape and coordinates for the generated area or HotSpot tag are calculated from the visual shape of the xaml or svg element. The placeholder
+		%ID% in the area's attributes is replaced by the x:Name of SVG id of the corresponding shape element.
+
+		Example:
+
+		<xic:ImageMap Image="USA.Map.png" File="~/USA.Map.ascx">
+			<Area Element="California" OnClientClick="alert('California was clicked...')" />
+			<Area Element="NewYork" OnClick="NewYorkNeedsServerSideProcessing" />
+			<Areas Elements="All;Your;IDs;Of;Your;Shape;Xaml;Or;Svg;Elements;Go;Here" OnClientClick="alert('Shape %ID% was clicked...');" />
+		</xic:ImageMap>
+
+		When the FileType is set to Insert, the destination file is searched for a <map>or <asp:ImageMap> tag with the same ID as specified in the xic.xaml file, and the tag is replaced
+		with the computed tag. So to insert a html map in a file called "MyMap.aspx" you would create a xic.xaml like this:
+
+		<xic:Scene Source="MyImage.xaml">
+			<xic:Snapshot File="MyImage.png" />
+			<xic:ImageMap ID="MyMap" Image="MyImage.png" File="MyMap.aspx">
+				<Areas Elements="All;Your;IDs;Go;Here" OnClientClick="alert('Shape %ID% was clicked...');" />
+			</xic:ImageMap>
+		</xic:Scene>
+
+		And in your .aspx file you would insert a tag like this:
+		<asp:ImageMap ID="MyMap" runat="server" />
+		that would then be replaced by the computed map.
+
+		For plain html you would write in the .xic.xaml:
+		<xic:Map ID="MyMap" Image="MyImage.png" File="MyMap.aspx">
+			<Areas Elements="All;Your;IDs;Go;Here" onclick="alert('Shape %ID% was clicked...');" />
+		</xic:Map>
+
+		and in the .aspx:
+		<map name="MyMap" />
+
+		You can also specify Elements="*" in the map to create areas for all named elements.
+	-->
+
+</xic:XamlImageConverter>

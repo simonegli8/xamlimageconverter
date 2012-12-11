@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<xic:XamlImageConverter
+	xmlns:xic="http://schemas.johnshope.com/XamlImageConverter/2012"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<xic:Scene OutputPath="~/img" File="button.xaml" Type="Type" Assembly="Assembly" Source="Source">
+
+		<xic:Xaml File="button.xaml" Type="Type" Assembly="Assembly" Source="Source">
+			<Button>
+			</Button>
+		</xic:Xaml>
+
+		<xic:Group Left="10" Right="10" Top="10" Bottom="10" Width="10" Height="10" Element="Element" OutputPath="Path" Version="12.1.2012" Cultures="Cultures">
+
+			<xic:Set />
+			<xic:Reset />
+			<xic:Undo />
+
+			<xic:Snapshot File="button.png" Filename="Filename" Dpi="600" Frames="20" Storyboard="Story" Filmstrip="true" Quality="90" Page="Page" FitToPage="true"
+					Left="10" Right="10" Top="10" Bottom="10" Width="10" Height="10" Element="Element" OutputPath="Path" Version="12.1.2012" Cultures="Cultures" />
+
+		</xic:Group>
+
+	</xic:Scene>
+
+</xic:XamlImageConverter>

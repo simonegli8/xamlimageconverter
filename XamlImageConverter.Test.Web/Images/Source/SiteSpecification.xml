@@ -1,0 +1,9 @@
+<SiteSpecification>
+
+	<Banner>blog-banner.jpg</Banner>
+
+	<Watermark>generic-lines.png</Watermark>
+
+	<Color Primary="PaleGoldenrod" Secondary="DarkBlue" Third="#FF048BB8" Fourth="#FF78B53F"/>
+
+</SiteSpecification>

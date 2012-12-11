@@ -1,0 +1,67 @@
+﻿<Application x:Class="Tomers.WPF.Themes.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:skin="clr-namespace:Tomers.WPF.Themes.Skins;assembly=Tomers.WPF.Themes"
+	
+	StartupUri="MainWindow.xaml">
+	
+    <Application.Resources>
+		
+         <DataTemplate DataType="{x:Type skin:LooseXamlSkin}">
+			<WrapPanel Margin="8">
+				<Image Width="64" Height="64" Source="Images/LooseXaml.png">
+					<Image.BitmapEffect>
+						<DropShadowBitmapEffect />
+					</Image.BitmapEffect>
+				</Image>
+				<StackPanel VerticalAlignment="Center">
+					<TextBlock Text="{Binding Name}" TextAlignment="Left" VerticalAlignment="Center" FontSize="12" />
+					<TextBlock Text="Loose XAML" TextAlignment="Left" VerticalAlignment="Center" FontSize="10" />
+				</StackPanel>
+			</WrapPanel>
+		</DataTemplate>
+		
+		<DataTemplate DataType="{x:Type skin:DirectAssemblySkin}">
+			<WrapPanel Margin="8">
+				<Image Width="64" Height="64" Source="Images/Assembly.png">
+					<Image.BitmapEffect>
+						<DropShadowBitmapEffect />
+					</Image.BitmapEffect>
+				</Image>
+				<StackPanel VerticalAlignment="Center">
+					<TextBlock Text="{Binding Name}" TextAlignment="Left" VerticalAlignment="Center" FontSize="12" />
+					<TextBlock Text="Direct Assembly" TextAlignment="Left" VerticalAlignment="Center" FontSize="10" />
+				</StackPanel>
+			</WrapPanel>
+		</DataTemplate>
+		
+		<DataTemplate DataType="{x:Type skin:ReferencedAssemblySkin}">
+			<WrapPanel Margin="8">
+				<Image Width="64" Height="64" Source="Images/Assembly.png">
+					<Image.BitmapEffect>
+						<DropShadowBitmapEffect />
+					</Image.BitmapEffect>
+				</Image>
+				<StackPanel VerticalAlignment="Center">
+					<TextBlock Text="{Binding Name}" TextAlignment="Left" VerticalAlignment="Center" FontSize="12" />
+					<TextBlock Text="Referenced Assembly" TextAlignment="Left" VerticalAlignment="Center" FontSize="10" />
+				</StackPanel>
+			</WrapPanel>
+		</DataTemplate>		
+		
+		<DataTemplate DataType="{x:Type skin:AppDomainAssemblySkin}">
+			<WrapPanel Margin="8">
+				<Image Width="64" Height="64" Source="Images/Assembly.png">
+					<Image.BitmapEffect>
+						<DropShadowBitmapEffect />
+					</Image.BitmapEffect>
+				</Image>
+				<StackPanel VerticalAlignment="Center">
+					<TextBlock Text="{Binding Name}" TextAlignment="Left" VerticalAlignment="Center" FontSize="12" />
+					<TextBlock Text="AppDomain Assembly" TextAlignment="Left" VerticalAlignment="Center" FontSize="10" />
+				</StackPanel>
+			</WrapPanel>
+		</DataTemplate>
+		
+    </Application.Resources>
+</Application>

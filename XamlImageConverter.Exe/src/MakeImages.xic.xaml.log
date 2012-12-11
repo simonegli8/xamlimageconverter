@@ -1,0 +1,21 @@
+   XamlImageConverter 3.4 by Chris Cavanagh & David Egli
+   MakeImages.xic.xaml:
+  Error 23 (108,45):    Invalid content
+  Error 23 (113,14):    Invalid content
+  Error 23 (114,43):    Invalid content
+  Error 23 (115,54):    Invalid content
+   MakeImages.xic.xaml:
+  Error 23 (108,45):    Invalid content
+  Error 23 (113,14):    Invalid content
+  Error 23 (114,43):    Invalid content
+  Error 23 (115,54):    Invalid content
+  Warning 2 (114,4):    An internal error occurred
+
+Object reference not set to an instance of an object.
+   at XamlImageConverter.Group.<get_CulturesString>b__4(Group g) in c:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Group.cs:line 35
+   at XamlImageConverter.Group.Setting[T](Func`2 f) in c:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Group.cs:line 92
+   at XamlImageConverter.Group.get_CulturesString() in c:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Group.cs:line 35
+   at XamlImageConverter.Group.get_Cultures() in c:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Group.cs:line 36
+   at XamlImageConverter.Snapshot.Save() in c:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Snapshot.cs:line 50
+   at XamlImageConverter.Group.Process() in c:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Group.cs:line 479
+   at XamlImageConverter.Compiler.Compile(DateTime Version, XElement config) in c:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Compiler.cs:line 275

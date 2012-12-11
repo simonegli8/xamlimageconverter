@@ -1,0 +1,52 @@
+﻿<Window x:Class="NorthHorizon.Samples.SystemThemeChange.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="350" Width="525">
+    <Window.Resources>
+        <ResourceDictionary>
+            <!--<ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/PresentationFramework.Aero;V4.0.0.0;31bf3856ad364e35;component/themes/aero.normalcolor.xaml" />
+            </ResourceDictionary.MergedDictionaries>-->
+
+            <Style x:Key="ImplicitGreenButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="Green"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Style>
+
+            <Style x:Key="ExplicitGreenButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                <Setter Property="Background" Value="Green"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+    <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" HorizontalAlignment="Center">
+            <TextBox Name="ThemeNameTextBox" Width="75"/>
+            <TextBox Name="ThemeColorTextBox"  Width="75"/>
+            <Button Content="Apply" Click="OnApplyButtonClicked" IsDefault="True"/>
+            <Button Content="Reset" Click="OnResetButtonClicked"/>
+        </StackPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="100"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="100"/>
+                <RowDefinition Height="100"/>
+                <RowDefinition Height="100"/>
+            </Grid.RowDefinitions>
+        
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Default" VerticalAlignment="Center"/>
+            <Button Grid.Row="0" Grid.Column="1" Content="Button" Width="75" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Implicitly inherited style" VerticalAlignment="Center"/>
+            <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource ImplicitGreenButtonStyle}"
+                    Content="Button" Width="75" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Explicitly inherited style" VerticalAlignment="Center"/>
+            <Button Grid.Row="2" Grid.Column="1" Style="{StaticResource ExplicitGreenButtonStyle}"
+                    Content="Button" Width="75" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+    </DockPanel>
+</Window>
