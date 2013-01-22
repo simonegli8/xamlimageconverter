@@ -30,6 +30,7 @@ namespace SvgConvert {
 			renderer.FontFamilyVisitor = new FontFamilyVisitor();
 			var svgWindow = new WpfSvgWindow(4096, 4096, renderer);
 			svgWindow.LoadDocument(filename);
+			svgWindow.Resize((int)svgWindow.Document.RootElement.Width.BaseVal.Value, (int)svgWindow.Document.RootElement.Height.BaseVal.Value);
 			renderer.InvalidRect = SvgRectF.Empty;
 			renderer.Render(svgWindow.Document as SvgDocument);
 			var drawing = new System.Windows.Media.DrawingImage();

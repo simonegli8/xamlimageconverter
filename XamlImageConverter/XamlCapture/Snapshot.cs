@@ -237,7 +237,7 @@ namespace XamlImageConverter {
 						} catch { }
 					}
 				}
-				Errors.Message("Created {0} ({1} MB RAM needed)", Path.GetFileName(Filename), System.Environment.WorkingSet / (1024 * 1024));
+				Errors.Message("Created {0} ({1} MB RAM used)", Path.GetFileName(Filename), System.Environment.WorkingSet / (1024 * 1024));
 			} else {
 				Bitmaps = Capture.GetBitmaps(this).ToList();
 				var encoder = CreateEncoder(filename, Quality, Dpi);
@@ -267,10 +267,10 @@ namespace XamlImageConverter {
 					var filename2 = filename;
 					var frames = Bitmaps.Count();
 					process.Exited += (sender, args2) => {
-						Errors.Message("Created {0} ({1}{2} MB RAM needed)", filename2, (frames != 1) ? frames.ToString() + " frames, " : "", System.Environment.WorkingSet / (1024 * 1024));
+						Errors.Message("Created {0} ({1}{2} MB RAM used)", filename2, (frames != 1) ? frames.ToString() + " frames, " : "", System.Environment.WorkingSet / (1024 * 1024));
 					};
 				} else {
-					Errors.Message("Created {0} ({1}{2} MB RAM needed)", Filename, (Bitmaps.Count() != 1) ? Bitmaps.Count().ToString() + " frames, " : "", System.Environment.WorkingSet / (1024 * 1024));
+					Errors.Message("Created {0} ({1}{2} MB RAM used)", Filename, (Bitmaps.Count() != 1) ? Bitmaps.Count().ToString() + " frames, " : "", System.Environment.WorkingSet / (1024 * 1024));
 				}
 			}
 
@@ -301,6 +301,7 @@ namespace XamlImageConverter {
 				string final;
 
 				if (key.EndsWith("._temp.xps")) { // convert xps to final format
+					TempFiles.Add(key);
 					var filename = key.Substring(0, key.Length - "._temp.xps".Length);
 					var ext = Path.GetExtension(filename);
 					string device, exe;
@@ -327,13 +328,12 @@ namespace XamlImageConverter {
 					pinfo.RedirectStandardInput = true;
 					pinfo.WorkingDirectory = Path.GetDirectoryName(filename);
 					var process = System.Diagnostics.Process.Start(pinfo);
-					Processes.Add(process);
-					process.Exited += (sender, args) => { 
-						File.Delete(key);
+					process.Exited += (sender, args) => {
 						final = filename;
 						var info = new FileInfo(final);
-						errors.Message("Created {0} ({1} pages, {2:f2} MB)", info.Name, doc.Pages.Count, (double)info.Length / (1024*1024));
+						errors.Message("Created {0} ({1} pages, {2:f2} MB)", info.Name, doc.Pages.Count, (double)info.Length / (1024 * 1024));
 					};
+					Processes.Add(process);
 				} else {
 					final = key;
 					var info = new FileInfo(final);

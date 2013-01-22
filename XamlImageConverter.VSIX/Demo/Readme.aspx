@@ -30,12 +30,12 @@
 		<h3>A html image map created from a svg source</h3>
 		<p>This map was generated from <a href="http://en.wikipedia.org/wiki/Image:Map_of_USA_with_state_names.svg">"Map of USA with state names.svg"</a>.
 		Note that in the current version the font is not resolved correctly.</p>
-		<pre><code><asp:ImageMap ID="usamap" runat="server" ImageUrl="~/DemoXamlImageConverter/MakeImages.xic.xaml" CssClass="map" /></code></pre>
+		<pre><code>&lt;asp:ImageMap ID="usamap" runat="server" ImageUrl="~/DemoXamlImageConverter/MakeImages.xic.xaml" CssClass="map" /&gt;</code></pre>
 		<asp:ImageMap ID="usamap" runat="server" ImageUrl="~/DemoXamlImageConverter/MakeImages.xic.xaml" CssClass="map" />
 		<hr />
 		
 		<h3>A PDF of the above homepage</h3>
-		<pre><code><asp:HyperLink runat="server" NavigateUrl="~/DemoXamlImageConverter/Homepage.xaml.pdf">Homepage PDF</asp:HyperLink></code></pre>
+		<pre><code>&gt;asp:HyperLink runat="server" NavigateUrl="~/DemoXamlImageConverter/Homepage.xaml.pdf">Homepage PDF</&gt;asp:HyperLink></code></pre>
 		<asp:HyperLink runat="server" NavigateUrl="~/DemoXamlImageConverter/Homepage.xaml.pdf">Homepage PDF</asp:HyperLink>
 		<hr />
 		
@@ -52,9 +52,9 @@
 	
 		<pre><code>
 			<asp:TextBox ID="buttontext" runat="!server ">I'm a button</asp:TextBox><asp:Button ID="Button1" runat="server" OnClick="Update" Text="Update" />
-			<script runat="!server">
+			<script runat="server">
 				protected void Update(object sender, EventArgs e) {
-					xamlimage.Xaml = string.Format("<Button>{0}</Button>", new XText(buttontext.Text).ToString());
+					xamlimage.Xaml = string.Format("<Button>{0}</Button>", buttontext.Text);
 				}
 			</script>
 			<asp:XamlImage ID="xamlimage" runat="server" ImageUrl="~/DemoXamlImageConverter/Images/XamlImage.png">
@@ -67,7 +67,7 @@
 		</asp:XamlImage>
 		<script runat="server">
 				protected void Update(object sender, EventArgs e) {
-					XamlImageConverter.Xaml = string.Format("<Button>{0}</Button>", new XText(buttontext.Text).ToString());
+					XamlImageConverter.Xaml = string.Format("<Button>{0}</Button>", buttontext.Text);
 				}
 		 </script>
 	</div>

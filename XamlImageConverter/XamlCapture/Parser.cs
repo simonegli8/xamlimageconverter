@@ -160,7 +160,7 @@ namespace XamlImageConverter {
 			}
 
 			foreach (var node in x.Nodes().Where(node => !(node is XElement || node is XComment ||
-				(node is XText && node.NodeType == System.Xml.XmlNodeType.Whitespace || node.NodeType == System.Xml.XmlNodeType.SignificantWhitespace)))) {
+				(node is XText && (string.IsNullOrWhiteSpace(((XText)node).Value) || node.NodeType == System.Xml.XmlNodeType.Whitespace || node.NodeType == System.Xml.XmlNodeType.SignificantWhitespace))))) {
 				Errors.Error(string.Format("Invalid content {0}", node.ToString(SaveOptions.DisableFormatting | SaveOptions.OmitDuplicateNamespaces)), "23", node);
 			}
 
@@ -192,8 +192,9 @@ namespace XamlImageConverter {
 				foreach (var child in x.Elements()) {
 					Parse(child, item);
 				}
-				foreach (var nodes in x.Nodes().Where(node => !(node is XElement || node is XComment))) {
-					Errors.Error("Invalid content " + nodes.ToString(), "23", nodes);
+				foreach (var node in x.Nodes().Where(node => !(node is XElement || node is XComment ||
+					(node is XText && (string.IsNullOrWhiteSpace(((XText)node).Value) || node.NodeType == System.Xml.XmlNodeType.Whitespace || node.NodeType == System.Xml.XmlNodeType.SignificantWhitespace))))) {
+					Errors.Error(string.Format("Invalid content {0}", node.ToString(SaveOptions.DisableFormatting | SaveOptions.OmitDuplicateNamespaces)), "23", node);
 				}
 			}
 
@@ -241,7 +242,7 @@ namespace XamlImageConverter {
 					Image = (string)x.Attribute("Image"),
  					Scale = (double?)x.Attribute("Scale") ?? 1,
 					Filename = (string)x.Attribute("Filename") ?? (string)x.Attribute("File"),
-					Flattness = (double?)x.Attribute("Flattness") ?? 0.5,
+					Flatness = (double?)x.Attribute("Flatness") ?? 0.5,
 					Dpi = (double?)x.Attribute("Dpi") ?? 96.0
 				};
 				map.Type = x.Name.LocalName == "Map" ? ImageMap.Types.Html : ImageMap.Types.AspNet;
@@ -258,7 +259,7 @@ namespace XamlImageConverter {
 				var ident = (string)x.Attribute("Ident");
 				if (ident != null) map.Ident = (ImageMap.IdentChars)Enum.Parse(typeof(ImageMap.IdentChars), ident);
 
-				var predefined = new string[] { "Image", "Scale", "Filename", "File", "Type", "Flattness", "FileType", "Dpi", "Ident" };
+				var predefined = new string[] { "Image", "Scale", "Filename", "File", "Type", "Flatness", "FileType", "Dpi", "Ident" };
 				foreach (var attribute in x.Attributes().Where(a => predefined.All(p => p != a.Name))) map.Attributes.Add(attribute);
 
 				map.Areas.AddRange(x.Elements());

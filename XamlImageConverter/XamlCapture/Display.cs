@@ -13,6 +13,7 @@ namespace XamlImageConverter {
 
 		public static void Show(FrameworkElement e, Rect bounds = default(Rect)) {
 #if DEBUG
+/*
 			var w = new Window();
 			var c = new Canvas();
 			c.Children.Add(e);
@@ -28,6 +29,7 @@ namespace XamlImageConverter {
 			w.Content = c;
 			w.SizeToContent = SizeToContent.WidthAndHeight;
 			w.Show();
+*/
 #endif
 		}
 	}

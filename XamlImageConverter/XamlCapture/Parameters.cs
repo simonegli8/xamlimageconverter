@@ -14,9 +14,9 @@ using System.Windows.Threading;
 
 namespace XamlImageConverter {
 
-	public class Parameters: Group, Step {
-		
-		Dictionary<string, object> values = new Dictionary<string,object>();
+	public class Parameters : Group, Step {
+
+		Dictionary<string, object> values = new Dictionary<string, object>();
 		Dictionary<string, XObject> xobjects = new Dictionary<string, XObject>();
 
 		public Parameters() { }
@@ -25,7 +25,8 @@ namespace XamlImageConverter {
 			foreach (var key in p.Keys) Add(key, p[key]);
 		}
 
-		public Parameters(string args): this() {
+		public Parameters(string args)
+			: this() {
 			if (!string.IsNullOrEmpty(args)) {
 				string[] pars = args.Split(';');
 				foreach (string p in pars) {
@@ -45,13 +46,14 @@ namespace XamlImageConverter {
 			FrameworkElement xaml = null;
 			public FrameworkElement Xaml {
 				get {
-					if (xaml == null) xaml = XamlReader.Load(element.FirstNode.CreateReader()) as FrameworkElement;
+					if (xaml == null) xaml = XamlReader.Load(element.Descendants().First().CreateReader()) as FrameworkElement;
 					return xaml;
 				}
 			}
 		}
 
-		public Parameters(XElement element): this() {
+		public Parameters(XElement element)
+			: this() {
 			foreach (XAttribute attribute in element.Attributes()) {
 				Add(attribute.Name.LocalName, attribute.Value, attribute);
 			}
@@ -66,7 +68,7 @@ namespace XamlImageConverter {
 
 		public override bool ParseChildren { get { return false; } }
 
-		public bool NeedsBuilding() { return false; }
+		public override bool NeedsBuilding { get { return false; } }
 
 		public object this[string key] {
 			get { return values[key]; }
@@ -85,7 +87,7 @@ namespace XamlImageConverter {
 			return xobjects.ContainsKey(key) ? xobjects[key] : null;
 		}
 
-		static Dictionary<Group, Stack<Parameters>> undoStack = new Dictionary<Group,Stack<Parameters>>();
+		static Dictionary<Group, Stack<Parameters>> undoStack = new Dictionary<Group, Stack<Parameters>>();
 		public Stack<Parameters> UndoStack {
 			get {
 				if (Scene == null) return null;
@@ -120,10 +122,10 @@ namespace XamlImageConverter {
 				propertyName = name;
 			} else {
 				elementName = name.Substring(0, pos);
-				propertyName = name.Substring(pos+1);
+				propertyName = name.Substring(pos + 1);
 			}
 		}
-		
+
 		public FrameworkElement Apply(FrameworkElement element) {
 			var undo = new Parameters();
 			undo.Compiler = Compiler;
@@ -135,7 +137,7 @@ namespace XamlImageConverter {
 
 				DependencyObject elem;
 				if (string.IsNullOrEmpty(elemName)) elem = element;
-				else elem =  element.FindName(elemName) as DependencyObject;
+				else elem = element.FindName(elemName) as DependencyObject;
 
 				if (null != elem) {
 					//Get the type of the current replacementElement
@@ -194,11 +196,11 @@ namespace XamlImageConverter {
 			return (Scene ?? this).Element as FrameworkElement;
 		}
 
-		public virtual void Process() {
+		public override void Process() {
 			Errors.Message("Set");
 			Apply();
 		}
-	}
+	} 
 
 	public class Undo: Parameters {
 		public override void  Process() {

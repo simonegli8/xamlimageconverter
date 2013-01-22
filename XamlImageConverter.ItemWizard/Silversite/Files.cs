@@ -50,12 +50,14 @@ namespace Silversite.Services {
 
 		public static void Copy(string src, string dest) {
 			if (src.Contains(";") || src.Contains('*') || src.Contains('?')) All(src).Each(f => Copy(f, Paths.Combine(dest, Paths.File(f))));
-			if (src == dest) return;
-			if (Directory.Exists(src)) {
-				Directory.CreateDirectory(dest);
-				var info = DirectoryInfo(src);
-				foreach (var obj in info.EnumerateFileSystemInfos()) Copy(Paths.Combine(src, info.Name), Paths.Combine(dest, info.Name));
-			} else File.Copy(Paths.Map(src), Paths.Map(dest), true);
+			else {
+				if (src == dest) return;
+				if (Directory.Exists(src)) {
+					Directory.CreateDirectory(dest);
+					var info = DirectoryInfo(src);
+					foreach (var obj in info.EnumerateFileSystemInfos()) Copy(Paths.Combine(src, info.Name), Paths.Combine(dest, info.Name));
+				} else File.Copy(Paths.Map(src), Paths.Map(dest), true);
+			}
 		}
 
 	}

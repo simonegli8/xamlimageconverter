@@ -71,9 +71,7 @@ namespace XamlImageConverter {
 		public static BitmapSource GetBitmap(Snapshot snapshot) {
 			var scene = snapshot.Scene;
 			var window = snapshot.Window;
-#if DEBUG
-			XamlImageConverter.Display.Show(window, window.Bounds(scene.Window));
-#endif
+
 			var element = scene.Element;
 			var dpi = snapshot.Dpi ?? defaultDpi;
 
@@ -83,8 +81,11 @@ namespace XamlImageConverter {
 					dpi, dpi, PixelFormats.Pbgra32);
 
 			if (element != null) {
-				element.RenderTransform = snapshot.Transform;
+				var T = element.RenderTransform;
+				element.RenderTransform = new MatrixTransform(Matrix.Multiply(T.Value, snapshot.Transform.Value));;
+				element.MeasureAndArrange(new Size(element.ActualWidth, element.ActualHeight));
 				bitmap.Render(element);
+				element.RenderTransform = T;
 			} else System.Diagnostics.Debugger.Break();
 
 			return bitmap;

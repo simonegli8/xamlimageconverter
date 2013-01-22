@@ -19,7 +19,7 @@ Features:
 		<MoreInfoUrl>http://xamlimageconverter.codeplex.com</MoreInfoUrl>
 		<License>license.rtf</License>
 		<GettingStartedGuide>http://xamlimageconverter.codeplex.com/documentation</GettingStartedGuide>
-		<Icon>__TemplateIcon.ico</Icon>
+		<Icon>Icon.ico</Icon>
 		<SupportedProducts>
 			<VisualStudio Version="10.0">
 				<Edition>Ultimate</Edition>
@@ -36,37 +36,50 @@ Features:
 	</Identifier>
 	<References />
 	<Content>
-		<CustomExtension Type="Reference">Items\psd2xaml\Endogine.Codecs.Flash.dll</CustomExtension>
-		<CustomExtension Type="Reference">Items\psd2xaml\Endogine.Codecs.Photoshop.dll</CustomExtension>
-		<CustomExtension Type="Reference">Items\psd2xaml\Endogine.dll</CustomExtension>
-		<CustomExtension Type="Reference">Items\XamlImageConverter.dll</CustomExtension>
-		<CustomExtension Type="Resource">Items\XamlImageConverter.pdb</CustomExtension>
-		<CustomExtension Type="Reference">Items\convert.exe</CustomExtension>
-		<CustomExtension Type="Resource">Items\convert.pdb</CustomExtension>
-		<CustomExtension Type="Resource">Items\gxps\gxps-9.05-win32.exe</CustomExtension>
-		<CustomExtension Type="Resource">Items\gxps\gxps-9.06-win32.exe</CustomExtension>
-		<CustomExtension Type="Resource">Items\ImageMagick\atl100.dll</CustomExtension>
-		<CustomExtension Type="Resource">Items\ImageMagick\colors.xml</CustomExtension>
-		<CustomExtension Type="Resource">Items\ImageMagick\configure.xml</CustomExtension>
-		<CustomExtension Type="Resource">Items\ImageMagick\convert.exe</CustomExtension>
-		<CustomExtension Type="Resource">Items\ImageMagick\delegates.xml</CustomExtension>
-		<CustomExtension Type="Resource">Items\ImageMagick\english.xml</CustomExtension>
-		<CustomExtension Type="Resource">Items\ImageMagick\locale.xml</CustomExtension>
-		<CustomExtension Type="Resource">Items\ImageMagick\log.xml</CustomExtension>
-		<CustomExtension Type="Resource">Items\ImageMagick\magic.xml</CustomExtension>
-		<CustomExtension Type="Resource">Items\ImageMagick\mfc100.dll</CustomExtension>
-		<CustomExtension Type="Resource">Items\ImageMagick\mime.xml</CustomExtension>
-		<CustomExtension Type="Resource">Items\ImageMagick\msvcp100.dll</CustomExtension>
-		<CustomExtension Type="Resource">Items\ImageMagick\msvcr100.dll</CustomExtension>
-		<CustomExtension Type="Resource">Items\ImageMagick\policy.xml</CustomExtension>
-		<CustomExtension Type="Resource">Items\ImageMagick\sRGB.icc</CustomExtension>
-		<CustomExtension Type="Resource">Items\ImageMagick\type.xml</CustomExtension>
-		<CustomExtension Type="Resource">Items\ImageMagick\type-ghostscript.xml</CustomExtension>
-		<CustomExtension Type="Resource">Items\ImageMagick\vcomp100.dll</CustomExtension>
-		<CustomExtension Type="Resource">Items\XamlImageConverter.pdb</CustomExtension>
-		<CustomExtension Type="Resource">Items\XamlImageConverter.targets</CustomExtension>
+		<CustomExtension Type="Reference">psd2xaml\Endogine.Codecs.Flash.dll</CustomExtension>
+		<CustomExtension Type="Reference">Icon.ico</CustomExtension>
+		<CustomExtension Type="Reference">psd2xaml\Endogine.Codecs.Photoshop.dll</CustomExtension>
+		<CustomExtension Type="Reference">psd2xaml\Endogine.dll</CustomExtension>
+		<CustomExtension Type="Reference">XamlImageConverter.dll</CustomExtension>
+		<CustomExtension Type="Resource">XamlImageConverter.pdb</CustomExtension>
+		<CustomExtension Type="Reference">convert.exe</CustomExtension>
+		<CustomExtension Type="Resource">convert.pdb</CustomExtension>
+		<CustomExtension Type="Resource">gxps\gxps-9.05-win32.exe</CustomExtension>
+		<CustomExtension Type="Resource">gxps\gxps-9.06-win32.exe</CustomExtension>
+		<CustomExtension Type="Resource">ImageMagick\atl100.dll</CustomExtension>
+		<CustomExtension Type="Resource">ImageMagick\colors.xml</CustomExtension>
+		<CustomExtension Type="Resource">ImageMagick\configure.xml</CustomExtension>
+		<CustomExtension Type="Resource">ImageMagick\convert.exe</CustomExtension>
+		<CustomExtension Type="Resource">ImageMagick\delegates.xml</CustomExtension>
+		<CustomExtension Type="Resource">ImageMagick\english.xml</CustomExtension>
+		<CustomExtension Type="Resource">ImageMagick\locale.xml</CustomExtension>
+		<CustomExtension Type="Resource">ImageMagick\log.xml</CustomExtension>
+		<CustomExtension Type="Resource">ImageMagick\magic.xml</CustomExtension>
+		<CustomExtension Type="Resource">ImageMagick\mfc100.dll</CustomExtension>
+		<CustomExtension Type="Resource">ImageMagick\mime.xml</CustomExtension>
+		<CustomExtension Type="Resource">ImageMagick\msvcp100.dll</CustomExtension>
+		<CustomExtension Type="Resource">ImageMagick\msvcr100.dll</CustomExtension>
+		<CustomExtension Type="Resource">ImageMagick\policy.xml</CustomExtension>
+		<CustomExtension Type="Resource">ImageMagick\sRGB.icc</CustomExtension>
+		<CustomExtension Type="Resource">ImageMagick\type.xml</CustomExtension>
+		<CustomExtension Type="Resource">ImageMagick\type-ghostscript.xml</CustomExtension>
+		<CustomExtension Type="Resource">ImageMagick\vcomp100.dll</CustomExtension>
+		<CustomExtension Type="Resource">XamlImageConverter.pdb</CustomExtension>
+		<CustomExtension Type="Resource">XamlImageConverter.targets</CustomExtension>
+		<CustomExtension Type="Resource">Demo\blog-banner.jpg</CustomExtension>
+		<CustomExtension Type="Resource">Demo\Default.aspx</CustomExtension>
+		<CustomExtension Type="Resource">Demo\generic-lines.png</CustomExtension>
+		<CustomExtension Type="Resource">Demo\Homepage.xaml</CustomExtension>
+		<CustomExtension Type="Resource">Demo\jquery.js</CustomExtension>
+		<CustomExtension Type="Resource">Demo\jquery.maphilight.min.js</CustomExtension>
+		<CustomExtension Type="Resource">Demo\Kaxaml.xaml</CustomExtension>
+		<CustomExtension Type="Resource">Demo\CreateImages.xic.xaml</CustomExtension>
+		<CustomExtension Type="Resource">Demo\Readme.apsx</CustomExtension>
+		<CustomExtension Type="Resource">Demo\Tux.svg</CustomExtension>
+		<CustomExtension Type="Resource">Demo\Usa.Map.html</CustomExtension>
+		<CustomExtension Type="Resource">Demo\Usa.Map.svg</CustomExtension>
 		<Assembly AssemblyName="|XamlImageConverter.ItemWizard;AssemblyName|">|XamlImageConverter.ItemWizard|</Assembly>
-		<CustomExtension Type="Resource">Items\XamlImageConverter.xsd</CustomExtension>
+		<CustomExtension Type="Resource">XamlImageConverter.xsd</CustomExtension>
 		<ItemTemplate>ItemTemplates</ItemTemplate>
 	</Content>
 </Vsix>

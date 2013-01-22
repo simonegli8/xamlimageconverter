@@ -12,7 +12,7 @@
 	
 	<!-- Documentation:
 	
-		For some usage examples have a look at the folder ~/DemoXamlImageConverter in your solution, or natigate to the page
+		For some usage examples have a look at the folder ~/DemoXamlImageConverter in your solution, or navigate to the page
 		~/DemoXamlImageConverter in your browser.
 
 		A XamlImageConverter xaml batch file consists of one or several Scene elements.
@@ -129,10 +129,10 @@
 		- File: The filename of the UserControl or include file to generate.
 		- Scale: The Zooming Scale to apply to the map's area's coordinates.
 		- Dpi: The dpi value of the image. Usually this value is determined from the Snapshot that created the image.
-		- Flattness: The quality of the polygon approximation for bezier and arc curves.
+		- Flatness: The quality of the polygon approximation for Bezier and arc curves.
 		- Type: Either AspNet (default for ImageMap) or Html (default for Map).
 		- FileType: Either UserControl, IncludeFile or Insert.
-		- Ident: Either Tab(default) or Space for the identation characters used. If Space is used and FileType is not Insert, 2 spaces are used for identation.
+		- Ident: Either Tab(default) or Space for the indentation characters used. If Space is used and FileType is not Insert, 2 spaces are used for indentation.
 	
 		Type and FileType are set by the created file type by default. For .aspx files the defaults are Type="AspNet" and FileType="Insert",
 		for .ascx, Type="AspNet" and FileType="UserControl", for all others Type="Html" and FileType="Insert".

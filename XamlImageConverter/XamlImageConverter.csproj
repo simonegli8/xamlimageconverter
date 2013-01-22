@@ -739,6 +739,7 @@
     </Content>
     <Content Include="ImageMagick\english.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="ImageMagick\locale.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

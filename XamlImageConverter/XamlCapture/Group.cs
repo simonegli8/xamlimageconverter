@@ -32,7 +32,7 @@ namespace XamlImageConverter {
 		public List<string> DependsOn { get; set; }
 		public string Dependencies { set { DependsOn = (value ?? "").Split(';').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList(); } } 
 		public string cultures;
-		public virtual string CulturesString { get { return Setting(g => g.cultures); } set { cultures = value; } }
+		public virtual string CulturesString { get { return Setting(g => g.cultures) ?? ""; } set { cultures = value; } }
 		public virtual List<string> Cultures { get { return CulturesString.Split(',', ';').Select(c => c.Trim()).Where(c => !string.IsNullOrEmpty(c)).ToList(); } }
 		public Errors Errors { get { return Compiler.Errors; } }
 		public List<System.Diagnostics.Process> Processes { get { return Compiler.Processes; } }
@@ -47,7 +47,8 @@ namespace XamlImageConverter {
 		public string TempPath { get; set; }
 		string filename;
 		public virtual string Filename { get { return filename; } set { filename = value; localFilename = null; } }
-		static List<string> TempPaths = new List<string>();
+		public static List<string> TempPaths = new List<string>();
+		public static List<string> TempFiles = new List<string>();
 		static string CurrentTheme = null, CurrentSkin = null;
 		//public static Group Root = new Group();
 		public ResourceDictionary SkinResources = null;
@@ -89,14 +90,18 @@ namespace XamlImageConverter {
 			}
 		}
 		public Group Ancestor(Func<Group, bool> f) { return Ancestors.FirstOrDefault(a => f(a)); }
-		public T Setting<T>(Func<Group, T> f) { return f(Ancestor(g => f(g) != null)); }
+		public T Setting<T>(Func<Group, T> f) {
+			var a = Ancestor(g => f(g) != null);
+			return a != null ? f(a) : default(T);
+		}
 
 		FrameworkElement element = null;
 		public FrameworkElement Element {
 			get {
 				if (element == null) {
 
-					if (!IsScene) { // load Group or Snapshot
+					if (Parent == null) { // root element
+					} else if (!IsScene) { // load Group or Snapshot
 						element = Parent.Element;
 					} else { // load Scene
 						ApplyStyle();
@@ -210,6 +215,7 @@ namespace XamlImageConverter {
 
 						if (element != null) {
 							element.MeasureAndArrange(PreferredSize);
+							ApplyStyle();
 						}
 					}
 
@@ -218,6 +224,10 @@ namespace XamlImageConverter {
 					if (ElementName != null) {
 						//element = Root.Element.FindName<DependencyObject>(ElementName);
 						element = LogicalTreeHelper.FindLogicalNode(Scene.Element, ElementName) as FrameworkElement;
+						if (element == null) {
+							Errors.Error(string.Format("No element with name \"{0}\" found.", ElementName), "31", this.XElement);
+							element = Scene.Element;
+						}
 					}
 					
 				}
@@ -232,9 +242,11 @@ namespace XamlImageConverter {
 		}
 
 		private void ClearStyle(FrameworkElement e) {
-			e.ClearValue(TextOptions.TextHintingModeProperty);
-			e.ClearValue(TextOptions.TextRenderingModeProperty);
-			e.ClearValue(TextOptions.TextFormattingModeProperty);
+			if (e != null) {
+				e.ClearValue(TextOptions.TextHintingModeProperty);
+				e.ClearValue(TextOptions.TextRenderingModeProperty);
+				e.ClearValue(TextOptions.TextFormattingModeProperty);
+			}
 		}
 
 		public FrameworkElement ElementClone() {
@@ -313,54 +325,71 @@ namespace XamlImageConverter {
 				CurrentSkin = skin.Skin;
 			}
 
-			TextOptions.SetTextHintingMode(Element, TextHintingMode.Fixed);
-			var rendering = Setting(g => g.TextRenderingMode);
-			if (rendering.HasValue) TextOptions.SetTextRenderingMode(Element, rendering.Value);
-			var formatting = Setting(g => g.TextFormattingMode);
-			if (formatting.HasValue) TextOptions.SetTextFormattingMode(Element, formatting.Value);
+			if (element != null) {
+				TextOptions.SetTextHintingMode(Element, TextHintingMode.Fixed);
+				var rendering = Setting(g => g.TextRenderingMode);
+				if (rendering.HasValue) TextOptions.SetTextRenderingMode(Element, rendering.Value);
+				var formatting = Setting(g => g.TextFormattingMode);
+				if (formatting.HasValue) TextOptions.SetTextFormattingMode(Element, formatting.Value);
+			}
 		}
 
 		Group window = null;
 		public Group Window {
 			get {
+				if (Parent == null) return null;
+
 				if (window == null) {
 					window = new Group();
-					if (Parent != null && !Parent.Window.Children.Contains(window)) Parent.Window.Children.Add(window);
-				}
+					if (Parent != null && Parent.Window != null && !Parent.Window.Children.Contains(window)) Parent.Window.Children.Add(window);
 
-				var top = Canvas.GetTop(this);
-				var bottom = Canvas.GetBottom(this);
-				var left = Canvas.GetLeft(this);
-				var right = Canvas.GetRight(this);
-				var hasSize = !(double.IsNaN(top) && double.IsNaN(bottom) && double.IsNaN(right) && double.IsNaN(left) && double.IsNaN(Width) && double.IsNaN(Height));
+					var top = Canvas.GetTop(this);
+					var bottom = Canvas.GetBottom(this);
+					var left = Canvas.GetLeft(this);
+					var right = Canvas.GetRight(this);
+					var hasSize = !(double.IsNaN(top) && double.IsNaN(bottom) && double.IsNaN(right) && double.IsNaN(left) && double.IsNaN(Width) && double.IsNaN(Height));
 
-				var bounds = Element.Bounds(Scene.Element);
-				window.Width = bounds.Width;
-				window.Height = bounds.Height;
+					Rect bounds;
+					if (IsScene) bounds = Element.Bounds(Scene.Element);
+					else bounds = Element.Bounds(Parent.Element);
+					window.Width = bounds.Width;
+					window.Height = bounds.Height;
 
-				if (ElementName != null && Parent != null) {
-					var parentBounds = Parent.Window.Bounds(Scene.Window);
-					Canvas.SetLeft(window, bounds.X - parentBounds.X);
-					Canvas.SetTop(window, bounds.Y - parentBounds.Y);
-				}
-				window.MeasureAndArrange(new Size(window.Width, window.Height));
+					/*if (ElementName != null && Parent != null) {
+						var parentBounds = Parent.Window.Bounds(Scene.Window);
+						Canvas.SetLeft(window, bounds.X - parentBounds.X);
+						Canvas.SetTop(window, bounds.Y - parentBounds.Y);
+					} else { */
+						Canvas.SetLeft(window, bounds.X);
+						Canvas.SetTop(window, bounds.Y);
+					//}
+					window.MeasureAndArrange(new Size(window.Width, window.Height));
 
-				if (hasSize) {
-					var inner = new Group();
-					Canvas.SetTop(inner, top);
-					Canvas.SetBottom(inner, bottom);
-					Canvas.SetLeft(inner, left);
-					Canvas.SetRight(inner, right);
-					inner.Width = double.IsNaN(Width) ? window.Width : Width;
-					inner.Height = double.IsNaN(Height) ? window.Height : Height;
-					window.Children.Add(inner);
-					window = inner;
-					inner.MeasureAndArrange(new Size(window.Width, window.Height));
+					if (hasSize) {
+						var inner = new Group();
+						Canvas.SetTop(inner, top);
+						Canvas.SetBottom(inner, bottom);
+						Canvas.SetLeft(inner, left);
+						Canvas.SetRight(inner, right);
+						inner.Width = double.IsNaN(Width) ? window.Width : Width;
+						inner.Height = double.IsNaN(Height) ? window.Height : Height;
+						window.Children.Add(inner);
+						window = inner;
+						inner.MeasureAndArrange(new Size(window.Width, window.Height));
+					}
 				}
 
 				return window;
 			}
 		}
+
+		public Group ElementGroup {
+			get {
+				if (Parent == null) return null;
+				if (IsScene || !string.IsNullOrEmpty(ElementName)) return this;
+				return Parent.ElementGroup;
+			}
+		} 
 
 #if DEBUG
 		public Point RelativeOffset { get { return new Point(Canvas.GetLeft(Window), Canvas.GetTop(Window)); } }
@@ -409,10 +438,16 @@ namespace XamlImageConverter {
 
 			foreach (var scene in scenes) scene.Cleanup();
 
+			foreach (var p in Processes) p.WaitForExit();
+
+			foreach (var file in TempFiles) System.IO.File.Delete(file);
+
 			AppDomain.CurrentDomain.DomainUnload += (sender, args) => {
-				//System.GC.Collect();
-				foreach (var path in TempPaths) 
-					Directory.Delete(path, true);
+				foreach (var path in TempPaths) {
+					try {
+						Directory.Delete(path, true);
+					} catch { }
+				}
 			};
 		}
 
@@ -465,7 +500,7 @@ namespace XamlImageConverter {
 			}
 		}
 
-		public virtual void Save() { throw new NotImplementedException(); }
+		public virtual void Save() { }
 
 		public void DirectoryCopy(string sourceDirName, string destDirName) {
 			DirectoryInfo dir = new DirectoryInfo(sourceDirName);
@@ -475,7 +510,7 @@ namespace XamlImageConverter {
 			foreach (DirectoryInfo subdir in dir.GetDirectories()) DirectoryCopy(subdir.FullName, Path.Combine(destDirName, subdir.Name));
 		}
 
-		public void Process() {
+		public virtual void Process() {
 			if (NeedsBuilding) Save();
 			else Errors.Note(string.Format("{0} is up to date.", Filename));
 		}

@@ -71,7 +71,7 @@
 		<xic:Snapshot File="Usa.Map.xaml" />
 
 		<xic:ImageMap Image="Usa.Map.png" File="Usa.Map.html;Readme.aspx" ID="usamap">
-			<Areas Elements="WA;OR;CA;AK;ID;NV;AZ;UT;MT;WY;CO;NM;TX;OK;KS;NE;SD;ND;MN;IA;MO;AR;LA;WI;IL;TN;MS;MI;IN;KY;AL;FL;GA;SC;NC;VA;WV;OH;PA;MD;NJ;NY;CT;MA;VT;NH;ME;RI;DE" onclick="alert('State %ID% clicked...');" style="cursor:help;"/>
+			<Areas Elements="WA;OR;CA;AK;ID;NV;AZ;UT;MT;WY;CO;NM;TX;OK;KS;NE;SD;ND;MN;IA;MO;AR;LA;WI;IL;TN;MS;MI;IN;KY;AL;FL;GA;SC;NC;VA;WV;OH;PA;MD;NJ;NY;CT;MA;VT;NH;ME;RI;DE" onclick="alert('State %ID% clicked...');" href="#"/>
 		</xic:ImageMap>
 	</xic:Scene>
 	

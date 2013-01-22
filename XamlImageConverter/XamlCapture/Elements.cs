@@ -101,7 +101,7 @@ namespace XamlImageConverter.Elements {
 		public double Scale { get; set; }
 		public string File { get; set; }
 		public Types Type { get; set; }
-		public double Flattness { get; set; }
+		public double Flatness { get; set; }
 		public FileTypes FileType { get; set; }
 		public IdentChars Ident { get; set; }
 
@@ -130,7 +130,7 @@ namespace XamlImageConverter.Elements {
 		public double Scale { get; set; }
 		public string File { get; set; }
 		public ImageMap.Types Type { get; set; }
-		public double Flattness { get; set; }
+		public double Flatness { get; set; }
 		public ImageMap.FileTypes FileType { get; set; }
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
 		public List<Area> Areas { get; set; }

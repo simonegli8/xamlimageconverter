@@ -40,6 +40,8 @@ namespace XamlImageConverter {
 				Console.Error.WriteLine("             (Usually the bin folder).");
 				Console.Error.WriteLine("  -p option: The path to the project. Used to resolve app relative paths.");
 				Console.Error.WriteLine("  -v option: Create logfiles.");
+				Console.Error.WriteLine("  -f option: Don't use separate AppDomain for each sourcefile.");
+				Console.Error.WriteLine("             Speeds up compilation but uses more memory.");
 				Console.Error.WriteLine("  -? option: Show this help text.");
 				a.Remove("-h");
 				a.Remove("help");
@@ -71,6 +73,12 @@ namespace XamlImageConverter {
 			if (a.Contains("-r")) {
 				rebuildAll = true;
 				a.Remove("-r");
+			}
+
+			bool useAppDomain = true;
+			if (a.Contains("-f")) {
+				useAppDomain = false;
+				a.Remove("-f");
 			}
 
 			bool log = false;
@@ -135,6 +143,7 @@ namespace XamlImageConverter {
 				compiler.LibraryPath = libraryPath;
 				compiler.ProjectPath = projectPath;
 				compiler.RebuildAll = rebuildAll;
+				compiler.SeparateAppDomain = useAppDomain;
 				if (log) compiler.Loggers.Add(new FileLogger());
 				compiler.Compile(files);
 			}

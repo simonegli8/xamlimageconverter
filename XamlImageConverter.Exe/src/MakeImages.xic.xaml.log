@@ -1,29 +1,49 @@
    XamlImageConverter 3.4 by Chris Cavanagh & David Egli
    MakeImages.xic.xaml:
-  Error 23 (108,45):    Invalid content 
-		
-  Error 23 (113,14):    Invalid content 
-		
-  Error 23 (114,43):    Invalid content 
-		
-  Error 23 (115,54):    Invalid content 
-	
-   MakeImages.xic.xaml:
-  Error 23 (108,45):    Invalid content 
-		
-  Error 23 (113,14):    Invalid content 
-		
-  Error 23 (114,43):    Invalid content 
-		
-  Error 23 (115,54):    Invalid content 
-	
-  Warning 2 (114,4):    An internal error occurred
-
-Object reference not set to an instance of an object.
-   at XamlImageConverter.Group.<get_CulturesString>b__4(Group g) in c:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Group.cs:line 35
-   at XamlImageConverter.Group.Setting[T](Func`2 f) in c:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Group.cs:line 92
-   at XamlImageConverter.Group.get_CulturesString() in c:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Group.cs:line 35
-   at XamlImageConverter.Group.get_Cultures() in c:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Group.cs:line 36
-   at XamlImageConverter.Snapshot.Save() in c:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Snapshot.cs:line 50
-   at XamlImageConverter.Group.Process() in c:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Group.cs:line 479
-   at XamlImageConverter.Compiler.Compile(DateTime Version, XElement config) in c:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Compiler.cs:line 275
+  Error 11 (79,4):    Source file C:\Code\XamlImageConverter\XamlImageConverter.Exe\src\Card7.de.xaml not found.
+   Setting OS Theme to Aero
+   Created background_top_gradient.png (35 MB RAM used)
+   Created page_header_lft.png (36 MB RAM used)
+   Created page_header_ctr.png (37 MB RAM used)
+   Created page_header_rt.png (37 MB RAM used)
+   Created main_content_bkgd_lft.png (37 MB RAM used)
+   Created main_content_bkgd.png (37 MB RAM used)
+   Created main_content_bkgd_rt.png (38 MB RAM used)
+   Created animated-loader-filmstrip.jpg (5 frames, 41 MB RAM used)
+   Set
+     Copyright.Content=System.Windows.Controls.Button: Chris Cavanagh & johnshope.com
+   Created copyright_bar.png (41 MB RAM used)
+   Created copyright_bar_element.png (41 MB RAM used)
+   Created modified.page.png (43 MB RAM used)
+   Reset
+     Copyright.Content=Copyright © 2008 Chris Cavanagh
+   Created full.jpg (57 MB RAM used)
+   Created full.png (58 MB RAM used)
+   Created full.gif (60 MB RAM used)
+   Created Kaxaml.png (63 MB RAM used)
+   Created Kaxaml_film.gif (50 frames, 89 MB RAM used)
+   Created Planet.png (154 MB RAM used)
+   Created Planet.xaml (154 MB RAM used)
+   Created tux.xaml (140 MB RAM used)
+   Created tux.png (141 MB RAM used)
+  Error 31 (91,4):    No element with name "test" found.
+   Created tuxpart.png (141 MB RAM used)
+   Created soccer.png (141 MB RAM used)
+   usa.map.png is up to date.
+   usa.map.xaml is up to date.
+   usa.map.html is up to date.
+   Created button.scene.png (142 MB RAM used)
+   Created button.png (142 MB RAM used)
+   Created full.xps (1 pages, 0.15 MB)
+   Created Kaxaml.xps (1 pages, 0.17 MB)
+   Created C:\Code\XamlImageConverter\XamlImageConverter.Exe\img\animated-loader.gif (20 frames, 158 MB RAM used)
+   Created C:\Code\XamlImageConverter\XamlImageConverter.Exe\img\Kaxaml.gif (100 frames, 158 MB RAM used)
+   Created page_header.pdf (2 pages, 0.14 MB)
+   Created page_header.ps (3 pages, 12.23 MB)
+   Created page_header.eps (1 pages, 0.23 MB)
+   Created full.eps (1 pages, 12.56 MB)
+   Created full.ps (1 pages, 12.56 MB)
+   Created full.pdf (1 pages, 0.23 MB)
+   Created Kaxaml.pdf (1 pages, 0.02 MB)
+   Created Kaxaml.eps (1 pages, 0.64 MB)
+   Created Kaxaml.ps (1 pages, 0.64 MB)

@@ -29,7 +29,7 @@ namespace XamlImageConverter {
 		public double Scale { get; set; }
 		public string File { get { return Filename; } set { Filename = value; } }
 		public Types Type { get; set; }
-		public double Flattness { get; set; }
+		public double Flatness { get; set; }
 		public FileTypes FileType { get; set; }
 		public IdentChars Ident { get; set; }
 		public double Dpi { get; set; }
@@ -43,7 +43,7 @@ namespace XamlImageConverter {
 		XElement Map;
 
 		public ImageMap() {
-			Flattness = 0.5;
+			Flatness = 0.5;
 			FileType = FileTypes.UserControl;
 			Scale = 1;
 		}
@@ -147,7 +147,7 @@ namespace XamlImageConverter {
 					cg.Geometry1 = group.ClipGeometry;
 					cg.Geometry2 = g;
 					cg.GeometryCombineMode = GeometryCombineMode.Intersect;
-					g = cg.GetOutlinedPathGeometry(Flattness, ToleranceType.Relative);
+					g = cg.GetOutlinedPathGeometry(Flatness, ToleranceType.Relative);
 				}
 
 				var intersections = Geometries.Where(gg => gg.FillContainsWithDetail(g) != IntersectionDetail.Empty);
@@ -157,28 +157,27 @@ namespace XamlImageConverter {
 					cg.Geometry1 = g;
 					cg.Geometry2 = ig;
 					cg.GeometryCombineMode = GeometryCombineMode.Union;
-					g = cg.GetOutlinedPathGeometry(Flattness, ToleranceType.Relative);
+					g = cg.GetOutlinedPathGeometry(Flatness, ToleranceType.Relative);
 				}
+
+				ApplyTransform(group.Transform, g);
+
 				Geometries.Add(g);
 			}
 
 			private void ApplyTransform(Transform t, DependencyObject d) {
-				if (t != null && t.Value != Matrix.Identity) {
-					if (d is Geometry) {
-						var g = (Geometry)d;
-						if (g.Transform == null || g.Transform.Value == Matrix.Identity) g.Transform = t;
-						else g.Transform = new MatrixTransform(Matrix.Multiply(t.Value, g.Transform.Value));
-					} else if (d is DrawingGroup) {
-						var dg = (DrawingGroup)d;
-						if (dg.Transform == null || dg.Transform.Value == Matrix.Identity) dg.Transform = t;
-						else dg.Transform = new MatrixTransform(Matrix.Multiply(t.Value, dg.Transform.Value));
-					}
+				if (t == null) t = Transform.Identity;
+				if (d is Geometry) {
+					var g = (Geometry)d;
+					g.Transform = new MatrixTransform(Matrix.Multiply(t.Value, (g.Transform ?? Transform.Identity).Value));
+				} else if (d is DrawingGroup) {
+					var dg = (DrawingGroup)d;
+					dg.Transform = new MatrixTransform(Matrix.Multiply(t.Value, (dg.Transform ?? Transform.Identity).Value));
 				}
 			}
 
 			private void AnalyzeGeometry(DrawingGroup group, Geometry g, Brush brush, Pen pen) {
 				g = g.Clone();
-				ApplyTransform(group.Transform, g);
 
 				if (brush != null) {
 					var eg = g as EllipseGeometry;
@@ -194,11 +193,11 @@ namespace XamlImageConverter {
 						pen = null;
 						AddGeometry(group, g);
 					} else { // other
-						AddGeometry(group, g.GetOutlinedPathGeometry(Flattness, ToleranceType.Relative));
+						AddGeometry(group, g.GetOutlinedPathGeometry(Flatness, ToleranceType.Relative));
 					}
 				}
 				if (pen != null && pen.Thickness > 1 ) {
-					AddGeometry(group, g.GetWidenedPathGeometry(pen, Flattness, ToleranceType.Relative));
+					AddGeometry(group, g.GetWidenedPathGeometry(pen, Flatness, ToleranceType.Relative));
 				}
 			}
 
@@ -227,30 +226,114 @@ namespace XamlImageConverter {
 				}
 			}
 
+			public IEnumerable<DependencyObject> GetChildren(DependencyObject e) {
+				if (e is Image) return new DependencyObject[] { ((Image)e).Source };
+				else if (e is DrawingImage) return new DependencyObject[] { ((DrawingImage)e).Drawing };
+				else if (e is UIElement) return LogicalTreeHelper.GetChildren(e).OfType<DependencyObject>();
+				else if (e is GeometryDrawing) return new DependencyObject[] { ((GeometryDrawing)e).Geometry };
+				else if (e is GeometryGroup) return ((GeometryGroup)e).Children;
+				else if (e is DrawingGroup) return ((DrawingGroup)e).Children;
+				return new DependencyObject[0];
+			}
+
+			public List<DependencyObject> GetParents(DependencyObject root, DependencyObject e) {
+				if (e is UIElement) {
+					var list = new List<DependencyObject>();
+					var parent = LogicalTreeHelper.GetParent(e);
+					while (parent != null) list.Insert(0, parent);
+					return list;
+				}
+				var children = GetChildren(root);
+				if (children.Any(child => child == e)) return new List<DependencyObject> { root };
+				foreach (var child in children) {
+					var childParents = GetParents(child, e);
+					if (childParents != null) {
+							childParents.Insert(0, root);
+							return childParents;
+					}
+				}
+				return null;
+			}
+
+			public Transform GetTransform(DependencyObject e) {
+				if (e is FrameworkElement) {
+					var g = new TransformGroup();
+					g.Children.Add(((FrameworkElement)e).LayoutTransform ?? Transform.Identity);
+					g.Children.Add(((UIElement)e).RenderTransform ?? Transform.Identity);
+					return g;
+				} else if (e is UIElement) return ((UIElement)e).RenderTransform ?? Transform.Identity;
+				else if (e is DrawingGroup) return ((DrawingGroup)e).Transform ?? Transform.Identity;
+				else if (e is Geometry) return ((Geometry)e).Transform ?? Transform.Identity;
+				else return Transform.Identity;
+			}
+
+			public GeneralTransform TransformToAncestor(FrameworkElement root, DependencyObject element) {
+				if (root == element || element == null) return Transform.Identity; 
+				if (element is UIElement) return ((UIElement)element).TransformToAncestor(root);
+				var parents = GetParents(root, element);
+				Transform et = Transform.Identity;
+				foreach (var p in parents) {
+					var pt = GetTransform(p);
+					et = new MatrixTransform(Matrix.Multiply(((Transform)et).Value, ((Transform)pt).Value));
+					/*	if (pt is Transform && et is Transform) et = new MatrixTransform(Matrix.Multiply(((Transform)et).Value, ((Transform)pt).Value));
+					else if (!(pt is GeneralTransformGroup)) {
+						var tg = new GeneralTransformGroup();
+						tg.Children.Add(et);
+						tg.Children.Add(pt);
+						et = tg;
+					} else {
+						((GeneralTransformGroup)pt).Children.Insert(0, et);
+						return pt;
+					} */
+				}
+				return et;
+			}
+
 			public IEnumerable<Geometry> Areas() {
 				var group = new DrawingGroup();
-				if (Element is Drawing) group.Children.Add((Drawing)Element);
-				else if (Element is UIElement) {
+				group.Transform = Transform.Identity;
+				if (Element is Drawing) {
+					group.Children.Add((Drawing)Element);
+				} else if (Element is UIElement) {
 					//((UIElement)Element).OnRender(group.Open());
 					var type = Element.GetType();
 					var onRender = type.GetMethod("OnRender", System.Reflection.BindingFlags.InvokeMethod | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 					onRender.Invoke(Element, new object[] { group.Open() });
 				} else Errors.Error(string.Format("Unsupported Elementtype {0}.", Element.GetType().FullName), "27", Area);
 
+				// compute transform
+				var ta = TransformToAncestor(Scene.Element, Element);
+				if (ta is Transform) {
+					var tg = new TransformGroup();
+					tg.Children.Add((Transform)ta);
+					tg.Children.Add(Snapshot.Transform);
+					VisualTransform = tg;
+				} else {
+					var tg = new GeneralTransformGroup();
+					tg.Children.Add(ta);
+					tg.Children.Add(Snapshot.Transform);
+					VisualTransform = tg;
+				}
+
 				AnalyzeDrawingGroup(group);
 				return Geometries;
 			}
 
 			DependencyObject Element;
+			Snapshot Snapshot;
+			Group Scene;
 			XElement Area;
 			Errors Errors;
-			double Flattness;
+			double Flatness;
+			public GeneralTransform VisualTransform;
 
 			public Renderer(ImageMap map, DependencyObject element, XElement area) {
 				Errors = map.Errors;
-				Flattness = map.Flattness;
+				Flatness = map.Flatness;
 				Element = element;
 				Area = area;
+				Snapshot = map.Snapshot;
+				Scene = map.Scene;
 			}
 		}
 
@@ -258,27 +341,45 @@ namespace XamlImageConverter {
 			var renderer = new Renderer(this, element, area); // create a renderer that analyzes all shapes
 			foreach (var a in renderer.Areas()) { // proccess analyzed geometries.
 				var g = a;
-				var m = Matrix.Identity;
-				if (g.Transform != null) m = g.Transform.Value;
-				m.Scale(Scale, Scale);
-				var t = new MatrixTransform(m);
+
+				GeneralTransform t = new GeneralTransformGroup();
+				if (renderer.VisualTransform is Transform) {
+					t = new TransformGroup();
+					var tg = (TransformGroup)t;
+					tg.Children.Add((Transform)renderer.VisualTransform);
+					tg.Children.Add(g.Transform);
+				} else {
+					t = new GeneralTransformGroup();
+					var tg = (GeneralTransformGroup)t;
+					tg.Children.Add(renderer.VisualTransform);
+					tg.Children.Add(g.Transform);
+				}
+
 				if (g is RectangleGeometry) { // rectangle
-					var r = ((RectangleGeometry)g).Rect;
-					var topLeft = t.Transform(r.TopLeft);
-					var bottomRight = t.Transform(r.BottomRight);
-					AddRectangleArea(area, name, ref n, topLeft.X, topLeft.Y, bottomRight.X, bottomRight.Y);
+					if (t is Transform && ((Transform)t).Value.M12 == 0 && ((Transform)t).Value.M21 == 0) {
+						var r = ((RectangleGeometry)g).Rect;
+						var topLeft = t.Transform(r.TopLeft);
+						var bottomRight = t.Transform(r.BottomRight);
+						AddRectangleArea(area, name, ref n, topLeft.X, topLeft.Y, bottomRight.X, bottomRight.Y);
+					} else {
+						g = g.GetOutlinedPathGeometry(Flatness, ToleranceType.Relative);
+					}
 				} else if (g is EllipseGeometry) { // circle
-					var eg = (EllipseGeometry)g;
-					var center = t.Transform(eg.Center);
-					var radius = eg.RadiusX * t.Value.M11;
-					AddCircleArea(area, name, ref n, center.X, center.Y, radius);
+					if (t is Transform && ((Transform)t).Value.M12 == 0 && ((Transform)t).Value.M21 == 0 && ((Transform)t).Value.M11 == ((Transform)t).Value.M22) {
+						var eg = (EllipseGeometry)g;
+						var center = t.Transform(eg.Center);
+						var radius = eg.RadiusX * ((Transform)t).Value.M11;
+						AddCircleArea(area, name, ref n, center.X, center.Y, radius);
+					} else {
+						g = g.GetOutlinedPathGeometry(Flatness, ToleranceType.Relative);
+					}
 				} else if (g is StreamGeometry) { // stream geometry, convert to path
 					var s = (StreamGeometry)g;
-					g = s.GetFlattenedPathGeometry(Flattness, ToleranceType.Relative);
+					g = s.GetFlattenedPathGeometry(Flatness, ToleranceType.Relative);
 				}
 				if (g is PathGeometry) { // path geometry
 					var path = (PathGeometry)g;
-					path = path.GetFlattenedPathGeometry(Flattness, ToleranceType.Relative);
+					path = path.GetFlattenedPathGeometry(Flatness, ToleranceType.Relative);
 					foreach (var figure in path.Figures) { // process all figures & segments
 						var points = new PointCollection();
 						foreach (var segment in figure.Segments) {
@@ -302,7 +403,7 @@ namespace XamlImageConverter {
 			}
 		}
 
-		public void Save() {
+		public override void Save() {
 			var str = new StringBuilder();
 
 			if (FileType == FileTypes.UserControl) {
@@ -336,13 +437,13 @@ namespace XamlImageConverter {
 				Attributes.Remove("runat");
 				Attributes.Remove("imageurl");
 				if (FileType == FileTypes.Insert){
-					insertTag = new Regex("<asp:ImageMap\\s[.\\n]*(id\\s*=\\s*(\"|')" + Regex.Escape(id) + "(\"|')).*((>[.\\n]*</asp:ImageMap>)|(/>))",
+					insertTag = new Regex("<asp:ImageMap[^>]+(id\\s*=\\s*(\"|')" + Regex.Escape(id) + "(\"|'))[^>]*((>(.|\\r|\\n)*?</asp:ImageMap>)|(/>))",
 						RegexOptions.IgnoreCase | RegexOptions.Multiline);
 				}
 			} else {
 				Map = new XElement("map", new XAttribute("id", id), new XAttribute("name", id));
 				if (FileType == FileTypes.Insert) {
-					insertTag = new Regex("<map\\s[.\\n]*(name\\s*=\\s*(\"|')" + Regex.Escape(id) + "(\"|')).*((>[.\\n]*</map>)|(/>))",
+					insertTag = new Regex("<map[^>]+(name\\s*=\\s*(\"|')" + Regex.Escape(id) + "(\"|'))[^>]*((>(.|\\r|\\n)*?</map>)|(/>))",
 						RegexOptions.IgnoreCase | RegexOptions.Multiline);
 				}
 			}
@@ -402,8 +503,8 @@ namespace XamlImageConverter {
 				var identationsMatch = new Regex("($|\\n|\\n\\r|\\r\\n)(\\s*)");
 				var identations = identationsMatch.Matches(source)
 					.OfType<Match>()
-					.Select(m => m.Groups[1].Value);
-				if (identations.All(t => t[0] == '\t')) writerSettings.IndentChars = "\t";
+					.Select(m => m.Groups[2].Value);
+				if (identations.All(t => t == "" || t[0] == '\t')) writerSettings.IndentChars = "\t";
 				else {
 					var lengths = identations.Select(t => t.Length).ToArray();
 					int sum = 0, n = 0, avg = 2;
@@ -416,9 +517,9 @@ namespace XamlImageConverter {
 				
 				match = insertTag.Match(source);
 				if (match.Success) {
-					var previousNewline = source.LastIndexOf(Environment.NewLine, 0, match.Index);
+					var previousNewline = source.LastIndexOf(Environment.NewLine, match.Index);
 					if (previousNewline == -1) writerSettings.NewLineChars = Environment.NewLine + source.Substring(0, match.Index);
-					else writerSettings.NewLineChars = source.Substring(previousNewline, match.Index);
+					else writerSettings.NewLineChars = source.Substring(previousNewline, match.Index - previousNewline);
 				} else {
 					Errors.Error(string.Format("No image map with id {0} found in target {1}.", id, Path.GetFileName(Filename)), "29", XElement);
 				}
