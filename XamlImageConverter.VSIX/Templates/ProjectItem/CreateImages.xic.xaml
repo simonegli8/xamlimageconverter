@@ -12,7 +12,7 @@
 	
 	<!-- Documentation:
 	
-		For some usage examples have a look at the folder ~/DemoXamlImageConverter in your solution, or navigate to the page
+		For some usage examples have a look at the hidden folder ~/DemoXamlImageConverter in your project, or navigate to the page
 		~/DemoXamlImageConverter in your browser.
 
 		A XamlImageConverter xaml batch file consists of one or several Scene elements.
@@ -22,13 +22,17 @@
 
 		A Scene has the following properties:
 		- Xaml, Source or File: The path to the file containing the xaml, svg, svgz or psd source (This way you can only load loose xaml.)
-		- Type: A Fully Qualifies type name including assembly, specifying a compiled xaml class as xaml source
+			If you load the Xaml source this way, you preferably set the build action of this file to XamlImageConverterPreCompile, so you can
+			use the generated images as a resource in your project.
+		- Type: A Fully Qualified type name including assembly, specifying a compiled xaml class as xaml source. You use this way of loading the
+			Xaml for compiled xaml. You also need to set the build action of this file to XamlImageConverterPostCompile, and you won't be able to use
+			the generated images as a resource.
 		- OutputPath: The common path all images with a relative path will be stored in.
 		- DependsOn: A list of files the source depends on, and if modified will force a re-rendering of the images.
 		- Height, Width: The desired size for the root xaml source element.
 		- Cultures: A list of culture names like "en-US, fr-FR, es-ES, de-CH" that images will be generated for for localized xaml.
 		- Dynamic: When true, the Scene will always be rendered, regardless of the images being up to date. Default is false.
-		- Theme: A string denoting a OS Theme like Aero, Aero2, AeroLite, Royale, Classic, Luna, Luna.Metallic, Luna.Homestead.
+		- Theme: A string denoting an OS Theme like Aero, Aero2, AeroLite, Royale, Classic, Luna, Luna.Metallic, Luna.Homestead.
 		- Skin: A custom xaml skin to apply to the Scene.
 
 		The Theme and Skin attributes can also be applied to the root XamlImageConverter element, so they apply for the whole batch file.
@@ -44,17 +48,17 @@
 		This describes a Scene that loads the xaml source from the specified compiled xaml class.
 
 		<xic:Scene>
-		<xic:Xaml>
+			<xic:Xaml>
 				<Button Content="I'm a Button" />
-		</xic:Xaml>
+			</xic:Xaml>
 
 		This describes a Scene that describes the source xaml inline in the xaml element.
 
 
 		A Scene may contain Snapshots that render images.
 		Snapshots can refer to a child Element in the xaml source that should be rendered and also can specify a rectangle
-		that should be rendered through their Left, Top, Right & Bottom properties.
-		Supported output formats are: gif, png, jpeg, jpg, tif, tiff, wdp, xsp, pdf, xaml, eps & ps.
+		that should be rendered through their Left, Top, Width, Height, Right & Bottom properties.
+		Supported output formats are: gif, png, jpeg, jpg, tif, tiff, bmp, wdp, xsp, pdf, xaml, eps & ps.
 		Snapshots have the following additional properties:
 		- Element: Specifies the source element in the source xaml that should be rendered. If omitted, the root element of the xaml is rendered.
 		- File: The filename of the image file to create, either an application relative path (as in ASP.NET) like ~/Images/logo.png or a path
@@ -122,11 +126,12 @@
 
 
 		Finally it is also possible to generate html image maps from visual shapes of xaml elements or svg paths with the ImageMap or Map element.
-		The ImageMap or Map element can generate a UserControl .ascx file or an include file containing the image map, and it can generate an ordinary html map or an ASP.NET WebForms
-		ImageMap element. Whereas the ImageMap creates an asp:ImageMap element, the Map creates a standard html map element.
+		The ImageMap or Map element can substitute an existing map in any HTML file, or it can generate a map inside an UserControl .ascx file or an
+		include file containing the image map, and it can generate an ordinary html map or an ASP.NET WebForms ImageMap element. Whereas the
+		ImageMap creates an asp:ImageMap element, the Map creates a standard html map element.
 		The ImageMap or Map has the following parameters:
 		- Image: The filename of the Image to determine the Snapshot's parameters which created the image.
-		- File: The filename of the UserControl or include file to generate.
+		- File: The filename of the file where the map to substitute is located or the UserControl or include file to generate.
 		- Scale: The Zooming Scale to apply to the map's area's coordinates.
 		- Dpi: The dpi value of the image. Usually this value is determined from the Snapshot that created the image.
 		- Flatness: The quality of the polygon approximation for Bezier and arc curves.
@@ -142,7 +147,7 @@
 
 		The ImageMap can contain area or areas tags or the ASP HotSpot tags. You can specify tags that are copied unchanged to the generated map or you can specify Area elements 
 		that have a property Element, so the shape and coordinates for the generated area or HotSpot tag are calculated from the visual shape of the xaml or svg element. The placeholder
-		%ID% in the area's attributes is replaced by the x:Name of SVG id of the corresponding shape element.
+		%ID% in the area's attributes is replaced by the x:Name or SVG id of the corresponding shape element.
 
 		Example:
 

@@ -10,10 +10,10 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.UI.HtmlControls;
 
-namespace Silversite.Web {
+namespace Silversite.Web.UI {
 
 
-	[ToolboxData("<{0}:EditableContent runat=\"server\" Path=\"\"/>")]
+	[ToolboxData("<{0}:XamlImage runat=\"server\" />")]
 	[ParseChildren(ChildrenAsProperties = false, DefaultProperty="XamlContent")]
 	[PersistChildren(true)]
 	public class XamlImage: Image {

@@ -264,13 +264,13 @@ namespace XamlImageConverter {
 					pinfo.WorkingDirectory = Path.GetDirectoryName(filename);
 					var process = System.Diagnostics.Process.Start(pinfo);
 					Processes.Add(process);
-					var filename2 = filename;
+					var filename2 = file;
 					var frames = Bitmaps.Count();
 					process.Exited += (sender, args2) => {
 						Errors.Message("Created {0} ({1}{2} MB RAM used)", filename2, (frames != 1) ? frames.ToString() + " frames, " : "", System.Environment.WorkingSet / (1024 * 1024));
 					};
 				} else {
-					Errors.Message("Created {0} ({1}{2} MB RAM used)", Filename, (Bitmaps.Count() != 1) ? Bitmaps.Count().ToString() + " frames, " : "", System.Environment.WorkingSet / (1024 * 1024));
+					Errors.Message("Created {0} ({1}{2} MB RAM used)", Path.GetFileName(Filename), (Bitmaps.Count() != 1) ? Bitmaps.Count().ToString() + " frames, " : "", System.Environment.WorkingSet / (1024 * 1024));
 				}
 			}
 

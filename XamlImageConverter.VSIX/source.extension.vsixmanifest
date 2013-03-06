@@ -2,8 +2,8 @@
 <Vsix xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2010">
 	<Identifier Id="XamlImageConverter.2c5e9477-428f-4362-a5b5-d8c2d6ec2605">
 		<Name>Xaml Image Converter</Name>
-		<Author>David Egli &amp; Chris Cavanagh</Author>
-		<Version>3.4</Version>
+		<Author>David Egli</Author>
+		<Version>3.5</Version>
 		<AllUsers>true</AllUsers>
 		<Description xml:space="preserve">Renders images or pdf's from Xaml, SVG &amp; Photoshop files.
 

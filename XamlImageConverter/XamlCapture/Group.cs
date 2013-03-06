@@ -456,40 +456,65 @@ namespace XamlImageConverter {
 			get {
 				if (localFilename != null) return localFilename;
 
-				if (Filename.StartsWith("~")) return Compiler.MapPath(Filename);
-				if (Filename.Contains(':')) return Filename;
+				var list = new List<string>();
+				foreach (var file in Filename.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)) {
 
-				var paths = Ancestors.Where(g => !string.IsNullOrEmpty(g.OutputPath))
-					.Select(g => Compiler.MapPath(g.OutputPath))
-					.ToList();
-				paths	.Reverse();
+					if (file.StartsWith("~")) list.Add(Compiler.MapPath(file));
+					else if (file.Contains(':')) list.Add(file);
+					else {
 
-				string path = string.Empty;
-				while (paths.Count > 0) {
-					if (paths[0].StartsWith("~")) {
-						path = Path.Combine(Compiler.MapPath(paths[0]), path);
-						break;
+						var paths = Ancestors.Where(g => !string.IsNullOrEmpty(g.OutputPath))
+							.Select(g => Compiler.MapPath(g.OutputPath))
+							.ToList();
+						paths.Reverse();
+
+						string path = string.Empty;
+						while (paths.Count > 0) {
+							if (paths[0].StartsWith("~")) {
+								path = Path.Combine(Compiler.MapPath(paths[0]), path);
+								break;
+							}
+							path = Path.Combine(paths[0], path);
+							if (paths[0].Contains(':')) break;
+							paths.RemoveAt(0);
+						}
+
+						list.Add(Compiler.MapPath(Path.Combine(path, file)));
 					}
-					path = Path.Combine(paths[0], path);
-					if (paths[0].Contains(':')) break;
-					paths.RemoveAt(0);
+				}	
+				var sb = new StringBuilder();
+				if (list.Count > 0) sb.Append(list[0]);
+				int i = 1;
+				while (i < list.Count) {
+					sb.Append(';');
+					sb.Append(list[i++]);
 				}
-
-				return localFilename = Compiler.MapPath(Path.Combine(path, Filename));
+				return sb.ToString();
 			}
 		}
 
 		public DateTime OutputVersion {
 			get {
-				FileInfo info = new FileInfo(LocalFilename);
-				if (info.Exists) return Version = info.LastWriteTimeUtc;
-				else return DateTime.MinValue;
+				if (LocalFilename.Contains(',') || LocalFilename.Contains(';')) {
+					return Version = new DateTime(LocalFilename.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+						.Max(file => {
+							FileInfo info = new FileInfo(file);
+							if (info.Exists) return info.LastWriteTimeUtc.Ticks;
+							else return DateTime.MinValue.Ticks;
+						}));
+				} else {
+					FileInfo info = new FileInfo(LocalFilename);
+					if (info.Exists) return Version = info.LastWriteTimeUtc;
+					else return Version = DateTime.MinValue;
+				}
 			}
 		}
 
 		public void EnsureOutputDir() {
-			var dir = Path.GetDirectoryName(LocalFilename);
-			if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+			foreach (var file in LocalFilename.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)) {
+				var dir = Path.GetDirectoryName(file);
+				if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+			}
 		}
 
 		public virtual bool NeedsBuilding {

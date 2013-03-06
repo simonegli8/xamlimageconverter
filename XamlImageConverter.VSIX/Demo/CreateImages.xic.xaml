@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<xic:XamlImageConverter Theme="Aero" TextMode="ClearType, Display" OutputPath="~/DemoXamlImageConverter/Images"
+<xic:XamlImageConverter Theme="Aero" TextMode="ClearType, Display" OutputPath="~/XamlImageConverter.Demo/Images"
 	xmlns:xic="http://schemas.johnshope.com/XamlImageConverter/2012"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
@@ -70,8 +70,11 @@
 		<xic:Snapshot File="Usa.Map.png" />
 		<xic:Snapshot File="Usa.Map.xaml" />
 
-		<xic:ImageMap Image="Usa.Map.png" File="Usa.Map.html;Readme.aspx" ID="usamap">
+		<xic:Map Image="Usa.Map.png" File="Usa.Map.html" ID="usamap">
 			<Areas Elements="WA;OR;CA;AK;ID;NV;AZ;UT;MT;WY;CO;NM;TX;OK;KS;NE;SD;ND;MN;IA;MO;AR;LA;WI;IL;TN;MS;MI;IN;KY;AL;FL;GA;SC;NC;VA;WV;OH;PA;MD;NJ;NY;CT;MA;VT;NH;ME;RI;DE" onclick="alert('State %ID% clicked...');" href="#"/>
+		</xic:Map>
+		<xic:ImageMap Image="Usa.Map.png" File="Readme.aspx" ID="usamap">
+			<Areas Elements="WA;OR;CA;AK;ID;NV;AZ;UT;MT;WY;CO;NM;TX;OK;KS;NE;SD;ND;MN;IA;MO;AR;LA;WI;IL;TN;MS;MI;IN;KY;AL;FL;GA;SC;NC;VA;WV;OH;PA;MD;NJ;NY;CT;MA;VT;NH;ME;RI;DE" HotSpotMode="PostBack" PostBackValue="%ID%"/>
 		</xic:ImageMap>
 	</xic:Scene>
 	

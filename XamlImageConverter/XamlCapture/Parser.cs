@@ -59,6 +59,7 @@ namespace XamlImageConverter {
 				Namespace = ns;
 				if (config.Name != SBName("XamlImageConverter")) Errors.Error("Invalid root element", "26", config);
 				ParseStyle(config, Root);
+				Root.OutputPath = (string)config.Attribute("OutputPath");
 
 				foreach (var x in config.Elements()) {
 					if (x.Name == SBName("Scene")) {
@@ -248,8 +249,8 @@ namespace XamlImageConverter {
 				map.Type = x.Name.LocalName == "Map" ? ImageMap.Types.Html : ImageMap.Types.AspNet;
 
 				switch (Path.GetExtension(map.Filename)) {
-					case "ascx": map.FileType = ImageMap.FileTypes.UserControl; map.Type = ImageMap.Types.AspNet; break;
-					case "aspx": map.FileType = ImageMap.FileTypes.Insert; map.Type = ImageMap.Types.AspNet; break;
+					case ".ascx": map.FileType = ImageMap.FileTypes.UserControl; map.Type = ImageMap.Types.AspNet; break;
+					case ".aspx": map.FileType = ImageMap.FileTypes.Insert; map.Type = ImageMap.Types.AspNet; break;
 					default: map.FileType = ImageMap.FileTypes.Insert; map.Type = ImageMap.Types.Html; break;
 				}
 				var fileType = (string)x.Attribute("FileType");

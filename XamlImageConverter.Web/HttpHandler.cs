@@ -18,7 +18,7 @@ namespace Silversite.Web {
 		public static string ns2 = "http://www.chriscavanagh.com/SkinBuilder";
 
 		public DateTime XicVersion = DateTime.MinValue, Version = DateTime.MinValue;
-		public string Application = null;
+		public string Application { get { return Context.Request.PhysicalApplicationPath; } }
 		public Stack<string> OutputPaths = new Stack<string>();
 		public string Culture = "";
 		public System.Web.HttpContext Context;
@@ -31,10 +31,19 @@ namespace Silversite.Web {
 			}
 			return path;
 		}
-
+		public string Filename2(string file) {
+			if (!file.Contains(":") && !file.Contains("~")) {
+				if (file.StartsWith("/")) file = "~/" + file.Substring(System.Web.Hosting.HostingEnvironment.ApplicationVirtualPath.Length);
+				else file = Path.Combine(Path.GetDirectoryName(Context.Request.AppRelativeCurrentExecutionFilePath.Replace('/','\\')), file);
+			}
+			file = file.Replace('/', '\\').Replace("~\\", Application);
+			return file;
+		}
 		public FileInfo Last = null;
-		public FileInfo InInfo(string file) { return Last = new FileInfo(new Uri(file.Replace("~", Application)).LocalPath); }
-		public FileInfo OutInfo(string file) { return Last = new FileInfo(new Uri(Filename(file)).LocalPath); }
+		public FileInfo InInfo(string file) {
+            return Last = new FileInfo(Filename2(file));
+		}
+		public FileInfo OutInfo(string file) { return Last = new FileInfo(Filename2(Filename(file))); }
 
 		public bool InFile(string file) {
 			if (file.StartsWith("http://") || file.StartsWith("https://")) return true;
@@ -60,7 +69,7 @@ namespace Silversite.Web {
 
 		public class Group : IDisposable {
 			public string OldCulture;
-			public void Pop() { FBC.OutputPaths.Pop(); }
+			public void Pop() { if (FBC.OutputPaths.Count > 0) FBC.OutputPaths.Pop(); }
 			public void Dispose() { Pop(); FBC.Culture = OldCulture; }
 			XamlBuildCheck FBC;
 			public Group(XamlBuildCheck fbc, string culture) {
@@ -87,10 +96,11 @@ namespace Silversite.Web {
 		public bool NeedsBuilding() {
 			var file = HttpContext.Current.Request.AppRelativeCurrentExecutionFilePath;
 
-			if (file.EndsWith("axd")) {
+			if (file.EndsWith(".axd")) {
 				var xaml = Context.Request.QueryString["Xaml"];
+                if (string.IsNullOrEmpty(xaml)) return false;
 				if (!string.IsNullOrEmpty(xaml) && xaml.Trim()[0] == '#') xaml = (string)HttpContext.Current.Session["XamlImageConverter.Xaml:" + xaml];
-				if (xaml.Trim()[0] == '<') {
+                if (xaml.Trim()[0] == '<') {
 					using (var r = new StringReader(xaml)) {
 						var xdoc = XElement.Load(r, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo | LoadOptions.SetBaseUri);
 						if (xdoc.Name.LocalName == "XamlImageConverter" && (xdoc.Name.NamespaceName == ns || xdoc.Name.NamespaceName == ns2)) return Doc(xdoc);
@@ -100,7 +110,7 @@ namespace Silversite.Web {
 				return Doc(XamlScene.CreateXsd(QueryString));
 			} else if (file.EndsWith(".xic.xaml")) return DocFile(file);
 			else if (file.EndsWith(".xaml")) return Doc(XamlScene.CreateDirect(file, QueryString));
-			else return DocFile(System.IO.Path.GetFileNameWithoutExtension(file));
+			else return Doc(XamlScene.CreateDirect(System.IO.Path.GetFileNameWithoutExtension(file), QueryString));
 		}
 
 		bool DocFile(string filename) {
@@ -288,7 +298,7 @@ namespace Silversite.Web {
 	}
 #endif
 
-	public class XamlImageConverter : System.Web.IHttpHandler {
+	public class XamlImageHandler : System.Web.IHttpHandler {
 
 #if Silversite
 		public static Configuration Configuration = new Configuration();

@@ -74,12 +74,12 @@
 		<xic:Snapshot File="Kaxaml.ps" />
 		
 	</xic:Scene>
-	
+	<!--
 	<xic:Scene OutputPath="~/img">
 		<xic:Xaml Source="Card7.de.xaml" />
 		<xic:Snapshot File="Karte7.png" Dpi="1200" />
 	</xic:Scene>
-
+	-->
 	<xic:Scene Source="Planet.psd" OutputPath="~/img">
 		<xic:Snapshot File="Planet.png" />
 		<xic:Snapshot File="Planet.xaml" />
@@ -102,6 +102,10 @@
 		<xic:ImageMap Image="usa.map.png" File="usa.map.html" ID="usa">
 			<Areas Elements="WA;OR;CA;AK;ID;NV;AZ;UT;MT;WY;CO;NM;TX;OK;KS;NE;SD;ND;MN;IA;MO;AR;LA;WI;IL;TN;MS;MI;IN;KY;AL;FL;GA;SC;NC;VA;WV;OH;PA;MD;NJ;NY;CT;MA;VT;NH;ME;RI;DE" onclick="alert('State %ID% clicked...');" />
 		</xic:ImageMap>
+		<xic:ImageMap Image="usa.map.png" File="Readme.aspx" ID="usa">
+			<Areas Elements="WA;OR;CA;AK;ID;NV;AZ;UT;MT;WY;CO;NM;TX;OK;KS;NE;SD;ND;MN;IA;MO;AR;LA;WI;IL;TN;MS;MI;IN;KY;AL;FL;GA;SC;NC;VA;WV;OH;PA;MD;NJ;NY;CT;MA;VT;NH;ME;RI;DE" onclick="alert('State %ID% clicked...');" />
+		</xic:ImageMap>
+
 	</xic:Scene>
 
 	<xic:Scene OutputPath="~/img" Theme="Aero">

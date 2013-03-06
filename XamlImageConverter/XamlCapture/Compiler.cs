@@ -156,7 +156,7 @@ namespace XamlImageConverter {
 		void Init() {
 			if (!init) {
 				init = true;
-				Errors.Message("XamlImageConverter 3.4 by Chris Cavanagh & David Egli");
+				Errors.Message("XamlImageConverter 3.5 by Chris Cavanagh & David Egli");
 			}
 		}
 
@@ -211,7 +211,7 @@ namespace XamlImageConverter {
 			try {
 				if (!RebuildAll) {
 					FileInfo info = new FileInfo(filename);
-					Version = info.LastWriteTimeUtc;
+					if (info.Exists) Version = info.LastWriteTimeUtc;
 				}
 				var lowername = filename.ToLower();
 				if (filename.Trim()[0] == '#') filename = (string)System.Web.HttpContext.Current.Session["XamlImageConverter.Xaml:" + filename];
@@ -222,7 +222,7 @@ namespace XamlImageConverter {
 						else config = XamlScene.CreateDirect(xdoc, Parameters);
 					}
 				} else if (directExtensions.Any(x => lowername.EndsWith(x)) || (lowername.EndsWith(".xaml") && !lowername.EndsWith(".xic.xaml"))) config = XamlScene.CreateDirect(filename, Parameters);
-				else if (filename == "XamlImageConverter.axd") {
+				else if (filename == "XamlImageConverter.axd" || filename.EndsWith("\\XamlImageConverter.axd")) {
 					config = XamlScene.CreateXsd(Parameters);
 				} else {
 					config = XElement.Load(filename, LoadOptions.SetBaseUri | LoadOptions.SetLineInfo | LoadOptions.PreserveWhitespace);
@@ -352,18 +352,36 @@ namespace XamlImageConverter {
 					if (NeedsBuilding) {
 						AppDomainSetup setup = new AppDomainSetup();
 						setup.ApplicationBase = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+						var parentDomain = AppDomain.CurrentDomain;
 						var domain = AppDomain.CreateDomain("XamlImageConverter Compiler", null, setup);
-						try {
+						
+						var resolver = new ResolveEventHandler((sender, args) => {
+							try {
+								var name = new AssemblyName(args.Name);
+								var file = MapPath("~/bin/Lazy/" + name.Name + ".dll");
+								if (!File.Exists(file)) return null;	
+								return Assembly.LoadFrom(file);
+							} catch (Exception ex) {
+							}
+							return null;
+						});
+						parentDomain.AssemblyResolve += resolver;
+
+						domain.Load(Assembly.GetExecutingAssembly().GetName());
+
+						try 
+						{
 							Compiler compiler = (Compiler)domain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, "XamlImageConverter.Compiler");
 							CopyTo(compiler);
 							compiler.SeparateAppDomain = false;
 							//compiler.STAThread = true;
 							compiler.Compile();
-						} catch {
+						} catch (Exception ex2) {
 						} finally {
 							AppDomain.Unload(domain);
 							GC.Collect(10, GCCollectionMode.Forced);
 							GC.WaitForFullGCComplete(1000);
+							parentDomain.AssemblyResolve -= resolver;
 						}
 					}
 				} else {

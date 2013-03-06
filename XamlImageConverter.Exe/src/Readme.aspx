@@ -1,6 +1,6 @@
 ﻿<%@ Page Language="C#" %>
 <%@ Import Namespace="System.Xml.Linq" %>
-<%@ Import Namespace="Silversite.Web.UI" %>
+<%@ Import Namespace="Silversite.Net.UI" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -8,7 +8,7 @@
 <head runat="server">
     <title>XamlImageConverter - Demo</title>
 	<script type="text/javascript" src="jquery.js"></script>
-	<script type="text/javascript" src="jquery.maphilight.min.js"></script>
+	<script type="text/javascript" src="jquery.maphighlight.min.js"></script>
 	<script type="text/javascript">
 		$(function() {
 			$('.map').maphilight();
@@ -24,15 +24,15 @@
 		<hr />
 			
 		<h3>A conversion of multiple images with a batch script file, and of an animated gif.</h3>	
-		<pre><code>&lt;img src="~/XamlImageConverter.Demo/CreateImages.xic.xaml?image=~/XamlImageConverter.Demo/Images/animated-loader.gif" runat="server" /&gt;</code></pre>
-		<img src="~/XamlImageConverter.Demo/CreateImages.xic.xaml?image=~/XamlImageConverter.Demo/Images/animated-loader.gif" runat="server" />
+		<pre><code>&lt;img src="~/XamlImageConverter.Demo/MakeImages.xic.xaml?image=~/XamlImageConverter.Demo/Images/animated-loader.gif" runat="server" /&gt;</code></pre>
+		<img src="~/XamlImageConverter.Demo/MakeImages.xic.xaml?image=~/XamlImageConverter.Demo/Images/animated-loader.gif" runat="server" />
 		<hr />
 		
 		<h3>A html image map created from a svg source</h3>
 		<p>This map was generated from <a href="http://en.wikipedia.org/wiki/Image:Map_of_USA_with_state_names.svg">"Map of USA with state names.svg"</a>.
 		Note that in the current version the font is not resolved correctly.</p>
-		<pre><code>&lt;asp:ImageMap ID="usamap" runat="server" ImageUrl="~/XamlImageConverter.Demo/CreateImages.xic.xaml" CssClass="map" /&gt;</code></pre>
-		<asp:ImageMap ID="usamap" runat="server" ImageUrl="~/XamlImageConverter.Demo/CreateImages.xic.xaml" CssClass="map" />
+		<pre><code>&lt;asp:ImageMap ID="usamap" runat="server" ImageUrl="~/XamlImageConverter.Demo/MakeImages.xic.xaml" CssClass="map" /&gt;</code></pre>
+		<asp:ImageMap ID="usa" runat="server" ImageUrl="~/XamlImageConverter.Demo/MakeImages.xic.xaml" CssClass="map" />
 		<hr />
 		
 		<h3>A PDF of the above homepage</h3>

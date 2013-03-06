@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Silversite.Web</RootNamespace>
-    <AssemblyName>Silversite.XamlImageHandler</AssemblyName>
+    <AssemblyName>XamlImageConverter.Web</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

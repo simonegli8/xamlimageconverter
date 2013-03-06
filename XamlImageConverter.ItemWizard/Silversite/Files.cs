@@ -56,7 +56,10 @@ namespace Silversite.Services {
 					Directory.CreateDirectory(dest);
 					var info = DirectoryInfo(src);
 					foreach (var obj in info.EnumerateFileSystemInfos()) Copy(Paths.Combine(src, info.Name), Paths.Combine(dest, info.Name));
-				} else File.Copy(Paths.Map(src), Paths.Map(dest), true);
+				} else {
+					if (Directory.Exists(dest)) File.Copy(Paths.Map(src), Paths.Map(Paths.Combine(dest, Paths.File(src))), true);
+					else File.Copy(Paths.Map(src), Paths.Map(dest), true);
+				}
 			}
 		}
 

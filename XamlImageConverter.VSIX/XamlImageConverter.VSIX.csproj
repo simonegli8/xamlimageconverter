@@ -11,7 +11,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>XamlImageConverter</RootNamespace>
     <AssemblyName>XamlImageConverter</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <GeneratePkgDefFile>false</GeneratePkgDefFile>
     <IncludeAssemblyInVSIXContainer>false</IncludeAssemblyInVSIXContainer>
     <IncludeDebugSymbolsInVSIXContainer>false</IncludeDebugSymbolsInVSIXContainer>
@@ -25,6 +25,7 @@
     </UpgradeBackupLocation>
     <OldToolsVersion>4.0</OldToolsVersion>
     <CodeContractsAssemblyMode>0</CodeContractsAssemblyMode>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -34,6 +35,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -74,29 +76,22 @@
     <CodeContractsRuntimeCheckingLevel>Full</CodeContractsRuntimeCheckingLevel>
     <CodeContractsReferenceAssembly>DoNotBuild</CodeContractsReferenceAssembly>
     <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="XamlImageConverter.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>XamlImageConverter.xsd</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="XamlImageConverter.Designer.cs" />
     <Compile Include="XamlImageConverter1.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>XamlImageConverter.xsd</DependentUpon>
     </Compile>
+    <Content Include="Demo\Planet.psd">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <None Include="XamlImageConverter.Designer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="convert.exe">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="convert.exe">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="convert.pdb">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="convert.pdb">
@@ -108,29 +103,14 @@
     <Content Include="Demo\blog-banner.jpg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Demo\blog-banner.jpg">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
     <Content Include="Demo\Default.aspx">
       <IncludeInVSIX>true</IncludeInVSIX>
       <SubType>ASPXCodeBehind</SubType>
     </Content>
-    <Content Include="Demo\Default.aspx">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Demo\generic-lines.png">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
     <Content Include="Demo\generic-lines.png">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Demo\jquery.js">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Demo\jquery.js">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Demo\jquery.maphilight.min.js">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Demo\jquery.maphilight.min.js">
@@ -140,16 +120,8 @@
       <SubType>ASPXCodeBehind</SubType>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Demo\Readme.aspx">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
+    <Content Include="Demo\SiteSpecification.xml" />
     <Content Include="Demo\Tux.svg">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Demo\Tux.svg">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Demo\Usa.Map.html">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Demo\Usa.Map.html">
@@ -158,16 +130,7 @@
     <Content Include="Demo\Usa.Map.svg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Demo\Usa.Map.svg">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
     <Content Include="gxps\gxps-9.05-win32.exe">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="gxps\gxps-9.05-win32.exe">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="gxps\gxps-9.06-win32.exe">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="gxps\gxps-9.06-win32.exe">
@@ -179,16 +142,7 @@
     <Content Include="ImageMagick\atl100.dll">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="ImageMagick\atl100.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
     <Content Include="ImageMagick\colors.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="ImageMagick\colors.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="ImageMagick\configure.xml">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="ImageMagick\configure.xml">
@@ -197,16 +151,7 @@
     <Content Include="ImageMagick\convert.exe">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="ImageMagick\convert.exe">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
     <Content Include="ImageMagick\delegates.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="ImageMagick\delegates.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="ImageMagick\english.xml">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="ImageMagick\english.xml">
@@ -215,16 +160,7 @@
     <Content Include="ImageMagick\locale.xml">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="ImageMagick\locale.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
     <Content Include="ImageMagick\log.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="ImageMagick\log.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="ImageMagick\magic.xml">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="ImageMagick\magic.xml">
@@ -233,16 +169,7 @@
     <Content Include="ImageMagick\mfc100.dll">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="ImageMagick\mfc100.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
     <Content Include="ImageMagick\mime.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="ImageMagick\mime.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="ImageMagick\msvcp100.dll">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="ImageMagick\msvcp100.dll">
@@ -251,16 +178,7 @@
     <Content Include="ImageMagick\msvcr100.dll">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="ImageMagick\msvcr100.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
     <Content Include="ImageMagick\policy.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="ImageMagick\policy.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="ImageMagick\type-ghostscript.xml">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="ImageMagick\type-ghostscript.xml">
@@ -269,16 +187,7 @@
     <Content Include="ImageMagick\type.xml">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="ImageMagick\type.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
     <Content Include="ImageMagick\vcomp100.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="ImageMagick\vcomp100.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="psd2xaml\Endogine.Codecs.Flash.dll">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="psd2xaml\Endogine.Codecs.Flash.dll">
@@ -287,38 +196,21 @@
     <Content Include="psd2xaml\Endogine.Codecs.Photoshop.dll">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="psd2xaml\Endogine.Codecs.Photoshop.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
     <Content Include="psd2xaml\Endogine.dll">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="psd2xaml\Endogine.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="XamlImageConverter.dll" />
     <Content Include="XamlImageConverter.dll">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="XamlImageConverter.ItemWizard.dll">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="XamlImageConverter.ItemWizard.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
     <Content Include="XamlImageConverter.ItemWizard.pdb">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="XamlImageConverter.ItemWizard.pdb">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="XamlImageConverter.pdb" />
     <Content Include="XamlImageConverter.pdb">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <None Include="XamlImageConverter.xss">
-      <DependentUpon>XamlImageConverter.xsd</DependentUpon>
-    </None>
     <Content Include="XamlImageConverterConfiguration.CSharp.zip">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -330,9 +222,6 @@
     <ZipItem Include="Templates\ProjectItem\__TemplateIcon.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </ZipItem>
-    <Content Include="Icon.ico">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
     <Content Include="license.rtf">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -360,21 +249,9 @@
     <Content Include="convert.vshost.exe.config">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <None Include="XamlImageConverter.targets" />
     <Content Include="XamlImageConverter.targets">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <None Include="XamlImageConverter.xsc">
-      <DependentUpon>XamlImageConverter.xsd</DependentUpon>
-    </None>
-    <None Include="XamlImageConverter.xsc">
-      <DependentUpon>XamlImageConverter.xsd</DependentUpon>
-    </None>
-    <None Include="XamlImageConverter.xsd">
-      <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>XamlImageConverter.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
     <Content Include="XamlImageConverter.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>XamlImageConverter1.Designer.cs</LastGenOutput>
@@ -387,9 +264,6 @@
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Templates\XamlImageConverter.vscontent">
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\XamlImageConverter.ItemWizard\XamlImageConverter.ItemWizard.csproj">
@@ -397,6 +271,10 @@
       <Name>XamlImageConverter.ItemWizard</Name>
       <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3b</IncludeOutputGroupsInVSIX>
       <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
+    </ProjectReference>
+    <ProjectReference Include="..\XamlImageConverter.Web\XamlImageConverter.Web.csproj">
+      <Project>{fcd85abb-b282-409f-beb8-64e4a979f18a}</Project>
+      <Name>XamlImageConverter.Web</Name>
     </ProjectReference>
     <ProjectReference Include="..\XamlImageConverter\XamlImageConverter.csproj">
       <Project>{C5DC3841-241B-4398-9BBD-73383E8497A2}</Project>
@@ -433,21 +311,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Demo\CreateImages.xic.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Demo\Homepage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Demo\Kaxaml.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <PropertyGroup>
     <ZipItemCSharpPath>$(ProjectDir)ItemTemplates\CSharp\General\XamlImageConverterConfiguration.CSharp.zip</ZipItemCSharpPath>
@@ -457,7 +321,7 @@
     <Zip Files="@(ZipItem);@(ZipCS)" Flatten="true" ZipFileName="$(ZipItemCSharpPath)" />
     <Zip Files="@(ZipItem);@(ZipVB)" Flatten="true" ZipFileName="$(ZipItemVBPath)" />
   </Target>
-  <Target Name="CopyZip" DependsOnTargets="">
+  <Target Name="Copy" DependsOnTargets="">
     <CreateItem Include="$(SolutionDir)XamlImageConverter\bin\$(Configuration)\**\*.*">
       <Output TaskParameter="Include" ItemName="ItemsSource" />
     </CreateItem>
@@ -465,6 +329,9 @@
       <Output TaskParameter="Include" ItemName="ItemsSource" />
     </CreateItem>
     <CreateItem Include="$(SolutionDir)XamlImageConverter.Exe\bin\$(Configuration)\**\convert.*">
+      <Output TaskParameter="Include" ItemName="ItemsSource" />
+    </CreateItem>
+    <CreateItem Include="$(SolutionDir)XamlImageConverter.Web\bin\$(Configuration)\**\*.*">
       <Output TaskParameter="Include" ItemName="ItemsSource" />
     </CreateItem>
     <Copy SourceFiles="@(ItemsSource)" DestinationFiles="@(ItemsSource->'$(ProjectDir)%(RecursiveDir)%(Filename)%(Extension)')" />
@@ -480,7 +347,7 @@
   <Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets. -->
-  <Target Name="BeforeBuild" DependsOnTargets="ZipTemplates">
+  <Target Name="BeforeBuild" DependsOnTargets="Copy; ZipTemplates">
   </Target>
   <Target Name="AfterBuild">
   </Target>

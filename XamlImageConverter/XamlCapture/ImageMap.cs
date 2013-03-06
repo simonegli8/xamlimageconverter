@@ -68,8 +68,11 @@ namespace XamlImageConverter {
 		private void AddAreaAttributes(XElement area, string name, string id, XElement source) {
 			var idattr = area.Attribute("id") ?? area.Attribute("ID");
 			if (idattr != null) name = idattr.Value;
-			if (Type == Types.AspNet) area.SetAttributeValue("ID", name);
-			else area.SetAttributeValue("id", name);
+			if (Type == Types.AspNet) {
+				if (idattr != null) idattr.Remove();
+			} else {
+				area.SetAttributeValue("id", name);
+			}
 			var reserverd = new string[] { "element", "elements", "id" };
 			foreach (var a in source.Attributes().Where(a => reserverd.All(r => a.Name.ToString().ToLower() != r))) area.SetAttributeValue(a.Name, a.Value.Replace("%ID%", id));
 		}
@@ -104,10 +107,9 @@ namespace XamlImageConverter {
 					case Shapes.Polygon:
 						area = new XElement("_asp_PolygonHotSpot");
 						AddAreaAttributes(area, name, id, source);
-						area.SetAttributeValue("Coordiantes", Coordinates(coords));
+						area.SetAttributeValue("Coordinates", Coordinates(coords));
 						break;
 				}
-				area.SetAttributeValue("runat", "server");
 			} else {
 				area = new XElement("area");
 				AddAreaAttributes(area, name, id, source);
@@ -431,21 +433,19 @@ namespace XamlImageConverter {
 			if (idattr == null) id = "map" + nid;
 			else id = idattr.Value;
 			Regex insertTag = null;
+			if (FileType == FileTypes.Insert) {
+				insertTag = new Regex("(<asp:ImageMap\\s[^>]*\\s?(id\\s*=\\s*(\"|')" + Regex.Escape(id) + "(\"|'))[^>]*((>.*?</asp:ImageMap>)|(/>)))|"
+					+ "(<map\\s[^>]*\\s?((name|id)\\s*=\\s*(\"|')" + Regex.Escape(id) + "(\"|'))[^>]*((>.*?</map>)|(/>)))",
+					RegexOptions.IgnoreCase | RegexOptions.Singleline);
+			}
 			if (Type == Types.AspNet) {
 				Map = new XElement("_asp_ImageMap", new XAttribute("ID", id), new XAttribute("runat", "server"), new XAttribute("ImageUrl", Image));
 				Attributes.Remove(idattr);
 				Attributes.Remove("runat");
 				Attributes.Remove("imageurl");
-				if (FileType == FileTypes.Insert){
-					insertTag = new Regex("<asp:ImageMap[^>]+(id\\s*=\\s*(\"|')" + Regex.Escape(id) + "(\"|'))[^>]*((>(.|\\r|\\n)*?</asp:ImageMap>)|(/>))",
-						RegexOptions.IgnoreCase | RegexOptions.Multiline);
-				}
 			} else {
 				Map = new XElement("map", new XAttribute("id", id), new XAttribute("name", id));
-				if (FileType == FileTypes.Insert) {
-					insertTag = new Regex("<map[^>]+(name\\s*=\\s*(\"|')" + Regex.Escape(id) + "(\"|'))[^>]*((>(.|\\r|\\n)*?</map>)|(/>))",
-						RegexOptions.IgnoreCase | RegexOptions.Multiline);
-				}
+				Attributes.Remove(idattr);
 			}
 
 			// copy all attributes to Map
@@ -489,55 +489,58 @@ namespace XamlImageConverter {
 				} else Map.Add(child);
 			}
 
-			var writerSettings = new XmlWriterSettings();
-			writerSettings.Indent = true;
-			writerSettings.IndentChars = Ident == IdentChars.Space ? "  " : "\t";
-			writerSettings.Encoding = Encoding.UTF8;
-			writerSettings.OmitXmlDeclaration = true;
-			writerSettings.CloseOutput = true;
-			writerSettings.CheckCharacters = true;
-			string source = null;
-			Match match = null;
-			if (FileType == FileTypes.Insert) {
-				source = System.IO.File.ReadAllText(LocalFilename);
-				var identationsMatch = new Regex("($|\\n|\\n\\r|\\r\\n)(\\s*)");
-				var identations = identationsMatch.Matches(source)
-					.OfType<Match>()
-					.Select(m => m.Groups[2].Value);
-				if (identations.All(t => t == "" || t[0] == '\t')) writerSettings.IndentChars = "\t";
-				else {
-					var lengths = identations.Select(t => t.Length).ToArray();
-					int sum = 0, n = 0, avg = 2;
-					for (int i = 1; i < lengths.Length; i++) {
-						if (lengths[i] > lengths[i-1]) { sum += lengths[i] - lengths[i-1]; n++; }
-					}
-					if (n != 0) avg = sum / n;
-					writerSettings.IndentChars = string.Concat(Enumerable.Repeat(' ', avg));
-				}
-				
-				match = insertTag.Match(source);
-				if (match.Success) {
-					var previousNewline = source.LastIndexOf(Environment.NewLine, match.Index);
-					if (previousNewline == -1) writerSettings.NewLineChars = Environment.NewLine + source.Substring(0, match.Index);
-					else writerSettings.NewLineChars = source.Substring(previousNewline, match.Index - previousNewline);
-				} else {
-					Errors.Error(string.Format("No image map with id {0} found in target {1}.", id, Path.GetFileName(Filename)), "29", XElement);
-				}
-			}
-			if (match == null || match.Success) {
+			foreach (var file in LocalFilename.Split(new char[] { ',',';' }, StringSplitOptions.RemoveEmptyEntries)) {
 
-				using (var w = XmlWriter.Create(str, writerSettings)) Map.Save(w);
-
-				str = str.Replace("_asp_", "asp:");
-
+				var writerSettings = new XmlWriterSettings();
+				writerSettings.Indent = true;
+				writerSettings.IndentChars = Ident == IdentChars.Space ? "  " : "\t";
+				writerSettings.Encoding = Encoding.UTF8;
+				writerSettings.OmitXmlDeclaration = true;
+				writerSettings.CloseOutput = true;
+				writerSettings.CheckCharacters = true;
+				string source = null;
+				Match match = null;
 				if (FileType == FileTypes.Insert) {
-					str.Insert(0, source.Substring(0, match.Index));
-					str.Append(source.Substring(match.Index + match.Length));
+					source = System.IO.File.ReadAllText(file);
+					var identationsMatch = new Regex("($|\\n|\\n\\r|\\r\\n)(\\s*)");
+					var identations = identationsMatch.Matches(source)
+						.OfType<Match>()
+						.Select(m => m.Groups[2].Value);
+					if (identations.All(t => t == "" || t[0] == '\t')) writerSettings.IndentChars = "\t";
+					else {
+						var lengths = identations.Select(t => t.Length).ToArray();
+						int sum = 0, n = 0, avg = 2;
+						for (int i = 1; i < lengths.Length; i++) {
+							if (lengths[i] > lengths[i - 1]) { sum += lengths[i] - lengths[i - 1]; n++; }
+						}
+						if (n != 0) avg = sum / n;
+						writerSettings.IndentChars = string.Concat(Enumerable.Repeat(' ', avg));
+					}
+
+					match = insertTag.Match(source);
+					if (match.Success) {
+						var previousNewline = source.LastIndexOf(Environment.NewLine, match.Index);
+						if (previousNewline == -1) writerSettings.NewLineChars = Environment.NewLine + source.Substring(0, match.Index);
+						else writerSettings.NewLineChars = source.Substring(previousNewline, match.Index - previousNewline);
+					} else {
+						Errors.Error(string.Format("No image map with id {0} found in target {1}.", id, Path.GetFileName(file)), "29", XElement);
+					}
 				}
+				if (match == null || match.Success) {
 
-				System.IO.File.WriteAllText(LocalFilename, str.ToString(), Encoding.UTF8);
+					using (var w = XmlWriter.Create(str, writerSettings)) Map.Save(w);
 
-				Errors.Message("Created {0} html image map.", Path.GetFileName(Filename));
+					str = str.Replace("_asp_", "asp:");
+
+					if (FileType == FileTypes.Insert) {
+						str.Insert(0, source.Substring(0, match.Index));
+						str.Append(source.Substring(match.Index + match.Length));
+					}
+
+					System.IO.File.WriteAllText(file, str.ToString(), Encoding.UTF8);
+
+					Errors.Message("Created {0} html image map.", Path.GetFileName(file));
+				}
 			}
 		}
 

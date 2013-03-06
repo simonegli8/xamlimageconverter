@@ -12,14 +12,14 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>johnshope.SkinBuilder.Web.Test</RootNamespace>
     <AssemblyName>johnshope.SkinBuilder.Web.Test</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>4.0</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <TargetFrameworkProfile />
-    <UseIISExpress>false</UseIISExpress>
+    <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -33,6 +33,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -41,6 +42,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
@@ -63,27 +65,26 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="all.aspx" />
-    <Content Include="Default.aspx" />
     <Content Include="iisuser.aspx" />
-    <Content Include="Images\Source\blog-banner.jpg" />
-    <Content Include="Images\Source\generic-lines.png" />
-    <Content Include="Images\Source\SiteSpecification.xml" />
-    <Content Include="Images\Source\Soccer_ball_animated.svg" />
-    <Content Include="Images\Source\Tux.svg" />
+    <Content Include="Images\blog-banner.jpg" />
+    <Content Include="Default.aspx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
+    <Content Include="Images\generic-lines.png" />
+    <Content Include="Images\jquery.js" />
+    <Content Include="Images\jquery.maphilight.min.js" />
+    <Content Include="Images\Readme.aspx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
+    <Content Include="Images\SiteSpecification.xml" />
+    <Content Include="Images\Tux.svg" />
+    <Content Include="Images\Usa.Map.html" />
+    <Content Include="Images\Usa.Map.svg" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="all.aspx.cs">
-      <DependentUpon>all.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Default.aspx.cs">
-      <DependentUpon>Default.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
     <Compile Include="iisuser.aspx.cs">
       <DependentUpon>iisuser.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -94,35 +95,33 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Images\CreateImages.xic.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Images\Homepage.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Images\Kaxaml.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Images\Planet.psd" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\XamlImageConverter.Web\XamlImageConverter.Web.csproj">
+      <Project>{fcd85abb-b282-409f-beb8-64e4a979f18a}</Project>
+      <Name>XamlImageConverter.Web</Name>
+    </ProjectReference>
     <ProjectReference Include="..\XamlImageConverter\XamlImageConverter.csproj">
       <Project>{c5dc3841-241b-4398-9bbd-73383e8497a2}</Project>
       <Name>XamlImageConverter</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Images\Source\Hello3D.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Images\Source\Kaxaml.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Images\Source\MakeImages.xic.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Images\Source\MyControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Images\Source\SkinBuilder.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Images\Source\Planet.psd" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -131,11 +130,33 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
+       Other similar extension points exist, see Microsoft.Common.targets. -->
   <Target Name="AfterBuild">
+    <CreateItem Include="$(ProjectDir)bin\XamlImageConverter.dll;$(ProjectDir)bin\XamlImageConverter.pdb">
+      <Output TaskParameter="Include" ItemName="ItemsSource1" />
+    </CreateItem>
+    <Copy SourceFiles="@(ItemsSource1)" DestinationFolder="$(ProjectDir)bin\Lazy\" OverwriteReadOnlyFiles="true" />
+    <Delete Files="@(ItemsSource1)" />
+    <CreateItem Include="$(ProjectDir)bin\gxps\**\*.*">
+      <Output TaskParameter="Include" ItemName="ItemsSource2" />
+    </CreateItem>
+    <Copy SourceFiles="@(ItemsSource2)" DestinationFolder="$(ProjectDir)bin\Lazy\gxps\" OverwriteReadOnlyFiles="true" />
+    <Delete Files="@(ItemsSource2)" />
+    <CreateItem Include="$(ProjectDir)bin\ImageMagick\**\*.*">
+      <Output TaskParameter="Include" ItemName="ItemsSource3" />
+    </CreateItem>
+    <Copy SourceFiles="@(ItemsSource3)" DestinationFolder="$(ProjectDir)bin\Lazy\ImageMagick\" OverwriteReadOnlyFiles="true" />
+    <Delete Files="@(ItemsSource3)" />
+    <CreateItem Include="$(ProjectDir)bin\psd2xaml\**\*.*">
+      <Output TaskParameter="Include" ItemName="ItemsSource4" />
+    </CreateItem>
+    <Copy SourceFiles="@(ItemsSource4)" DestinationFolder="$(ProjectDir)bin\Lazy\psd2xaml\" OverwriteReadOnlyFiles="true" />
+    <Delete Files="@(ItemsSource4)" />
+    <!-- <Copy SourceFiles="$(SolutionDir)XamlImageConverter.Exe\bin\$(Configuration)\convert.*" DestinationFolder="$(ProjectDir)Items" /> -->
+  </Target>
+  <!--  <Target Name="AfterBuild">
   </Target>
   -->
   <ProjectExtensions>
@@ -146,7 +167,7 @@
           <AutoAssignPort>False</AutoAssignPort>
           <DevelopmentServerPort>49592</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost/johnshope.SkinBuilder.Web.Test</IISUrl>
+          <IISUrl>http://localhost:49592/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
