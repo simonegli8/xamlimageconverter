@@ -30,7 +30,7 @@ namespace XamlImageConverter {
 		public Size PreferredSize { get; set; }
 		public Compiler Compiler { get; set; }
 		public List<string> DependsOn { get; set; }
-		public string Dependencies { set { DependsOn = (value ?? "").Split(';').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList(); } } 
+		public string Dependencies { set { DependsOn = (value ?? "").Split(',', ';').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList(); } } 
 		public string cultures;
 		public virtual string CulturesString { get { return Setting(g => g.cultures) ?? ""; } set { cultures = value; } }
 		public virtual List<string> Cultures { get { return CulturesString.Split(',', ';').Select(c => c.Trim()).Where(c => !string.IsNullOrEmpty(c)).ToList(); } }
@@ -127,13 +127,18 @@ namespace XamlImageConverter {
 
 								xaml = CreateTempPath(file);
 
-								var apath = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+								var apath = AppDomain.CurrentDomain.BaseDirectory;
+								var rpath = (";" + AppDomain.CurrentDomain.RelativeSearchPath)
+									.Split(';')
+									.FirstOrDefault(p => File.Exists(Path.Combine(apath, p, "Lazy\\psd2xaml\\Endogine.dll")));
 								Type doctype;
 								if (psd) {
-									var a = Assembly.LoadFrom(Path.Combine(apath, "psd2xaml\\Endogine.Codecs.Photoshop.dll"));
+									var a = Assembly.LoadFrom(Path.Combine(apath, rpath, "Lazy\\psd2xaml\\Endogine.dll"));
+									a = Assembly.LoadFrom(Path.Combine(apath, rpath, "Lazy\\psd2xaml\\Endogine.Codecs.Photoshop.dll"));
 									doctype = a.GetType("Endogine.Codecs.Photoshop.Document");
 								} else {
-									var a = Assembly.LoadFrom(Path.Combine(apath, "psd2xaml\\Endogine.Codecs.Flash.dll"));
+									var a = Assembly.LoadFrom(Path.Combine(apath, rpath, "Lazy\\psd2xaml\\Endogine.dll"));
+									a = Assembly.LoadFrom(Path.Combine(apath, rpath, "Lazy\\psd2xaml\\Endogine.Codecs.Flash.dll"));
 									doctype = a.GetType("Endogine.Codecs.Flash.Document");
 								}
 
@@ -168,16 +173,20 @@ namespace XamlImageConverter {
 						} else {
 							string assemblyName = AssemblyName;
 							string typeName = TypeName;
-							if (assemblyName != null) assemblyName = Compiler.MapPath(assemblyName);
+							// (assemblyName != null) assemblyName = Compiler.MapPath(assemblyName);
 							Assembly assembly;
 							Type type = null;
 							if (typeName != null) {
 								if (assemblyName != null) {
 									try {
 										var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-										assembly = assemblies.FirstOrDefault(a => a.FullName == assemblyName || (new Uri(a.CodeBase)).LocalPath == assemblyName);
-										if (assembly == null) 
-											lock (Compiler.DllLock) assembly = Assembly.LoadFrom(assemblyName);
+										assembly = assemblies.FirstOrDefault(a => a.FullName == assemblyName || (new Uri(a.CodeBase)).LocalPath == Compiler.MapPath(assemblyName));
+										if (assembly == null) {
+											lock (Compiler.DllLock) {
+												if (assemblyName.Contains(':') || assemblyName.Contains('/') || assemblyName.Contains('\\') || assemblyName.Contains('~')) assembly = Assembly.LoadFrom(Compiler.MapPath(assemblyName));
+												else assembly = Assembly.Load(assemblyName);
+											}
+										}
 										if (assembly != null) {
 											int i = TypeName.IndexOf(',');
 											if (i > -1) typeName = typeName.Substring(0, i);
@@ -257,7 +266,7 @@ namespace XamlImageConverter {
 			Scene.LoadElement();
 			// apply parameters
 			foreach (var p in Scene.Flatten().TakeWhile(g => g != this).OfType<Parameters>()) p.Process();
- 			// save copy
+			// save copy
 			var clone = Element;
 			// clear elements
 			element = null;
@@ -389,13 +398,14 @@ namespace XamlImageConverter {
 				if (IsScene || !string.IsNullOrEmpty(ElementName)) return this;
 				return Parent.ElementGroup;
 			}
-		} 
+		}
+
+		public Point RelativeOffset { get { return new Point(Canvas.GetLeft(Window), Canvas.GetTop(Window)); } }
+		public Point TopLeft { get { return RelativeOffset; } }
+		public Point Offset { get { return Window.Bounds(Scene.Window).TopLeft; } }
 
 #if DEBUG
-		public Point RelativeOffset { get { return new Point(Canvas.GetLeft(Window), Canvas.GetTop(Window)); } }
 		public IEnumerable<Point> Offsets { get { return Ancestors.SkipLast(1).Select(a => a.RelativeOffset); } }
-		public Point TopLeft { get { return new Point(Canvas.GetLeft(Window), Canvas.GetRight(Window)); } }
-		public Point Offset { get { return Window.Bounds(Scene.Window).TopLeft; } }
 #endif
 
 		public Transform Transform {
@@ -464,9 +474,8 @@ namespace XamlImageConverter {
 					else {
 
 						var paths = Ancestors.Where(g => !string.IsNullOrEmpty(g.OutputPath))
-							.Select(g => Compiler.MapPath(g.OutputPath))
+							.Select(g => g.OutputPath.Replace('/', '\\'))
 							.ToList();
-						paths.Reverse();
 
 						string path = string.Empty;
 						while (paths.Count > 0) {
@@ -479,7 +488,7 @@ namespace XamlImageConverter {
 							paths.RemoveAt(0);
 						}
 
-						list.Add(Compiler.MapPath(Path.Combine(path, file)));
+						list.Add(new FileInfo(Compiler.MapPath(Path.Combine(path, file))).FullName);
 					}
 				}	
 				var sb = new StringBuilder();
@@ -536,8 +545,12 @@ namespace XamlImageConverter {
 		}
 
 		public virtual void Process() {
-			if (NeedsBuilding) Save();
-			else Errors.Note(string.Format("{0} is up to date.", Filename));
+			try {
+				if (NeedsBuilding) Save();
+				else Errors.Note(string.Format("{0} is up to date.", Filename));
+			} catch (Exception ex) {
+				Errors.Warning("An internal error occurred\n\n" + ex.Message + "\n" + ex.StackTrace, "2", XElement);
+			}
 		}
 	}
 }

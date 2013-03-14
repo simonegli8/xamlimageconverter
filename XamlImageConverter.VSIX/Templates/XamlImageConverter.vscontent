@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<VSContent xmlns="http://schemas.microsoft.com/developer/vscontent/2005">
+	<Content>
+		<FileName>XamlImageConverterConfiguration.VB.zip</FileName>
+		<DisplayName>XamlImageConverter Configuration for Visual Basic</DisplayName>
+		<Description>XamlImageConverter Configuration File.</Description>
+		<FileContentType>VSTemplate</FileContentType>
+		<ContentVersion>1.0</ContentVersion>
+		<Attributes>
+			<Attribute name="ProjectType" value="Visual Basic"/>
+			<Attribute name="ProjectSubType" value="Web"/>
+			<Attribute name="TemplateType" value="Item"/>
+		</Attributes>
+	</Content>
+	<Content>
+		<FileName>XamlImageConverterConfiguration.CSharp.zip</FileName>
+		<DisplayName>XamlImageConverter Configuration for C#</DisplayName>
+		<Description>XamlImageConverter Configuration File.</Description>
+		<FileContentType>VSTemplate</FileContentType>
+		<ContentVersion>1.0</ContentVersion>
+		<Attributes>
+			<Attribute name="ProjectType" value="Visual C#"/>
+			<Attribute name="ProjectSubType" value="Web"/>
+			<Attribute name="TemplateType" value="Item"/>
+		</Attributes>
+	</Content>
+	<Content>
+		<FileName>XamlImageConverterConfiguration.VWD.CSharp.zip</FileName>
+		<DisplayName>XamlImageConverter Configuration Visual Web Developper C#</DisplayName>
+		<Description>XamlImageConverter Configuration File.</Description>
+		<FileContentType>VSTemplate</FileContentType>
+		<ContentVersion>1.0</ContentVersion>
+		<Attributes>
+			<Attribute name="ProjectType" value="Visual Web Developper"/>
+			<Attribute name="ProjectSubType" value="CSharp"/>
+			<Attribute name="TemplateType" value="Item"/>
+		</Attributes>
+	</Content>
+	<Content>
+		<FileName>XamlImageConverterConfiguration.VWD.VB.zip</FileName>
+		<DisplayName>XamlImageConverter Configuration for Visual Web Developper Visual Basic</DisplayName>
+		<Description>XamlImageConverter Configuration File.</Description>
+		<FileContentType>VSTemplate</FileContentType>
+		<ContentVersion>1.0</ContentVersion>
+		<Attributes>
+			<Attribute name="ProjectType" value="Visual Web Developper"/>
+			<Attribute name="ProjectSubType" value="Visual Basic"/>
+			<Attribute name="TemplateType" value="Item"/>
+		</Attributes>
+	</Content>
+</VSContent>

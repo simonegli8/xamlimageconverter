@@ -42,10 +42,12 @@ Features:
 		<CustomExtension Type="Reference">psd2xaml\Endogine.dll</CustomExtension>
 		<CustomExtension Type="Reference">XamlImageConverter.dll</CustomExtension>
 		<CustomExtension Type="Resource">XamlImageConverter.pdb</CustomExtension>
-		<CustomExtension Type="Reference">convert.exe</CustomExtension>
-		<CustomExtension Type="Resource">convert.pdb</CustomExtension>
+		<CustomExtension Type="Reference">XamlImageConverter.Web.dll</CustomExtension>
+		<CustomExtension Type="Resource">XamlImageConverter.Web.pdb</CustomExtension>
+		<CustomExtension Type="Reference">xiconvert.exe</CustomExtension>
+		<CustomExtension Type="Resource">xiconvert.pdb</CustomExtension>
 		<CustomExtension Type="Resource">gxps\gxps-9.05-win32.exe</CustomExtension>
-		<CustomExtension Type="Resource">gxps\gxps-9.06-win32.exe</CustomExtension>
+		<CustomExtension Type="Resource">gxps\gxps-9.07-win32.exe</CustomExtension>
 		<CustomExtension Type="Resource">ImageMagick\atl100.dll</CustomExtension>
 		<CustomExtension Type="Resource">ImageMagick\colors.xml</CustomExtension>
 		<CustomExtension Type="Resource">ImageMagick\configure.xml</CustomExtension>

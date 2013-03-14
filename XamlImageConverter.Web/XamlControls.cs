@@ -108,7 +108,7 @@ namespace Silversite.Web.UI {
 
 		protected override void Render(HtmlTextWriter writer) {
 			var oldimage = ImageUrl;
-			ImageUrl = "XamlImageConverter.axd?Image=" + ImageUrl + "&Xaml=#XamlImage" + Guid.ToString();
+			ImageUrl = "xic.axd?Image=" + ImageUrl + "&Xaml=#XamlImage" + Guid.ToString();
 			base.Render(writer);
 			ImageUrl = oldimage;
 		}

@@ -134,11 +134,10 @@ namespace XamlImageConverter {
 				bproj.Load(filename);
 
 				//bool change = false;
-				var path = Path.GetDirectoryName(new Uri(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+				var path = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 				var imppath = Path.Combine(path, target);
 				/*
-				var targets = File.ReadAllText(imppath)
-					.Replace("#{XamlImageConverter.dll}", Path.Combine(path, "XamlImageConverter.dll"));
+				var targets = File.ReadAllText(imppath)					.Replace("#{XamlImageConverter.dll}", Path.Combine(path, "XamlImageConverter.dll"));
 				File.WriteAllText(imppath, targets);
 				*/
 
@@ -193,7 +192,7 @@ namespace XamlImageConverter {
 		public void CopyDemo() {
 			var proj = item.ContainingProject.FullName;
 			var dest = Path.GetDirectoryName(proj);
-			var src = Path.GetDirectoryName(new Uri(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+			var src = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
 			const string DemoFolder = "XamlImageConverter.Demo";
 			var demo = Path.Combine(dest, DemoFolder);
@@ -228,7 +227,7 @@ namespace XamlImageConverter {
 			var proj = item.ContainingProject.FullName;
 			var dest = Path.GetDirectoryName(proj);
 			var conf = Path.Combine(dest, "web.config");
-			var src = Path.GetDirectoryName(new Uri(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+			var src = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
 			var IsWeb = File.Exists(conf);
 			if (!IsWeb) return;
@@ -238,10 +237,11 @@ namespace XamlImageConverter {
 				Directory.CreateDirectory(binlazy);
 				Files.Copy(Path.Combine(src, "XamlImageConverter.dll"), binlazy);
 				Files.Copy(Path.Combine(src, "XamlImageConverter.pdb"), binlazy);
-				Files.Copy(Path.Combine(src, "gxps"), binlazy);
-				Files.Copy(Path.Combine(src, "ImageMagick"), binlazy);
-				Files.Copy(Path.Combine(src, "psd2xaml"), binlazy);
-				//Files.Copy(Path.Combine(src, "XamlImageConverter.xsd"), binlazy);
+				Files.Copy(Path.Combine(src, "Lazy\\gxps"), binlazy);
+				Files.Copy(Path.Combine(src, "Lazy\\ImageMagick"), binlazy);
+				Files.Copy(Path.Combine(src, "Lazy\\psd2xaml"), binlazy);
+				Files.Copy(Path.Combine(src, "Lazy\\html2xaml"), binlazy);
+				//Files.Copy(Path.Combine(src, "Lazy\\XamlImageConverter.xsd"), binlazy);
 				var cache = Path.Combine(dest, "Images\\Cache");
 				if (!Directory.Exists(cache)) Directory.CreateDirectory(cache);
 			}
@@ -272,16 +272,11 @@ namespace XamlImageConverter {
 			var handlers = server.Element("handlers");
 			if (handlers == null) server.Add(handlers = new XElement("handlers"));
 			handlers.Elements().Where(x => ((string)x.Attribute("type") ?? "").Contains("PublicKeyToken=60c2ec984bc1bb45")).Remove();
-			handlers.Add(XElement.Parse("<add name='Xic' verb='*' path='*.xic.xaml' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-				XElement.Parse("<add name='XicXaml2Images' verb='*' path='*.xaml.???' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-				XElement.Parse("<add name='XicXaml2Ps' verb='*' path='*.xaml.ps' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-				XElement.Parse("<add name='XicSvg2Images' verb='*' path='*.svg.???' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-				XElement.Parse("<add name='XicSvgz2Images' verb='*' path='*.svgz.???' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-				XElement.Parse("<add name='XicSvg2Ps' verb='*' path='*.svg.ps' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-				XElement.Parse("<add name='XicSvgz2Ps' verb='*' path='*.svgz.ps' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-				XElement.Parse("<add name='XicPsd2Images' verb='*' path='*.psd.???' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-				XElement.Parse("<add name='XicPsd2Ps' verb='*' path='*.psd.ps' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-				XElement.Parse("<add name='XicHandler' verb='*' path='XamlImageConverter.axd' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
+			handlers.Add(XElement.Parse("<add name='XamlImageConverter.Xaml' verb='*' path='*.xaml' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
+					XElement.Parse("<add name='XamlImageConverter.Svg' verb='*' path='*.svg' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
+					XElement.Parse("<add name='XamlImageConverter.Svgz' verb='*' path='*.svgz' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
+					XElement.Parse("<add name='XamlImageConverter.Psd' verb='*' path='*.psd' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
+					XElement.Parse("<add name='XamlImageConverter.Dynamic' verb='*' path='xic.axd' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
 
 			// system.web
 			var web = webconfig.Element("system.web");
@@ -308,7 +303,7 @@ namespace XamlImageConverter {
 			var httpHandlers = web.Element("httpHandlers");
 			if (httpHandlers == null) web.Add(httpHandlers = new XElement("httpHandlers"));
 			httpHandlers.Elements().Where(x => ((string)x.Attribute("type") ?? "").Contains("PublicKeyToken=60c2ec984bc1bb45")).Remove();
-			httpHandlers.Add(new XComment("<add verb='*' path='*.xic.xaml;XamlImageConverter.axd;*.xaml.???;*.svg.???;*.psd.???;*.svgz.???;*.xaml.ps;*.svg.ps;*.psd.ps;*.svgz.ps' type='Silversite.Web.XamlImageConverter, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
+			httpHandlers.Add(new XComment("<add verb='*' path='*.xic.xaml;xic.axd;*.xaml.???;*.svg.???;*.psd.???;*.svgz.???;*.xaml.ps;*.svg.ps;*.psd.ps;*.svgz.ps' type='Silversite.Web.XamlImageConverter, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
 			*/
 
 			File.Copy(conf, conf + ".backup");

@@ -26,12 +26,13 @@ namespace XamlImageConverter {
 		public enum IdentChars { Tab, Space };
 
 		public string Image { get; set; }
-		public double Scale { get; set; }
+		public double? Scale, XScale, YScale, XOffset, YOffset, Angle;
+		Transform Transform;
 		public string File { get { return Filename; } set { Filename = value; } }
 		public Types Type { get; set; }
 		public double Flatness { get; set; }
-		public FileTypes FileType { get; set; }
-		public IdentChars Ident { get; set; }
+		public FileTypes? FileType { get; set; }
+		public IdentChars? Ident { get; set; }
 		public double Dpi { get; set; }
 
 		AttributeCollection attributes = new AttributeCollection();
@@ -81,7 +82,10 @@ namespace XamlImageConverter {
 
 			var id = name ?? ("area" + n);
 
-			for (int i = 0; i < coords.Length; i++) coords[i] *= Scale;
+			/*for (int i = 0; i < coords.Length; i += 2) {
+				var p = Transform.Transform(new Point(coords[i], coords[i + 1]));
+				coords[i] = p.X; coords[i + 1] = p.Y;
+			}*/
 
 			if (n++ > 0) name = id + "." + n;
 
@@ -142,6 +146,7 @@ namespace XamlImageConverter {
 		private class Renderer: UIElement {
 
 			List<Geometry> Geometries = new List<Geometry>();
+			Transform Transform = Transform.Identity;
 
 			private void AddGeometry(DrawingGroup group, Geometry g) {
 				if (group.ClipGeometry != null && !group.ClipGeometry.FillContains(g)) {
@@ -163,6 +168,7 @@ namespace XamlImageConverter {
 				}
 
 				ApplyTransform(group.Transform, g);
+				ApplyTransform(Transform, g);
 
 				Geometries.Add(g);
 			}
@@ -181,17 +187,19 @@ namespace XamlImageConverter {
 			private void AnalyzeGeometry(DrawingGroup group, Geometry g, Brush brush, Pen pen) {
 				g = g.Clone();
 
+				Transform t = new MatrixTransform(Matrix.Multiply(Transform.Value, Matrix.Multiply(group.Transform.Value, g.Transform.Value)));
+
 				if (brush != null) {
 					var eg = g as EllipseGeometry;
 					var rg = g as RectangleGeometry;
-					if (g is EllipseGeometry && eg.RadiusX == eg.RadiusY && g.Transform.Value.M12 == 0.0 && g.Transform.Value.M21 == 0.0) { // circle
+					if (g is EllipseGeometry && eg.RadiusX == eg.RadiusY && t.Value.M12 == 0.0 && t.Value.M21 == 0.0) { // circle
 						if (pen != null && pen.Thickness != 0) {
 							eg.RadiusX += Math.Abs(pen.Thickness);
 							eg.RadiusY += Math.Abs(pen.Thickness);
 						}
 						pen = null;
 						AddGeometry(group, g);
-					} else if (g is RectangleGeometry && (pen == null || Math.Abs(pen.Thickness) <= 1) && g.Transform.Value.M12 == 0.0 && g.Transform.Value.M21 == 0.0) { // rectangle
+					} else if (g is RectangleGeometry && (pen == null || Math.Abs(pen.Thickness) <= 1) && t.Value.M12 == 0.0 && t.Value.M21 == 0.0) { // rectangle
 						pen = null;
 						AddGeometry(group, g);
 					} else { // other
@@ -336,6 +344,7 @@ namespace XamlImageConverter {
 				Area = area;
 				Snapshot = map.Snapshot;
 				Scene = map.Scene;
+				Transform = map.Transform;
 			}
 		}
 
@@ -406,90 +415,62 @@ namespace XamlImageConverter {
 		}
 
 		public override void Save() {
-			var str = new StringBuilder();
 
-			if (FileType == FileTypes.UserControl) {
-				str.Append("<%@ Control ");
-				var res = new List<string>() { "AutoEventWireup", "ClassName", "ClientIDMode", "CodeBehind", "CodeFile", "CodeFileBaseClass", "CompilationMode", "CompilerOptions", "Debug", "EnableTheming",
-					"EnableViewState", "Explicit", "Inherits", "Language", "LinePragmas", "Src", "Strict", "ViewStateMode", "WarningLevel" };
-				foreach (var a in Attributes.ToList()) {
-					if (res.Contains(a.Name.ToString())) {
-						str.Append(a.Name);
-						if (a.Value != null) {
-							str.Append("=\"");
-							str.Append(a.Value);
-							str.Append("\" ");
-						}
-						Attributes.Remove(a);
-					}
+			var filenames = LocalFilename.Split(',', ';')
+				.Select(c => c.Trim())
+				.Where(c => !string.IsNullOrEmpty(c))
+				.ToList();
+
+			foreach (var file in filenames) {
+
+				var str = new StringBuilder();
+
+				double? scale = Scale, xscale = XScale, yscale = YScale, xoffset = XOffset, yoffset = YOffset, angle = Angle; 
+
+				if (FileType == null) {
+					if (Path.GetExtension(file) == ".ascx") FileType = FileTypes.UserControl;
+					else FileType = FileTypes.Insert;
 				}
-				str.AppendLine("%>");
-				str.AppendLine();
-			}
 
-			int nid = ((Image.GetHashCode() % 100) + 100) % 100;
-			string id = null;
-			var idattr = Attributes.FirstOrDefault(a => a.Name.ToString().ToLower() == "id");
-			if (idattr == null) id = "map" + nid;
-			else id = idattr.Value;
-			Regex insertTag = null;
-			if (FileType == FileTypes.Insert) {
-				insertTag = new Regex("(<asp:ImageMap\\s[^>]*\\s?(id\\s*=\\s*(\"|')" + Regex.Escape(id) + "(\"|'))[^>]*((>.*?</asp:ImageMap>)|(/>)))|"
-					+ "(<map\\s[^>]*\\s?((name|id)\\s*=\\s*(\"|')" + Regex.Escape(id) + "(\"|'))[^>]*((>.*?</map>)|(/>)))",
-					RegexOptions.IgnoreCase | RegexOptions.Singleline);
-			}
-			if (Type == Types.AspNet) {
-				Map = new XElement("_asp_ImageMap", new XAttribute("ID", id), new XAttribute("runat", "server"), new XAttribute("ImageUrl", Image));
-				Attributes.Remove(idattr);
-				Attributes.Remove("runat");
-				Attributes.Remove("imageurl");
-			} else {
-				Map = new XElement("map", new XAttribute("id", id), new XAttribute("name", id));
-				Attributes.Remove(idattr);
-			}
-
-			// copy all attributes to Map
-			foreach (var a in Attributes) Map.SetAttributeValue(a.Name, a.Value);
-
-			var s = Snapshot;
-			//if (s == null) throw new CompilerException("ImageMap has no related Snapshot", 27, this.XElement);
-			if (s != null) Dpi = s.Dpi ?? 96.0;
-			Scale = Scale * Dpi / 96.0;
-
-			FrameworkElement e = null;
-			if (string.IsNullOrEmpty(s.ElementName)) e = s.Scene.Element;
-			else e = s.Element;
-
-			foreach (XElement child in Areas) {
-				if (child.Name.LocalName.Equals("area", StringComparison.OrdinalIgnoreCase) || child.Name.LocalName.Equals("areas", StringComparison.OrdinalIgnoreCase)) {
-					var elementAttr = child.Attribute("element") ?? child.Attribute("Element") ?? child.Attribute("elements") ?? child.Attribute("Elements");
-					string elements = null;
-					if (elementAttr == null) {
-						if (child.Attribute("shape") == null && child.Attribute("coords") == null) elements = null;
-						else {
-							Map.Add(child);
-							continue;
+				if (FileType.Value == FileTypes.UserControl) {
+					str.Append("<%@ Control ");
+					var res = new List<string>() { "AutoEventWireup", "ClassName", "ClientIDMode", "CodeBehind", "CodeFile", "CodeFileBaseClass", "CompilationMode", "CompilerOptions", "Debug", "EnableTheming",
+						"EnableViewState", "Explicit", "Inherits", "Language", "LinePragmas", "Src", "Strict", "ViewStateMode", "WarningLevel" };
+					foreach (var a in Attributes.ToList()) {
+						if (res.Contains(a.Name.ToString())) {
+							str.Append(a.Name);
+							if (a.Value != null) {
+								str.Append("=\"");
+								str.Append(a.Value);
+								str.Append("\" ");
+							}
+							Attributes.Remove(a);
 						}
-					} else {
-						elements = elementAttr.Value ?? "";
 					}
+					str.AppendLine("%>");
+					str.AppendLine();
+				}
 
-					var list = new List<string>();
-					if (elements == "*") list = e.FindAllNames().Distinct().ToList();
-					else if (elements != null) list = elements.Split(';').ToList();
-
-					if (elements != null) {
-						foreach (var elementName in list) {
-							DependencyObject element = e;
-							if (elements != "") element = e.FindName<DependencyObject>(elementName);
-							int n = 0;
-							if (element != null) ProcessArea(element, child, elementName, ref n);
-						}
-					} else Map.Add(child);
-				} else Map.Add(child);
-			}
-
-			foreach (var file in LocalFilename.Split(new char[] { ',',';' }, StringSplitOptions.RemoveEmptyEntries)) {
+				int nid = ((Image.GetHashCode() % 100) + 100) % 100;
+				string id = null;
+				var idattr = Attributes.FirstOrDefault(a => a.Name.ToString().ToLower() == "id");
+				if (idattr == null) id = "map" + nid;
+				else id = idattr.Value;
+				Regex insertTag = null;
+				if (FileType.Value == FileTypes.Insert) {
+					insertTag = new Regex("(<asp:ImageMap\\s[^>]*\\s?(id\\s*=\\s*(\"|')" + Regex.Escape(id) + "(\"|'))[^>]*((>.*?</asp:ImageMap>)|(/>)))|"
+						+ "(<map\\s[^>]*\\s?((name|id)\\s*=\\s*(\"|')" + Regex.Escape(id) + "(\"|'))[^>]*((>.*?</map>)|(/>)))",
+						RegexOptions.IgnoreCase | RegexOptions.Singleline);
+				}
+				if (Type == Types.AspNet) {
+					Map = new XElement("_asp_ImageMap", new XAttribute("ID", id), new XAttribute("runat", "server"), new XAttribute("ImageUrl", Image));
+					Attributes.Remove(idattr);
+					Attributes.Remove("runat");
+					Attributes.Remove("imageurl");
+				} else {
+					Map = new XElement("map", new XAttribute("id", id), new XAttribute("name", id));
+					Attributes.Remove(idattr);
+				}
 
 				var writerSettings = new XmlWriterSettings();
 				writerSettings.Indent = true;
@@ -522,17 +503,100 @@ namespace XamlImageConverter {
 						var previousNewline = source.LastIndexOf(Environment.NewLine, match.Index);
 						if (previousNewline == -1) writerSettings.NewLineChars = Environment.NewLine + source.Substring(0, match.Index);
 						else writerSettings.NewLineChars = source.Substring(previousNewline, match.Index - previousNewline);
+						var oldmap = XElement.Parse(match.Value.Replace("<asp:", "<").Replace("</asp:", "</"));
+						scale = (double?)oldmap.Attribute("Scale") ?? scale;
+						xscale = (double?)oldmap.Attribute("XScale") ?? xscale;
+						yscale = (double?)oldmap.Attribute("YScale") ?? yscale;
+						xoffset = (double?)oldmap.Attribute("YOffset") ?? xoffset;
+						yoffset = (double?)oldmap.Attribute("XOffset") ?? yoffset;
+						angle = (double?)oldmap.Attribute("Angle") ?? angle;
+
+						foreach (var a in oldmap.Attributes()) {
+							var name = a.Name.ToString();
+							if (Attributes.Contains(name)) Attributes.Remove(name);
+							Attributes.Add(a);
+						}
 					} else {
 						Errors.Error(string.Format("No image map with id {0} found in target {1}.", id, Path.GetFileName(file)), "29", XElement);
 					}
 				}
+
+				Attributes.Remove("scale");
+				Attributes.Remove("xscale");
+				Attributes.Remove("yscale");
+				Attributes.Remove("xoffset");
+				Attributes.Remove("yoffset");
+				Attributes.Remove("angle");
+
+				var s = Snapshot;
+				//if (s == null) throw new CompilerException("ImageMap has no related Snapshot", 27, this.XElement);
+				if (s != null) {
+					Dpi = s.Dpi ?? 96.0;
+					scale = scale ?? Dpi / 96.0;
+					xoffset = xoffset ?? s.Offset.X;
+					yoffset = yoffset ?? s.Offset.Y;
+					angle = angle ?? 0;
+				}
+
+				scale = scale ?? 1;
+				xscale = xscale ?? scale;
+				yscale = yscale ?? scale;
+				xoffset = xoffset ?? 0;
+				yoffset = yoffset ?? 0;
+				angle = angle ?? 0;
+				Transform = new MatrixTransform(Matrix.Multiply(new RotateTransform(angle.Value).Value, new MatrixTransform(xscale.Value, 0, 0, yscale.Value, xoffset.Value, yoffset.Value).Value));
+
+				// copy all attributes to Map
+				foreach (var a in Attributes) Map.SetAttributeValue(a.Name, a.Value);
+
+
+				FrameworkElement e = null;
+				if (string.IsNullOrEmpty(s.ElementName)) e = s.Scene.Element;
+				else e = s.Element;
+
+				var areatags = new string[] { "area", "areas", "hotspot", "hotspots" };
+
+				foreach (XElement child in Areas) {
+					if (areatags.Any(tag => child.Name.LocalName.Equals(tag, StringComparison.OrdinalIgnoreCase))) {
+						var elementAttr = child.Attribute("element") ?? child.Attribute("Element") ?? child.Attribute("elements") ?? child.Attribute("Elements");
+						string elements = null;
+						if (elementAttr == null) {
+							if (child.Attribute("shape") == null && child.Attribute("coords") == null) elements = null;
+							else {
+								Map.Add(child);
+								continue;
+							}
+						} else {
+							elements = elementAttr.Value ?? "";
+						}
+
+						var list = new List<string>();
+						if (elements == "*") list = e.FindAllNames().Distinct().ToList();
+						else if (elements != null) {
+							list = elements.Split(',', ';')
+								.Select(c => c.Trim())
+								.Where(c => !string.IsNullOrEmpty(c))
+								.ToList();
+						}
+
+						if (elements != null) {
+							foreach (var elementName in list) {
+								DependencyObject element = e;
+								if (elements != "") element = e.FindName<DependencyObject>(elementName);
+								int n = 0;
+								if (element != null) ProcessArea(element, child, elementName, ref n);
+							}
+						} else Map.Add(child);
+					} else Map.Add(child);
+				}
+
 				if (match == null || match.Success) {
 
 					using (var w = XmlWriter.Create(str, writerSettings)) Map.Save(w);
 
 					str = str.Replace("_asp_", "asp:");
 
-					if (FileType == FileTypes.Insert) {
+					if (FileType == FileTypes.Insert && match != null) {
 						str.Insert(0, source.Substring(0, match.Index));
 						str.Append(source.Substring(match.Index + match.Length));
 					}

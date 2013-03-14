@@ -3,78 +3,87 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+using System.IO;
 
 namespace XamlImageConverter {
 
-	public class XamlScene {
+	public static class XamlScene {
 
-		static XNamespace xic = Parser.ns1;
+		static XNamespace xic = Parser.xic;
+		static XNamespace sb = Parser.sb;
+		static string[] validAttributes = new string[] { "Element", "Storyboard", "Frames", "Filmstrip", "Dpi", "RenderDpi", "Quality", "Filename", "Left", "Top", "Right", "Bottom", "Width", "Height", "Cultures", "RenderTimeout", "Page", "FitToPage", "File", "Loop", "Pause", "Skin", "Theme", "Type", "Image" };
 
-		public static void ApplyParameters(XElement e, Dictionary<string, string> parameters) {
-			var validAttributes = new string[] { "Element", "Storyboard", "Frames", "Filmstrip", "Dpi", "RenderDpi", "Quality", "Filename", "Left", "Top", "Right", "Bottom", "Width", "Height", "Cultures", "RenderTimeout", "Page", "FitToPage", "File", "Loop", "Pause", "Skin", "Theme" };
+		public static void ApplyParameters(Compiler compiler, XElement e, string filename, Dictionary<string, string> parameters) {
+			var type = "png";
+			int hash = 0;
+			bool addhash = false, nohash = false;
 
-			foreach (var p in parameters) {
-				if (validAttributes.Any(a => a == p.Key)) e.SetAttributeValue(p.Key, p.Value);
+			foreach (var key in parameters.Keys.ToList()) {
+
+				if (validAttributes.Any(a => a == key)) {
+					if (key == "Image" || key == "File" || key == "Filename") nohash = true;
+					else if (key == "Type") type = parameters["Type"];
+					else {
+						addhash = !nohash;
+						hash += Hash.Compute(key + "=" + parameters[key]);
+					}
+					e.SetAttributeValue(key, parameters[key]);
+					parameters.Remove(key);
+					addhash = !nohash;
+				} else {
+					addhash = !nohash;
+					hash += Hash.Compute(key + "=" + parameters[key]);
+				}
 			}
-			if (parameters.ContainsKey("Image")) e.SetAttributeValue("File", parameters["Image"]);
+			if (addhash) {
+				compiler.hash = hash;
+				e.SetAttributeValue("Hash", hash);
+			}
+			if (!nohash && filename != null) {
+				e.SetAttributeValue("File", filename + "." + type);
+			}
 		}
 
-		public static XElement CreateDirect(string filename, Dictionary<string, string> parameters) {
-			var xamlfile = filename;
-			if (!filename.EndsWith(".xaml")) xamlfile = System.IO.Path.GetFileNameWithoutExtension(filename);
-			else filename = filename + ".png"; 
+		public static XElement CreateDirect(Compiler compiler, string filename, Dictionary<string, string> parameters) {
+			if (filename.EndsWith(".xic.xaml")) {
+				foreach (var key in validAttributes) parameters.Remove(key);
+				return XElement.Load(compiler.MapPath(filename), LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo);
+			}
 			XElement snapshot;
 			var res = new XElement(xic + "XamlImageConverter",
 					new XElement(xic + "Scene",
-						new XAttribute("Source", xamlfile),
-						snapshot = new XElement(xic + "Snapshot", new XAttribute("File", filename))
+						new XAttribute("Source", filename),
+						snapshot = new XElement(xic + "Snapshot")
 					)
 				);
-			ApplyParameters(snapshot, parameters);
+			ApplyParameters(compiler, snapshot, null, parameters);
 			return res;
 		}
 		
-		public static XElement CreateDirect(XElement e, Dictionary<string, string> parameters) {
+		public static XElement CreateDirect(Compiler compiler, string filename, XElement e, Dictionary<string, string> parameters) {
 			XElement scene;
+			if (e.Name == xic + "XamlImageConverter") return e;
 			var res = new XElement(xic + "XamlImageConverter",
-					scene = new XElement(xic + "Scene", new XAttribute("Xaml", e))
+					scene = new XElement(xic + "Scene", new XElement(xic  + "Xaml", e))
 				);
-			if (parameters.ContainsKey("Image")) {
+			if (parameters.ContainsKey("Image") || parameters.ContainsKey("File") || parameters.ContainsKey("Filename") || parameters.ContainsKey("Type")) {
 				var snapshot = new XElement(xic + "Snapshot");
-				ApplyParameters(snapshot, parameters);
+				ApplyParameters(compiler, snapshot, filename, parameters);
 				scene.Add(snapshot);
 			}
-			foreach (var x in e.Descendants()) {
-				if(x.Attributes().Any(a => a.Name.NamespaceName == Parser.ns1 || a.Name.NamespaceName == Parser.ns2)) {
-					var par = new Dictionary<string, string>();
-					foreach (var p in x.Attributes().Where(a =>a.Name.NamespaceName == Parser.ns1 || a.Name.NamespaceName == Parser.ns2)) {
-						if (System.IO.Path.GetExtension(p.Name.LocalName) == ".View") {
-							string type, cache;
-							parameters.TryGetValue("ImageType", out type);
-							parameters.TryGetValue("Cache", out cache);
-							par.Add("File", Cache.File(p.Name.LocalName, e, type, cache));
-						} else par.Add(p.Name.LocalName, p.Value);
-					}
-					var snapshot = new XElement(xic + "Snapshot");
-					ApplyParameters(snapshot, par);
-					scene.Add(snapshot);
-				}
-			}
+
 			return res;
 		}
 
-		public static XElement CreateXsd(Dictionary<string, string> parameters) {
-			var filename = parameters["file"];
-			XElement snapshot;
-			var xaml = parameters["xaml"];
-			var res = new XElement(xic + "XamlImageConverter",
-					new XElement(xic + "Scene",
-						new XElement("Xaml", xaml),
-						snapshot = new XElement(xic + "Snapshot", new XAttribute("File", filename))
-					)
-				);
-			ApplyParameters(snapshot, parameters);
-			return res;
+		public static XElement CreateAxd(Compiler compiler, Dictionary<string, string> par) {
+			var src = par["Source"];
+			if (string.IsNullOrEmpty(src)) {
+				compiler.Errors.Error("Source cannot be empty.", "32", new TextSpan());
+				return null;
+			}
+			if (src.Trim()[0] == '#') src = (string)System.Web.HttpContext.Current.Session["XamlImageConverter.Xaml:" + src];
+			if (!src.Trim().StartsWith("<")) return CreateDirect(compiler, src, par);
+			return CreateDirect(compiler, XamlImageHandler.Cache + "/" + Hash.Compute(src).ToString("X") , XElement.Parse(src, LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo), par);
 		}
 	}
 }

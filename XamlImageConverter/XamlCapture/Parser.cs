@@ -29,6 +29,13 @@ namespace XamlImageConverter {
 		[NonSerialized]
 		public static string ns2 ="http://www.chriscavanagh.com/SkinBuilder";
 
+		[NonSerialized]
+		public static XNamespace xic = ns1;
+		[NonSerialized]
+		public static XNamespace sb = ns2;
+		[NonSerialized]
+		public XNamespace ns;
+
 		public void ParseStyle(XElement e, Group group) {
 			group.Theme = (string)e.Attribute("Theme");
 			group.Skin = (string)e.Attribute("Skin");
@@ -54,15 +61,14 @@ namespace XamlImageConverter {
 			var Root = new Group();
 			Root.XElement = config;
 			Root.Compiler = Compiler;
-			var ns = config.Name.NamespaceName;
-			if (ns == ns1 || ns == ns2) {
-				Namespace = ns;
-				if (config.Name != SBName("XamlImageConverter")) Errors.Error("Invalid root element", "26", config);
+			ns = config.Name.Namespace;
+			if (ns == xic || ns == sb) {
+				if (config.Name != xic+"XamlImageConverter" && config.Name != sb+"SkinBuilder") Errors.Error("Invalid root element", "26", config);
 				ParseStyle(config, Root);
 				Root.OutputPath = (string)config.Attribute("OutputPath");
 
 				foreach (var x in config.Elements()) {
-					if (x.Name == SBName("Scene")) {
+					if (x.Name == ns+"Scene") {
 						Group scene = null;
 						try {
 							scene = ParseScene(Version, x);
@@ -94,8 +100,8 @@ namespace XamlImageConverter {
 		public Group ParseScene(DateTime Version, XElement x) {
 			var scene = new Group() { Compiler = Compiler, XElement = x, IsScene = true };
 
-			var xaml = x.Elements(SBName("Xaml")).SingleOrDefault();
-			xaml = x.Elements(SBName("Source")).SingleOrDefault() ?? xaml;
+			var xaml = x.Elements(ns+"Xaml").SingleOrDefault();
+			xaml = x.Elements(ns+"Source").SingleOrDefault() ?? xaml;
 			if (x.Attribute("Source") != null || x.Attribute("File") != null || x.Attribute("Type") != null) xaml = x;
 			var srcAttr = xaml.Attribute("Source") ?? xaml.Attribute("File");
 			if (srcAttr != null) scene.Source = srcAttr.Value;
@@ -139,7 +145,7 @@ namespace XamlImageConverter {
 	
 
 			// parse dependencies
-			foreach (var dependency in x.Elements().Where(child => child.Name == SBName("Depends"))) {
+			foreach (var dependency in x.Elements().Where(child => child.Name == ns+"Depends")) {
 				var d = new Dependency(dependency) { Compiler = Compiler };
 				if (d.Version > Version) Version = d.Version;
 			}
@@ -155,7 +161,7 @@ namespace XamlImageConverter {
 			}
 
 			// parse oridnary elements
-			var names = new XName[] { SBName("Xaml"), SBName("Depends") };
+			var names = new XName[] { ns+"Xaml", ns+"Depends" };
 			foreach (var child in x.Elements().Where(child => !names.Contains(child.Name))) {
 				Parse(child, scene);
 			}
@@ -227,32 +233,42 @@ namespace XamlImageConverter {
 					Filmstrip = (bool?)x.Attribute("Filmstrip") ?? false,
 					Dpi = (double?)x.Attribute("Dpi"),
 					Quality = (int?)x.Attribute("Quality"),
-					Filename = (string)x.Attribute("Filename") ?? (string)x.Attribute("File"),
-					CulturesString = (string)x.Attribute("Cultures"),
+					Filename = (string)x.Attribute("Filename") ?? (string)x.Attribute("File") ?? (string)x.Attribute("Image"),
+					CulturesString = (string)x.Attribute("Cultures") ?? (string)x.Attribute("Culture"),
 					Page = (string)x.Attribute("Page"),
 					FitToPage = (bool?)x.Attribute("FitToPage") ?? false,
 					Loop = (int?)x.Attribute("Loop") ?? 1,
-					Pause = (double?)x.Attribute("Pause") ?? 0
+					Pause = (double?)x.Attribute("Pause") ?? 0,
+					Type = (string)x.Attribute("Type"),
+					Hash = (int?)x.Attribute("Hash")
 				};
 				ValidAttributes(x, "Element", "Storyboard", "Frames", "Filmstrip", "Dpi", "Quality", "Filename", "Left", "Top", "Right", "Bottom", "Width", "Height", "Cultures", "Page", "FitToPage", 
-					"File", "Loop", "Pause", "Skin", "Theme", "TextMode");
+					"File", "Loop", "Pause", "Skin", "Theme", "TextMode", "Type", "Image", "Culture", "Hash");
 				break;
 			case "ImageMap":
 			case "Map":
 				var map = new ImageMap {
 					Image = (string)x.Attribute("Image"),
- 					Scale = (double?)x.Attribute("Scale") ?? 1,
+					Scale = (double?)x.Attribute("Scale"),
+					XScale = (double?)x.Attribute("XScale"),
+					YScale = (double?)x.Attribute("YScale"),
+					XOffset = (double?)x.Attribute("YOffset"),
+					YOffset = (double?)x.Attribute("XOffset"),
+					Angle = (double?)x.Attribute("Angle"),
 					Filename = (string)x.Attribute("Filename") ?? (string)x.Attribute("File"),
 					Flatness = (double?)x.Attribute("Flatness") ?? 0.5,
 					Dpi = (double?)x.Attribute("Dpi") ?? 96.0
 				};
 				map.Type = x.Name.LocalName == "Map" ? ImageMap.Types.Html : ImageMap.Types.AspNet;
+				map.FileType = null;
+				map.Ident = null;
 
-				switch (Path.GetExtension(map.Filename)) {
-					case ".ascx": map.FileType = ImageMap.FileTypes.UserControl; map.Type = ImageMap.Types.AspNet; break;
-					case ".aspx": map.FileType = ImageMap.FileTypes.Insert; map.Type = ImageMap.Types.AspNet; break;
-					default: map.FileType = ImageMap.FileTypes.Insert; map.Type = ImageMap.Types.Html; break;
-				}
+				/* switch (Path.GetExtension(map.Filename)) {
+					case ".ascx": map.FileType = ImageMap.FileTypes.UserControl; break;
+					case ".aspx": map.FileType = ImageMap.FileTypes.Insert; break;
+					default: map.FileType = ImageMap.FileTypes.Insert; break;
+				} */
+
 				var fileType = (string)x.Attribute("FileType");
 				if (fileType != null) map.FileType = (ImageMap.FileTypes)Enum.Parse(typeof(ImageMap.FileTypes), fileType);
 				var type = (string)x.Attribute("Type");
@@ -260,7 +276,7 @@ namespace XamlImageConverter {
 				var ident = (string)x.Attribute("Ident");
 				if (ident != null) map.Ident = (ImageMap.IdentChars)Enum.Parse(typeof(ImageMap.IdentChars), ident);
 
-				var predefined = new string[] { "Image", "Scale", "Filename", "File", "Type", "Flatness", "FileType", "Dpi", "Ident" };
+				var predefined = new string[] { "Image", "Scale", "XScale", "YScale", "XOffset", "YOffset", "Angle", "Filename", "File", "Type", "Flatness", "FileType", "Dpi", "Ident" };
 				foreach (var attribute in x.Attributes().Where(a => predefined.All(p => p != a.Name))) map.Attributes.Add(attribute);
 
 				map.Areas.AddRange(x.Elements());
@@ -293,14 +309,5 @@ namespace XamlImageConverter {
 			return result;
 		}
 
-		private string Namespace = ns1;
-		/// <summary>
-		/// Returns a namespace qualified <see cref="XName"/>
-		/// </summary>
-		/// <param name="name">Local name</param>
-		/// <returns>Returns a namespace qualified <see cref="XName"/></returns>
-		private XName SBName(string name) {
-			return XName.Get(name, Namespace);
-		}
 	}
 }

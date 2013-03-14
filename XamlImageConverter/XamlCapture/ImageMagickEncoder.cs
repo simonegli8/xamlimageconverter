@@ -87,8 +87,8 @@ namespace XamlImageConverter {
 					sb.Append(tempfile.Filename);
 					sb.Append("\" ");
 				}
-				var path = new Uri(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).LocalPath;
-				var exe = Path.Combine(path, "ImageMagick\\convert.exe");
+				var path = AppDomain.CurrentDomain.BaseDirectory;
+				var exe = Path.Combine(path, "Lazy\\ImageMagick\\convert.exe");
 				var ext = Path.GetExtension(pdf).ToUpper().TrimStart('.');
 				var adjoin = " ";
 				if (IntermediateFiles[pdf].Count > 1) adjoin = " -adjoin ";

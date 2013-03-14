@@ -38,8 +38,19 @@ namespace XamlImageConverter {
 		public bool FitToPage { get; set; }
 		public int Loop { get; set; }
 		public double Pause { get; set; }
+		public string Type { get; set; }
+		public int? Hash { get; set; }
 
 		public IEnumerable<BitmapSource> Bitmaps;
+
+		public override string Filename {
+			get {
+				var name = base.Filename ?? Scene.Source + "." + Type ?? "png";
+				if (Hash.HasValue) name = Path.ChangeExtension(name, Hash.Value.ToString("X") + Path.GetExtension(name));
+				return name;
+			}
+			set { base.Filename = value; }
+		}
 
 		/// <summary>
 		/// Save a snapshot of a WPF element
@@ -249,8 +260,12 @@ namespace XamlImageConverter {
 
 				if (Loop != 1 && ext == ".gif") {
 					string file = Path.GetFileName(filename);
-					var path = Path.GetDirectoryName(new Uri(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).LocalPath);
-					var exe = Path.Combine(path, "ImageMagick\\convert.exe");
+					var apath = AppDomain.CurrentDomain.BaseDirectory;
+					var rpath = (";" + AppDomain.CurrentDomain.RelativeSearchPath)
+						.Split(';')
+						.FirstOrDefault(p => File.Exists(Path.Combine(apath, p, "Lazy\\ImageMagick\\convert.exe")));
+
+					var exe = Path.Combine(apath, rpath, "Lazy\\ImageMagick\\convert.exe");
 					var args = " -loop " + Loop;
 					if (Pause != 0) args += " -pause " + Pause;
 					args += " " + file + " " + file;
@@ -313,11 +328,13 @@ namespace XamlImageConverter {
 						exe = "gxps-9.05-win32.exe";
 					} else {
 						device = "ps2write";
-						exe = "gxps-9.06-win32.exe";
+						exe = "gxps-9.07-win32.exe";
 					}
-					var path = System.IO.Path.GetDirectoryName((new Uri(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).LocalPath));
-					if (path.StartsWith(System.Environment.GetFolderPath(Environment.SpecialFolder.Windows))) path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"\MSBuild\JohnsHope Software\XamlImageConverter\2.0");
-					exe = Path.Combine(path, "gxps\\" + exe);
+					var apath = AppDomain.CurrentDomain.BaseDirectory;
+					var rpath = (";" + AppDomain.CurrentDomain.RelativeSearchPath)
+						.Split(';')
+						.FirstOrDefault(p => File.Exists(Path.Combine(apath, p, "Lazy\\psd2xaml\\Endogine.dll")));
+					exe = Path.Combine(apath, rpath, "Lazy\\gxps\\" + exe);
 					//if (!File.Exists(exe)) exe = Path.Combine(path, @"\gxps.exe");
 					var pinfo = new System.Diagnostics.ProcessStartInfo(exe);
 					pinfo.CreateNoWindow = true;

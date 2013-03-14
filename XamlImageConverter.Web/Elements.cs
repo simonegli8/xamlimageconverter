@@ -55,6 +55,7 @@ namespace XamlImageConverter.Elements {
 		public string OutputPath { get; set; }
 		public DateTime Version { get; set; }
 		public string Cultures { get; set; }
+		public string Culture { get; set; }
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
 		public List<ISceneElement> Children { get; set; }
 		public string Theme { get; set; }
@@ -82,6 +83,8 @@ namespace XamlImageConverter.Elements {
 		public double Dpi { get; set; }
 		public int? Quality { get; set; }
 		public string File { get; set; }
+		public string Filename { get; set; }
+		public string Image { get; set; }
 		public string Page { get; set; }
 		public bool FitToPage { get; set; }
 		public int Loop { get; set; }
@@ -91,6 +94,7 @@ namespace XamlImageConverter.Elements {
 		public string TextMode { get; set; }
 	}
 
+	public interface IArea { }
 
 	[ContentProperty("Areas")]
 	[DefaultProperty("Areas")]
@@ -99,19 +103,19 @@ namespace XamlImageConverter.Elements {
 		public enum Types { AspNet, Html };
 		public enum IdentChars { Tab, Space };
 		public string Image { get; set; }
-		public double Scale { get; set; }
 		public string File { get; set; }
 		public Types Type { get; set; }
 		public double Flatness { get; set; }
 		public FileTypes FileType { get; set; }
 		public IdentChars Ident { get; set; }
 
-		public double Left { get; set; }
-		public double Right { get; set; }
-		public double Top { get; set; }
-		public double Bottom { get; set; }
-		public double Width { get; set; }
-		public double Height { get; set; }
+		public double XOffset { get; set; }
+		public double YOffset { get; set; }
+		public double Scale { get; set; }
+		public double XScale { get; set; }
+		public double YScale { get; set; }
+		public double Angle { get; set; }
+
 		public string Element { get; set; }
 		public string OutputPath { get; set; }
 		public DateTime Version { get; set; }
@@ -121,23 +125,31 @@ namespace XamlImageConverter.Elements {
 		public string TextMode { get; set; }
 
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-		public List<Area> Areas { get; set; }
+		public List<IArea> Areas { get; set; }
 	}
 
 	[ContentProperty("Areas")]
 	[DefaultProperty("Areas")]
 	public class Map : Group {
 		public string Image { get; set; }
-		public double Scale { get; set; }
 		public string File { get; set; }
 		public ImageMap.Types Type { get; set; }
 		public double Flatness { get; set; }
 		public ImageMap.FileTypes FileType { get; set; }
+		public ImageMap.IdentChars Ident { get; set; }
+
+		public double XOffset { get; set; }
+		public double YOffset { get; set; }
+		public double Scale { get; set; }
+		public double XScale { get; set; }
+		public double YScale { get; set; }
+		public double Angle { get; set; }
+
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-		public List<Area> Areas { get; set; }
+		public List<IArea> Areas { get; set; }
 	}
 
-	public class Area : System.Web.UI.WebControls.HotSpot {
+	public class Area : System.Web.UI.WebControls.HotSpot, IArea {
 		public string Element { get; set; }
 		public override string GetCoordinates() { throw new NotImplementedException(); }
 		protected override string MarkupName { get { throw new NotImplementedException(); } }
@@ -148,20 +160,20 @@ namespace XamlImageConverter.Elements {
 		public string onmouseover { get; set; }
 		public string alt { get; set; }
 		public string title { get; set; }
+		public string style { get; set; }
 	}
+	public class Areas : Area { }
 
-	public class Areas : System.Web.UI.WebControls.HotSpot {
-		public string Elements { get; set; }
-		public override string GetCoordinates() { throw new NotImplementedException(); }
-		protected override string MarkupName { get { throw new NotImplementedException(); } }
+	public class HotSpot : System.Web.UI.WebControls.HotSpot, IArea {
+		public override string GetCoordinates() {
+			throw new NotImplementedException();
+		}
 
-		public string href { get; set; }
-		public string onclick { get; set; }
-		public string onmouseout { get; set; }
-		public string onmouseover { get; set; }
-		public string alt { get; set; }
-		public string title { get; set; }
+		protected override string MarkupName {
+			get { throw new NotImplementedException(); }
+		}
 	}
+	public class HotSpots : HotSpot, IArea { }
 
 	[ContentProperty("Setters")]
 	[DefaultProperty("Setters")]

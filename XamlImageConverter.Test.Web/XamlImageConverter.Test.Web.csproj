@@ -10,8 +10,8 @@
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>johnshope.SkinBuilder.Web.Test</RootNamespace>
-    <AssemblyName>johnshope.SkinBuilder.Web.Test</AssemblyName>
+    <RootNamespace>XamlImageConverter.Web.Test</RootNamespace>
+    <AssemblyName>XamlImageConverter.Web.Test</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -19,7 +19,7 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <TargetFrameworkProfile />
-    <UseIISExpress>true</UseIISExpress>
+    <UseIISExpress>false</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -66,20 +66,20 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="iisuser.aspx" />
-    <Content Include="Images\blog-banner.jpg" />
     <Content Include="Default.aspx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
-    <Content Include="Images\generic-lines.png" />
-    <Content Include="Images\jquery.js" />
-    <Content Include="Images\jquery.maphilight.min.js" />
-    <Content Include="Images\Readme.aspx">
-      <SubType>ASPXCodeBehind</SubType>
-    </Content>
-    <Content Include="Images\SiteSpecification.xml" />
-    <Content Include="Images\Tux.svg" />
-    <Content Include="Images\Usa.Map.html" />
-    <Content Include="Images\Usa.Map.svg" />
+    <Content Include="XamlImageConverter.Demo\blog-banner.jpg" />
+    <Content Include="XamlImageConverter.Demo\Kaxaml.gif" />
+    <Content Include="XamlImageConverter.Demo\Readme.aspx" />
+    <Content Include="XamlImageConverter.Demo\Usa.Map - Copy.html" />
+    <Content Include="XamlImageConverter.Demo\generic-lines.png" />
+    <Content Include="XamlImageConverter.Demo\jquery.js" />
+    <Content Include="XamlImageConverter.Demo\jquery.maphilight.min.js" />
+    <Content Include="XamlImageConverter.Demo\SiteSpecification.xml" />
+    <Content Include="XamlImageConverter.Demo\Tux.svg" />
+    <Content Include="XamlImageConverter.Demo\Usa.Map.html" />
+    <Content Include="XamlImageConverter.Demo\Usa.Map.svg" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -95,23 +95,20 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Images\CreateImages.xic.xaml">
+    <Content Include="XamlImageConverter.Demo\CreateImages.xic.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Images\Homepage.xaml">
+    <Content Include="XamlImageConverter.Demo\Homepage.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Images\Kaxaml.xaml">
+    <Content Include="XamlImageConverter.Demo\Kaxaml.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Images\Planet.psd" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\XamlImageConverter.Web\XamlImageConverter.Web.csproj">
@@ -139,22 +136,6 @@
     </CreateItem>
     <Copy SourceFiles="@(ItemsSource1)" DestinationFolder="$(ProjectDir)bin\Lazy\" OverwriteReadOnlyFiles="true" />
     <Delete Files="@(ItemsSource1)" />
-    <CreateItem Include="$(ProjectDir)bin\gxps\**\*.*">
-      <Output TaskParameter="Include" ItemName="ItemsSource2" />
-    </CreateItem>
-    <Copy SourceFiles="@(ItemsSource2)" DestinationFolder="$(ProjectDir)bin\Lazy\gxps\" OverwriteReadOnlyFiles="true" />
-    <Delete Files="@(ItemsSource2)" />
-    <CreateItem Include="$(ProjectDir)bin\ImageMagick\**\*.*">
-      <Output TaskParameter="Include" ItemName="ItemsSource3" />
-    </CreateItem>
-    <Copy SourceFiles="@(ItemsSource3)" DestinationFolder="$(ProjectDir)bin\Lazy\ImageMagick\" OverwriteReadOnlyFiles="true" />
-    <Delete Files="@(ItemsSource3)" />
-    <CreateItem Include="$(ProjectDir)bin\psd2xaml\**\*.*">
-      <Output TaskParameter="Include" ItemName="ItemsSource4" />
-    </CreateItem>
-    <Copy SourceFiles="@(ItemsSource4)" DestinationFolder="$(ProjectDir)bin\Lazy\psd2xaml\" OverwriteReadOnlyFiles="true" />
-    <Delete Files="@(ItemsSource4)" />
-    <!-- <Copy SourceFiles="$(SolutionDir)XamlImageConverter.Exe\bin\$(Configuration)\convert.*" DestinationFolder="$(ProjectDir)Items" /> -->
   </Target>
   <!--  <Target Name="AfterBuild">
   </Target>
@@ -167,7 +148,7 @@
           <AutoAssignPort>False</AutoAssignPort>
           <DevelopmentServerPort>49592</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:49592/</IISUrl>
+          <IISUrl>http://localhost/XamlImageConverter.Test.Web</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

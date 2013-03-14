@@ -64,6 +64,7 @@ namespace XamlImageConverter {
 		static int id = 0;
 		public List<Step> Steps { get; set; }
 		public List<Process> Processes { get; set; }
+		public int? hash;
 
 		public void FinishWork() { foreach (var p in Processes.Where(p => !p.HasExited)) p.WaitForExit(); } 
 
@@ -102,7 +103,7 @@ namespace XamlImageConverter {
 			}
 		}
 
- 		public string MapPath(string path) {
+		public string MapPath(string path) {
 			if (path == null) path = "";
 			path = path.Replace('/', Path.DirectorySeparatorChar);
 			if (path.StartsWith("~" + Path.DirectorySeparatorChar) && ProjectPath != null) {
@@ -162,26 +163,25 @@ namespace XamlImageConverter {
 
 		void LoadDlls() {
 			lock (DllLock) {
-				if (dllsLoaded) return;
-				if (!string.IsNullOrEmpty(LibraryPath)) {
-					var path = Path.Combine(ProjectPath, LibraryPath);
-					if (!string.IsNullOrEmpty(path)) {
-						var files = Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories);
-						foreach (var file in files) {
-							try {
-								var pdb = Path.ChangeExtension(file, "pdb");
-								Assembly assembly;
-								//if (File.Exists(pdb)) assembly = Assembly.Load(File.ReadAllBytes(file), File.ReadAllBytes(pdb));
-								//else
-								assembly = Assembly.LoadFrom(file);
+				if (dllsLoaded || string.IsNullOrEmpty(LibraryPath) ||
+					(ProjectPath == AppDomain.CurrentDomain.BaseDirectory && AppDomain.CurrentDomain.RelativeSearchPath.Split(';').Contains(LibraryPath))) return;
+				var path = Path.Combine(ProjectPath, LibraryPath);
+				if (!string.IsNullOrEmpty(path)) {
+					var files = Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories);
+					foreach (var file in files) {
+						try {
+							var pdb = Path.ChangeExtension(file, "pdb");
+							Assembly assembly;
+							//if (File.Exists(pdb)) assembly = Assembly.Load(File.ReadAllBytes(file), File.ReadAllBytes(pdb));
+							//else
+							assembly = Assembly.LoadFrom(file);
 
-								if (assembly != null) Errors.Message("Assembly {0} loaded.", Path.GetFileNameWithoutExtension(file));
-							} catch { }
-						}
+							if (assembly != null) Errors.Message("Assembly {0} loaded.", Path.GetFileNameWithoutExtension(file));
+						} catch { }
 					}
 				}
-				dllsLoaded = true;
 			}
+			dllsLoaded = true;
 		}
 
 		/*
@@ -199,12 +199,7 @@ namespace XamlImageConverter {
  
 			SkinPath = Path.Combine(ProjectPath, Path.GetDirectoryName(filename));
 
-			List<string> directExtensions = new List<string> {
-				".xaml.png", ".xaml.jpg", ".xaml.jpeg", ".xaml.gif", ".xaml.bmp", ".xaml.tif", ".xaml.tiff", ".xaml.pdf", ".xaml.wdp", ".xaml.eps", ".xaml.ps", ".xaml.xps",
-				".svg.png", ".svg.jpg", ".svg.jpeg", "svg.gif", ".svg.bmp", ".svg.tif", "svg.tiff", "svg.pdf", ".svg.wpd", ".svg.eps", "svg.ps", ".svg.xps",
-				".svgz.png", ".svgz.jpg", ".svgz.jpeg", "svgz.gif", ".svgz.bmp", ".svgz.tif", "svgz.tiff", "svgz.pdf", ".svgz.wpd", ".svgz.eps", "svgz.ps", ".svgz.xps",
-				".psd.png", ".psd.jpg", ".psd.jpeg", "psd.gif", ".psd.bmp", ".psd.tif", "psd.tiff", "psd.pdf", ".psd.wpd", ".psd.eps", "psd.ps", ".psd.xps"
-			};
+			List<string> directExtensions = new List<string> { ".xaml", ".psd", ".svg", ".svgz", ".html" };
 
 			XElement config = null;
 			DateTime Version = DateTime.Now.ToUniversalTime();
@@ -219,11 +214,12 @@ namespace XamlImageConverter {
 					using (var r = new StringReader(filename)) {
 						var xdoc = XElement.Load(r, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo | LoadOptions.SetBaseUri);
 						if (xdoc.Name.LocalName == "XamlImageConverter" && (xdoc.Name.NamespaceName == Parser.ns1 || xdoc.Name.NamespaceName == Parser.ns2)) config = xdoc;
-						else config = XamlScene.CreateDirect(xdoc, Parameters);
+						else config = XamlScene.CreateDirect(this, null, xdoc, Parameters);
 					}
-				} else if (directExtensions.Any(x => lowername.EndsWith(x)) || (lowername.EndsWith(".xaml") && !lowername.EndsWith(".xic.xaml"))) config = XamlScene.CreateDirect(filename, Parameters);
-				else if (filename == "XamlImageConverter.axd" || filename.EndsWith("\\XamlImageConverter.axd")) {
-					config = XamlScene.CreateXsd(Parameters);
+				} else if (directExtensions.Any(x => lowername.EndsWith(x))) {
+					config = XamlScene.CreateDirect(this, filename, Parameters);
+				} else if (filename == "xic.axd" || filename.EndsWith("\\xic.axd")) {
+					config = XamlScene.CreateAxd(this, Parameters);
 				} else {
 					config = XElement.Load(filename, LoadOptions.SetBaseUri | LoadOptions.SetLineInfo | LoadOptions.PreserveWhitespace);
 				}
@@ -234,7 +230,7 @@ namespace XamlImageConverter {
 				Errors.Error(ex.Message, "21", null);
 				return;
 			}
-			Compile(Version, config);
+			if (config != null) Compile(Version, config);
 		}
 
 		void Compile(DateTime Version, XElement config) {
@@ -245,7 +241,7 @@ namespace XamlImageConverter {
 				var scenes = ParseScenes(Version, config).ToList();
 
 				var building = CheckNeedsBuilding(scenes);
-				
+
 				NeedsBuilding = NeedsBuilding || building;
 
 				// compile dependencies
@@ -254,11 +250,11 @@ namespace XamlImageConverter {
 						var c = new Compiler();
 						this.CopyTo(c);
 						c.SourceFiles = new List<string>() { dependency };
-						c.SeparateAppDomain = true;
+						c.SeparateAppDomain = false;
 						c.Compile();
 					}
 				}
-		
+
 				if (!building || CheckBuilding) return;
 
 				LoadDlls();
@@ -283,9 +279,10 @@ namespace XamlImageConverter {
 				XObject xobj = null;
 				if (lastStep != null && lastStep is Group) xobj = ((Group)lastStep).XElement;
 				Errors.Warning("An internal error occurred\n\n" + ex.Message + "\n" + ex.StackTrace, "2", xobj);
+			} finally {
+				lastStep = null;
+				System.GC.Collect(System.GC.MaxGeneration, GCCollectionMode.Forced);
 			}
-			lastStep = null;
-			System.GC.Collect(System.GC.MaxGeneration, GCCollectionMode.Forced);
 		}
 
 		void RawCompile() {
@@ -350,25 +347,18 @@ namespace XamlImageConverter {
 					CoreCompile();
 					CheckBuilding = false;
 					if (NeedsBuilding) {
-						AppDomainSetup setup = new AppDomainSetup();
-						setup.ApplicationBase = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-						var parentDomain = AppDomain.CurrentDomain;
+						var setup = new AppDomainSetup();
+						setup.ApplicationBase = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
+						setup.PrivateBinPath = "bin;bin\\Lazy";
 						var domain = AppDomain.CreateDomain("XamlImageConverter Compiler", null, setup);
-						
-						var resolver = new ResolveEventHandler((sender, args) => {
-							try {
-								var name = new AssemblyName(args.Name);
-								var file = MapPath("~/bin/Lazy/" + name.Name + ".dll");
-								if (!File.Exists(file)) return null;	
+						AppDomain.CurrentDomain.AssemblyResolve += (sender, args) => {
+							var file = MapPath("~/bin/Lazy/" + new AssemblyName(args.Name).Name + ".dll");
+							if (File.Exists(file)) {
 								return Assembly.LoadFrom(file);
-							} catch (Exception ex) {
 							}
 							return null;
-						});
-						parentDomain.AssemblyResolve += resolver;
-
-						domain.Load(Assembly.GetExecutingAssembly().GetName());
-
+						};
+						
 						try 
 						{
 							Compiler compiler = (Compiler)domain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, "XamlImageConverter.Compiler");
@@ -379,13 +369,13 @@ namespace XamlImageConverter {
 						} catch (Exception ex2) {
 						} finally {
 							AppDomain.Unload(domain);
-							GC.Collect(10, GCCollectionMode.Forced);
-							GC.WaitForFullGCComplete(1000);
-							parentDomain.AssemblyResolve -= resolver;
+							//GC.Collect(10, GCCollectionMode.Forced);
+							//GC.WaitForFullGCComplete(1000);
 						}
 					}
 				} else {
 					CoreCompile();
+					//GC.Collect(10, GCCollectionMode.Forced);
 				}
 
 				FinishWork();

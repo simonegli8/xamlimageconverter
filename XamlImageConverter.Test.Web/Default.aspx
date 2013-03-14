@@ -11,7 +11,7 @@
 
 		 <h1>You'll be redirected in a few seconds.</h1>
 
-		 <% Response.Clear(); Response.Redirect("~/Images/Readme.aspx"); %>
+		 <% Response.Clear(); Response.Redirect("~/XamlImageConverter.Demo/Readme.aspx"); %>
 	</form>
 </body>
 </html>

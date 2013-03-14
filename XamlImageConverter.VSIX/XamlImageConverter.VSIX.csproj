@@ -85,21 +85,15 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>XamlImageConverter.xsd</DependentUpon>
     </Compile>
+    <Content Include="Demo\Kaxaml.gif">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="Demo\Planet.psd">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <None Include="XamlImageConverter.Designer.cs" />
+    <Content Include="__TemplateIcon.old.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="convert.exe">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="convert.pdb">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="convert.vshost.exe">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
     <Content Include="Demo\blog-banner.jpg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -133,7 +127,7 @@
     <Content Include="gxps\gxps-9.05-win32.exe">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="gxps\gxps-9.06-win32.exe">
+    <Content Include="gxps\gxps-9.07-win32.exe">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Icon.ico">
@@ -211,6 +205,8 @@
     <Content Include="XamlImageConverter.pdb">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="XamlImageConverter.Web.dll" />
+    <Content Include="XamlImageConverter.Web.pdb" />
     <Content Include="XamlImageConverterConfiguration.CSharp.zip">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -241,12 +237,6 @@
     </Content>
     <Content Include="ItemTemplates\VisualBasic\General\XamlImageConverterConfiguration.VB.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="convert.exe.config">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="convert.vshost.exe.config">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="XamlImageConverter.targets">
@@ -312,6 +302,9 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="html2xaml\" />
   </ItemGroup>
   <PropertyGroup>
     <ZipItemCSharpPath>$(ProjectDir)ItemTemplates\CSharp\General\XamlImageConverterConfiguration.CSharp.zip</ZipItemCSharpPath>
