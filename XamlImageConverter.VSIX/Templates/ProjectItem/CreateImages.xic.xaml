@@ -12,12 +12,12 @@
 	
 	<!-- Documentation:
 	
-		For some usage examples have a look at the hidden folder ~/DemoXamlImageConverter in your project, or navigate to the page
-		~/DemoXamlImageConverter in your browser.
+		For some usage examples have a look at the folder ~/XamlImageConverter.Demo in your project, or navigate to the page
+		~/XamlImageConverter.Demo in your browser.
 
 		A XamlImageConverter xaml batch file consists of one or several Scene elements.
 		Each Scene has a Source file that is either a xaml, svg or psd file, or, for compiled xaml, a Type name must be specified,
-		or alternatively the Scene contains a xaml element that contains the source xaml as child elements in the batch file.
+		or alternatively the Scene contains a Xaml element that contains the source xaml as child elements in the batch file.
 
 
 		A Scene has the following properties:
@@ -27,15 +27,18 @@
 		- Type: A Fully Qualified type name including assembly, specifying a compiled xaml class as xaml source. You use this way of loading the
 			Xaml for compiled xaml. You also need to set the build action of this file to XamlImageConverterPostCompile, and you won't be able to use
 			the generated images as a resource.
+		- Assembly: The name of an assembly the Type is located in.
 		- OutputPath: The common path all images with a relative path will be stored in.
-		- DependsOn: A list of files the source depends on, and if modified will force a re-rendering of the images.
+		- DependsOn: A list of additional files the source depends on, and if modified will force a re-rendering of the images. 
 		- Height, Width: The desired size for the root xaml source element.
 		- Cultures: A list of culture names like "en-US, fr-FR, es-ES, de-CH" that images will be generated for for localized xaml.
 		- Dynamic: When true, the Scene will always be rendered, regardless of the images being up to date. Default is false.
 		- Theme: A string denoting an OS Theme like Aero, Aero2, AeroLite, Royale, Classic, Luna, Luna.Metallic, Luna.Homestead.
 		- Skin: A custom xaml skin to apply to the Scene.
+		- TextMode: Text rendering mode. A comma separated list of System.Windows.Media.TextFormattingMode (Ideal, Display) and
+			System.Windows.Media.TextRenderingMode (Auto, Aliased, Grayscale, ClearType)
 
-		The Theme and Skin attributes can also be applied to the root XamlImageConverter element, so they apply for the whole batch file.
+		The Theme, Skin, TextMode and OutputPath attributes can also be applied to the root XamlImageConverter element, so they apply for the whole batch file.
 
 		Examples:
 
@@ -80,6 +83,11 @@
 		  the files logo.en-US.png, logo.fr-FR.png, logo.es-ES.png and so on would be rendered.
 		- Theme: A string denoting a OS Theme like Aero, Aero2, AeroLite, Royale, Classic, Luna, Luna.Metallic, Luna.Homestead.
 		- Skin: A custom xaml skin to apply to the Snapshot.
+		- TextMode: Text rendering mode. A comma separated list of System.Windows.Media.TextFormattingMode (Ideal, Display) and
+			System.Windows.Media.TextRenderingMode (Auto, Aliased, Grayscale, ClearType)
+	
+		Note: If you don't render your images during the build process of your project, but with the XamlImageConverter HttpHandler on the fly, notice that the HttpHandler is not able
+			to render 3D content, because IIS runs in the system session, that has no access to video drivers.
 
 		Example:
 
@@ -95,8 +103,10 @@
 		- OutputPath: The common path all images with a relative path will be stored in.
 		- Theme: A string denoting a OS Theme like Default, Aero, Aero2, AeroLite, Royale, Classic, Luna, Luna.Metallic, Luna.Homestead.
 		- Skin: A custom xaml skin to apply to the Group.
-
-
+		- TextMode: Text rendering mode. A comma separated list of System.Windows.Media.TextFormattingMode (Ideal, Display) and
+			System.Windows.Media.TextRenderingMode (Auto, Aliased, Grayscale, ClearType)
+	
+	
 		You can modify an element in the xaml DOM through the Set, Undo and Reset elements. For example you can make a Snapshot of a button,
 		and then change the Text of the button to another language through the Set command and make another snapshot for that language.
 
@@ -122,64 +132,114 @@
 
 		After you have done a snapshot of the modified xaml, you can Undo the last Set command with the Undo element (that has no properties),
 		or you can revert to the initial xaml with the Reset element (that has also no properties).
-		Note that if you use this feature for localization you might be better off using compiled localized xaml and apply the Cultures property to your Scene element.
+		Note that if you use this feature for localization you might be better off using compiled localized xaml and apply the Cultures property.
 
 
-		Finally it is also possible to generate html image maps from visual shapes of xaml elements or svg paths with the ImageMap or Map element.
+		Next, it is also possible to generate html image maps from visual shapes of xaml elements or svg paths with the ImageMap or Map element.
 		The ImageMap or Map element can substitute an existing map in any HTML file, or it can generate a map inside an UserControl .ascx file or an
 		include file containing the image map, and it can generate an ordinary html map or an ASP.NET WebForms ImageMap element. Whereas the
 		ImageMap creates an asp:ImageMap element, the Map creates a standard html map element.
 		The ImageMap or Map has the following parameters:
 		- Image: The filename of the Image to determine the Snapshot's parameters which created the image.
 		- File: The filename of the file where the map to substitute is located or the UserControl or include file to generate.
-		- Scale: The Zooming Scale to apply to the map's area's coordinates.
+		- Scale, XScale, YScale: The Zooming Scale to apply to the map's area's coordinates.
+		- XOffset, YOffset, Angle: A transformation to apply to all computed coordinates.
 		- Dpi: The dpi value of the image. Usually this value is determined from the Snapshot that created the image.
 		- Flatness: The quality of the polygon approximation for Bezier and arc curves.
 		- Type: Either AspNet (default for ImageMap) or Html (default for Map).
 		- FileType: Either UserControl, IncludeFile or Insert.
 		- Ident: Either Tab(default) or Space for the indentation characters used. If Space is used and FileType is not Insert, 2 spaces are used for indentation.
 	
-		Type and FileType are set by the created file type by default. For .aspx files the defaults are Type="AspNet" and FileType="Insert",
-		for .ascx, Type="AspNet" and FileType="UserControl", for all others Type="Html" and FileType="Insert".
+		FileType is set by the created file type by default. For .aspx, .html, .cshtml, .vbhtml, .php files the default is FileType="Insert",
+		for .ascx, FileType="UserControl", for all others FileType="Insert".
 
 		All the other attributes you specify to the ImageMap are applied to the generated asp:ImageMap or map element, or to the UserControl, if it is a parameter 
 		that applies to UserControls and a UserControl is generated.
 
-		The ImageMap can contain area or areas tags or the ASP HotSpot tags. You can specify tags that are copied unchanged to the generated map or you can specify Area elements 
+		The ImageMap can contain area or areas tags or the ASP.NET HotSpot tags. You can specify tags that are copied unchanged to the generated map or you can specify Area elements 
 		that have a property Element, so the shape and coordinates for the generated area or HotSpot tag are calculated from the visual shape of the xaml or svg element. The placeholder
 		%ID% in the area's attributes is replaced by the x:Name or SVG id of the corresponding shape element.
 
 		Example:
 
-		<xic:ImageMap Image="USA.Map.png" File="~/USA.Map.ascx">
-			<Area Element="California" OnClientClick="alert('California was clicked...')" />
-			<Area Element="NewYork" OnClick="NewYorkNeedsServerSideProcessing" />
-			<Areas Elements="All;Your;IDs;Of;Your;Shape;Xaml;Or;Svg;Elements;Go;Here" OnClientClick="alert('Shape %ID% was clicked...');" />
-		</xic:ImageMap>
+		<xic:Map Image="USA.Map.png" File="~/USA.Map.ascx">
+			<Area Element="California" onclick="alert('California was clicked...');" />
+			<Area Element="NewYork" onclick="doSomeJavaScript();" />
+			<Areas Elements="All;Your;IDs;Of;Your;Shape;Xaml;Or;Svg;Elements;Go;Here" onclick="alert('Shape %ID% was clicked...');" />
+		</xic:Map>
 
-		When the FileType is set to Insert, the destination file is searched for a <map>or <asp:ImageMap> tag with the same ID as specified in the xic.xaml file, and the tag is replaced
+		When the FileType is set to Insert, the destination file is searched for a <map> or <asp:ImageMap> tag with the same ID or name as specified in the xic.xaml file, and the tag is replaced
 		with the computed tag. So to insert a html map in a file called "MyMap.aspx" you would create a xic.xaml like this:
 
 		<xic:Scene Source="MyImage.xaml">
 			<xic:Snapshot File="MyImage.png" />
-			<xic:ImageMap ID="MyMap" Image="MyImage.png" File="MyMap.aspx">
-				<Areas Elements="All;Your;IDs;Go;Here" OnClientClick="alert('Shape %ID% was clicked...');" />
-			</xic:ImageMap>
+			<xic:Map ID="MyMap" Image="MyImage.png" File="MyMap.aspx">
+				<Areas Elements="All;Your;IDs;Go;Here" onclick="alert('Shape %ID% was clicked...');" />
+			</xic:Map>
 		</xic:Scene>
 
 		And in your .aspx file you would insert a tag like this:
-		<asp:ImageMap ID="MyMap" runat="server" />
+		<map name="MyMap" ... />
 		that would then be replaced by the computed map.
 
-		For plain html you would write in the .xic.xaml:
-		<xic:Map ID="MyMap" Image="MyImage.png" File="MyMap.aspx">
-			<Areas Elements="All;Your;IDs;Go;Here" onclick="alert('Shape %ID% was clicked...');" />
-		</xic:Map>
+		For an asp:ImageMap you would write in the .xic.xaml:
+		<xic:ImageMap ID="MyMap" Image="MyImage.png" File="MyMap.aspx">
+			<HotSpots Elements="All;Your;IDs;Go;Here" PostBackValue="%ID%" />
+		</xic:ImageMap>
 
 		and in the .aspx:
-		<map name="MyMap" />
+		<asp:ImageMap ID="MyMap" runat="server" ... />
 
 		You can also specify Elements="*" in the map to create areas for all named elements.
+	
+	
+		Next, you can include xaml directly in ASP.NET WebForms content, through the <xic:XamlImage> Control.
+		The xic prefix is registered in your web.config as soon as you include a .xic.xaml file in your project.
+		The <xic:XamlImage> Control has essentially the same properties as a Snapshot element in a batch file.
+		You can write your WPF or batch xaml right inside the xic:XamlImage like this:
+	
+		<xic:XamlImage ID="MyXamlImage" runat="server" ImageUrl="~/Images/Cache/button.png">
+			<Button>I'm a button</Button>
+		</xic:XamlImage>
+	
+		or you can set the xaml in your CodeBehind like this:
+		
+		MyXamlImage.Content = "<Button>I'm a button</Button>";
+	
+	
+		For rendering the images you have several alternatives:
+	
+		- During the build process, by setting the build action of a .xic.xaml batch file to either XamlImageConverterPreCompile (for loose xaml) or
+			XamlImageConverterPostCompile (for compiled xaml).
+		- With the XamlImageConverter HttpHandler.
+	
+		Using the HttpHandler does not support rendering of 3D images, because IIS runs in the system session and has no access to video drivers.
+		On the other hand it has the advantage of being able able to modify content at runtime.
+	
+		The syntax of the HttpHandler is as follows:
+	
+		You would create an <img> tag in your html with an url refering to the HttpHandler.
+		The HttpHandler processes the following file extensions: *.xaml, *.svg, *.svgz, *.psd, xic.axd
+		If the url has no addition parameters, the files are served as is, without any processing.
+		You then can specify url parameters, that either get applied to the implicit Snapshot or to an implicit Set element.
+		To determine the image file to send as a response you either use the Image, File or Filename parameter or you specify
+		a file type like png, gif, jpg etc. so the filename will be determined from the source file and the type.
+		The xic.axd handler has an additional parameter Source, where you can specify a source file, direct xaml, or
+		a key starting with a # sign to the Session state, so the xaml is fetched from the session state.
+		(Used mainly when implementing a custom control, that can store the xaml in the Session state.)
+		
+		If you would convert a batch file on the fly, you would use a url like so:
+		<img src="CreateMyImages.xic.xaml?Image=~%2FImages%2Fmyimage.png" />
+		
+		or for direct conversion of a WPF xaml file:
+		<img src="MyImage.xaml?png&Dpi=300&MyButton.Text=This%20text%20is%20applied%20to%20MyButton." />
+		
+		or by directly specifying the xaml in the url:  
+		<img src="xic.axd?Source=%3CButton%3EI'm%20a%20button%3C%2FButton%3E&Image=~%2FImages%2Fmyimage.png" />
+		
+		or by storing the xaml in Session state:
+		<img src="xic.axd?Source=%23MySessionId&Image=~%2FImages%2Fmyimage.png" />
+		
 	-->
 
 </xic:XamlImageConverter>

@@ -92,6 +92,7 @@ namespace XamlImageConverter.Elements {
 		public string Theme { get; set; }
 		public string Skin { get; set; }
 		public string TextMode { get; set; }
+		public int? Layer { get; set; }
 	}
 
 	public interface IArea { }

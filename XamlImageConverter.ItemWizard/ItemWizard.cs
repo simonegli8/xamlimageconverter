@@ -232,16 +232,13 @@ namespace XamlImageConverter {
 			var IsWeb = File.Exists(conf);
 			if (!IsWeb) return;
 
-			var binlazy = Path.Combine(dest, "Bin\\Lazy");
-			if (!Directory.Exists(binlazy)) {
+			var bin = Path.Combine(dest, "Bin");
+			var binlazy = bin + "\\Lazy";
+			if (!Directory.Exists(bin)) {
 				Directory.CreateDirectory(binlazy);
 				Files.Copy(Path.Combine(src, "XamlImageConverter.dll"), binlazy);
 				Files.Copy(Path.Combine(src, "XamlImageConverter.pdb"), binlazy);
-				Files.Copy(Path.Combine(src, "Lazy\\gxps"), binlazy);
-				Files.Copy(Path.Combine(src, "Lazy\\ImageMagick"), binlazy);
-				Files.Copy(Path.Combine(src, "Lazy\\psd2xaml"), binlazy);
-				Files.Copy(Path.Combine(src, "Lazy\\html2xaml"), binlazy);
-				//Files.Copy(Path.Combine(src, "Lazy\\XamlImageConverter.xsd"), binlazy);
+				Files.Copy(Path.Combine(src, "Lazy"), bin);
 				var cache = Path.Combine(dest, "Images\\Cache");
 				if (!Directory.Exists(cache)) Directory.CreateDirectory(cache);
 			}

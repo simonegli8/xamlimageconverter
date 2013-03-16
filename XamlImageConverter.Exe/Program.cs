@@ -24,11 +24,12 @@ namespace XamlImageConverter {
 			if (a.Count == 0 || new[] { "-h", "help", "-help", "?", "/?", "-?" }.Any(s => a.Any(at => s == at.Trim().ToLower()))) {
 				Console.WriteLine("XamlImageConverter 3.5 by Chris Cavanagh & Simon Egli");
 				Console.WriteLine("Creates snapshots, gif animations or html image maps from XAML, SVG & PSD images\n\r");
-				Console.Error.WriteLine("XamlImageConverter [-x] [-w] [-s [running time]] [-r] [-v]");
+				Console.Error.WriteLine("XamlImageConverter [-x] [-w] [-1] [-s [running time]] [-r] [-v]");
 				Console.Error.WriteLine("   [-l librarypath] [-p projectpath] configFile { configFile }");
 				Console.Error.WriteLine("A configFile is a xaml batch file, describing an image conversion job.");
 				Console.Error.WriteLine("Documentation for creating a configFile can be found at");
 				Console.Error.WriteLine("   http://xamlimageconverter.codeplex.com.");
+				Console.Error.WriteLine("  -1 option: Use only one cpu core.");
 				Console.Error.WriteLine("  -w option: Wait for key at end.");
 				Console.Error.WriteLine("  -s option: Run as server for the HttpHandler.");
 				Console.Error.WriteLine("             (To support 3D xaml, that doesn't render under IIS).");
@@ -55,6 +56,12 @@ namespace XamlImageConverter {
 				a.Remove("-w");
 				waitForKey = true;
 			}
+			bool manycore = true;
+			if (a.Contains("-1")) {
+				a.Remove("-1");
+				manycore = false;
+			}
+
 
 			bool server = false;
 			bool test = false;
@@ -104,7 +111,7 @@ namespace XamlImageConverter {
 			List<string> files = new List<string>();
 			foreach (var f in a) {
 				var appRoot = projectPath;
-                var file = f;
+					 var file = f;
 				if (appRoot.EndsWith("\\")) appRoot = appRoot.Substring(0, appRoot.Length - 1);
 				file = file.Replace("~", appRoot)
 					.Replace("/", "\\");
@@ -130,19 +137,21 @@ namespace XamlImageConverter {
 						compiler.LibraryPath = libraryPath;
 						compiler.ProjectPath = projectPath;
 						compiler.RebuildAll = rebuildAll;
+						compiler.Parallel = manycore;
 						if (log) compiler.Loggers.Add(new FileLogger());
 						compiler.UseService = true;
 						compiler.Compile(files);
 						//cserver.Compile(compiler);
 					});
 				}
- 				cserver.Start();
+				cserver.Start();
   
 			} else {
 				var compiler = new Compiler();
 				compiler.LibraryPath = libraryPath;
 				compiler.ProjectPath = projectPath;
 				compiler.RebuildAll = rebuildAll;
+				compiler.Parallel = manycore;
 				compiler.SeparateAppDomain = useAppDomain;
 				if (log) compiler.Loggers.Add(new FileLogger());
 				compiler.Compile(files);

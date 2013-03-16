@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" %>
+﻿<%@ Page Language="C#"  ValidateRequest="false" %>
 <%@ Import Namespace="System.Xml.Linq" %>
 <%@ Import Namespace="Silversite.Web.UI" %>
 
@@ -18,20 +18,33 @@
 <body>
 	 <form id="form1" runat="server">
 	 <div>
+		
 		<h3>A direct conversion of xaml =&gt; png</h3> 
 		<pre><code>&lt;img src="Homepage.xaml?png" runat="server" /&gt;</code></pre>
 		<img src="Homepage.xaml?png" runat="server" />
 		<hr />
 
-		<h3>A conversion of multiple images with a batch script file, and of an animated gif.</h3>	
+		 <h3>A PDF of the above xaml</h3>
+		<pre><code>&lt;a href="Homepage.xaml?pdf"&gt;Homepage PDF&lt;/a&gt;</code></pre>
+		<a href="Homepage.xaml?pdf">Homepage PDF</a>
+		<hr />
+
+		<h3>Rendering of multiple images with a batch script file, and of an animated gif.</h3>	
 		<pre><code>&lt;img src="CreateImages.xic.xaml?Image=Images/Homepage/animated-loader.gif" runat="server" /&gt;</code></pre>
 		<img src="CreateImages.xic.xaml?Image=Images/Homepage/animated-loader.gif" runat="server" />
 		<hr />
 		
 		<h3>A html image map created from a svg source</h3>
 		<p>This map was generated from <a href="http://en.wikipedia.org/wiki/Image:Map_of_USA_with_state_names.svg">"Map of USA with state names.svg"</a>.
-		Note that in the current version the font is not resolved correctly.</p>
+		Note that in the current version the SVG font is not resolved correctly.</p>
 		<pre><code>&lt;asp:ImageMap ID="usamap" runat="server" ImageUrl="CreateImages.xic.xaml?Image=Images/Usa.Map.png" CssClass="map" /&gt;</code></pre>
+		 and in CreateImages.xic.xaml:
+		<pre><code>&lt;xic:Snapshot Image="Usa.Map.png" &gt;
+&lt;xic:ImageMap ID="usamap" Image="Usa.Map.png" File="Readme.aspx" &gt;
+  &lt;HotSpots Elements="WA,OR,CA,AK,ID,NV,AZ,UT,MT,WY,CO,NM,TX,OK,KS,NE,SD,ND,MN,IA,MO,AR,LA,WI,IL,TN,MS,MI,IN,KY,AL,FL,GA,SC,NC,VA,WV,OH,PA,MD,NJ,NY,CT,MA,VT,NH,ME,RI,DE,HI" HotSpotMode="PostBack" PostBackValue="%ID%"/&gt;
+&lt;/xic:ImageMap&gt
+			  </code></pre>
+
 		<asp:ImageMap ID="usamap" runat="server" ImageUrl="CreateImages.xic.xaml?Image=Images/Usa.Map.png" CssClass="map">
 		  <asp:PolygonHotSpot HotSpotMode="PostBack" PostBackValue="WA" Coordinates="86,28,86,30,85,31,86,32,85,34,84,35,83,34,84,32,82,31,82,33,81,33,80,31,79,29,81,29,82,30,83,28,86,28" />
 		  <asp:PolygonHotSpot HotSpotMode="PostBack" PostBackValue="WA" Coordinates="93,24,102,27,111,29,130,34,152,40,168,43,167,47,163,60,159,81,156,97,155,106,142,103,127,99,112,100,112,98,106,100,102,100,100,98,98,99,94,99,92,97,87,95,86,95,82,94,80,96,74,95,69,91,69,91,69,83,67,79,63,79,63,76,60,76,58,74,57,75,54,72,55,70,57,69,59,65,56,64,57,61,61,60,58,57,57,50,57,47,57,40,56,37,58,27,60,28,62,31,65,33,68,35,72,37,75,38,78,39,82,40,84,40,84,38,85,37,87,35,87,36,88,38,86,39,85,41,87,42,88,44,89,46,90,46,90,45,89,44,89,40,90,39,89,37,89,35,91,32,90,29,87,24,88,24,89,23,93,24" />
@@ -120,42 +133,40 @@
 		</asp:ImageMap>
 		<hr />
 	
-		<h3>A PDF of the above homepage</h3>
-		<pre><code>&lt;asp:HyperLink runat="server" NavigateUrl="Homepage.xaml?pdf"&gt;Homepage PDF&lt;/asp:HyperLink&gt;</code></pre>
-		<asp:HyperLink runat="server" NavigateUrl="Homepage.xaml?pdf">Homepage PDF</asp:HyperLink>
-		<hr />
 		
-		 <h3>Conversion of 3D content doesn't work under IIS (only on IIS6).</h3>
+		 <h3>Rendering of 3D content doesn't work under IIS (only on IIS6 & IISExpress, because IIS does not run in a user session and can't access video drivers).</h3>
 		<pre><code>&lt;img src="Kaxaml.xaml?gif&Storyboard=rotate&Frames=50&Loop=0" runat="server" /&gt;</code></pre>
 		<img src="Kaxaml.xaml?gif&Storyboard=rotate&Frames=50&Loop=0" runat="server" />
 
-		 <h3>Conversion of 3D content doesn't work under IIS, so here is a precompiled version.</h3>
+		 <h3>Rendering of 3D content doesn't work under IIS, so here is a precompiled version.</h3>
 		<pre><code>&lt;img src="Kaxaml.gif" runat="server" /&gt;</code></pre>
 		<img src="Kaxaml.gif" runat="server" />
 		
 		<h3>Direct xaml in ASP.NET.</h3>
 	
-		<pre><code>
-			&lt;asp:TextBox ID="buttontext" runat="server"&gt;I'm a button&lt;/asp:TextBox&gt;&lt;asp:Button ID="Button1" runat="server" OnClick="Update" Text="Update" /&gt;
-			&lt;xic:XamlImage ID="dynamicbutton" runat="server" ImageUrl="Images/XamlImage.png"&gt;
-				&lt;Button&gt;I'm a Button&lt;/Button&gt;
-			&lt;/xic:XamlImage&gt;
-			&lt;script runat="server"&gt;
-				protected void Update(object sender, EventArgs e) {
-					var dynamicbutton = (XamlImage)Page.FindControl("dynamicbutton");
-					dynamicbutton.Xaml = string.Format("&lt;Button&gt;{0}&lt;/Button&gt;", buttontext.Text);
-				}
-			&lt;/script&gt;
+		<pre><code>&lt;asp:TextBox ID="buttontext" runat="server"Width="700" Height="100" TextMode="MultiLine"&gt;&lt;Button&gt;I'm a button&lt;/Button&gt;&lt;/asp:TextBox&gt;
+&lt;asp:Button runat="server" OnClick="Update" Text="Update" /&gt;
+&lt;xic:XamlImage ID="dynamicbutton" runat="server" Image="Images/XamlImage.png" &gt;
+  &lt;Button&gt;I'm a Button&lt;/Button&gt;
+&lt;/xic:XamlImage&gt;
+&lt;script runat="server"&gt;
+  protected void Update(object sender, EventArgs e) {
+	 var dynamicbutton = (XamlImage)Page.FindControl("dynamicbutton");
+	 dynamicbutton.Content = buttontext.Text;
+  }
+&lt;/script&gt;
 		</code></pre>
 		
-		<asp:TextBox ID="buttontext" runat="server">I'm a button</asp:TextBox><asp:Button ID="Button1" runat="server" OnClick="Update" Text="Update" />
+		<asp:TextBox ID="buttontext" runat="server" Width="700" Height="100" TextMode="MultiLine">&lt;Button&gt;I'm a button&lt;/Button&gt;</asp:TextBox><br />
+		 You can also insert xaml tags here.<br />
+		 <asp:Button runat="server" OnClick="Update" Text="Update" /><br />
 		<xic:XamlImage ID="dynamicbutton" runat="server" ImageUrl="Images/XamlImage.png" >
 			<Button>I'm a Button</Button>
 		</xic:XamlImage>
 		<script runat="server">
 				protected void Update(object sender, EventArgs e) {
 					var dynamicbutton = (XamlImage)Page.FindControl("dynamicbutton"); 
-					dynamicbutton.Xaml = string.Format("<Button>{0}</Button>", buttontext.Text);
+					dynamicbutton.Content = buttontext.Text;
 				}
 		 </script>
 		

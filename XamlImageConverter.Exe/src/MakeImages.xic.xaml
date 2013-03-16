@@ -40,12 +40,12 @@
 
 			<xic:Snapshot Right="0" Top="0" Width="30" Height="164" File="page_header.pdf" />
 
-			<xic:Snapshot Left="0" Top="0" Width="30" Height="164" File="page_header.ps" />
-			<xic:Snapshot Left="14" Top="0" Width="748" Height="164" File="page_header.ps" />
+			<xic:Snapshot Left="0" Top="0" Width="30" Height="164" File="page_header.xps" />
+			<xic:Snapshot Left="14" Top="0" Width="748" Height="164" File="page_header.xps" />
 
-			<xic:Snapshot Right="0" Top="0" Width="30" Height="164" File="page_header.ps" />
+			<xic:Snapshot Right="0" Top="0" Width="30" Height="164" File="page_header.xps" />
 
-			<xic:Snapshot Left="0" Top="0" Width="30" Height="164" File="page_header.eps" />
+			<xic:Snapshot Left="0" Top="0" Width="30" Height="164" File="page_header.xps" />
 
 
 		</xic:Group>
@@ -100,15 +100,15 @@
 		<xic:Snapshot File="usa.map.xaml" />
 
 		<xic:Map Image="usa.map.png" File="usa.map.html" ID="usa">
-			<Areas Elements="WA;OR;CA;AK;ID;NV;AZ;UT;MT;WY;CO;NM;TX;OK;KS;NE;SD;ND;MN;IA;MO;AR;LA;WI;IL;TN;MS;MI;IN;KY;AL;FL;GA;SC;NC;VA;WV;OH;PA;MD;NJ;NY;CT;MA;VT;NH;ME;RI;DE" onclick="alert('State %ID% clicked...');" />
+			<Areas Elements="WA;OR;CA;AK;ID;NV;AZ;UT;MT;WY;CO;NM;TX;OK;KS;NE;SD;ND;MN;IA;MO;AR;LA;WI;IL;TN;MS;MI;IN;KY;AL;FL;GA;SC;NC;VA;WV;OH;PA;MD;NJ;NY;CT;MA;VT;NH;ME;RI;DE,HI" onclick="alert('State %ID% clicked...');" />
 		</xic:Map>
 		<xic:ImageMap Image="usa.map.png" File="Readme.aspx" ID="usa">
-			<HotSpots Elements="WA;OR;CA;AK;ID;NV;AZ;UT;MT;WY;CO;NM;TX;OK;KS;NE;SD;ND;MN;IA;MO;AR;LA;WI;IL;TN;MS;MI;IN;KY;AL;FL;GA;SC;NC;VA;WV;OH;PA;MD;NJ;NY;CT;MA;VT;NH;ME;RI;DE" PostBackValue="%ID%" />
+			<HotSpots Elements="WA;OR;CA;AK;ID;NV;AZ;UT;MT;WY;CO;NM;TX;OK;KS;NE;SD;ND;MN;IA;MO;AR;LA;WI;IL;TN;MS;MI;IN;KY;AL;FL;GA;SC;NC;VA;WV;OH;PA;MD;NJ;NY;CT;MA;VT;NH;ME;RI;DE,HI" PostBackValue="%ID%" />
 		</xic:ImageMap>
 
 	</xic:Scene>
 
-	<xic:Scene OutputPath="~/img" Theme="Aero">
+	<xic:Scene OutputPath="~/img" Theme="Luna">
 		<xic:Xaml>
 			<Canvas Width="500" Height="500">
 				<Canvas.Background>

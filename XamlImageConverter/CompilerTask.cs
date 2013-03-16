@@ -69,6 +69,8 @@ namespace XamlImageConverter.MSBuild {
 			compiler.LibraryPath = LibraryPath;
 			compiler.Loggers.Add(new Logger(Log));
 			compiler.SeparateAppDomain = true;
+			compiler.Parallel = true;
+			compiler.GCLevel = 0;
 			compiler.Compile();
 
 			return !Log.HasLoggedErrors;

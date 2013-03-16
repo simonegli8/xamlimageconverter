@@ -15,8 +15,8 @@ namespace XamlImageConverter {
 
 		public static void ApplyParameters(Compiler compiler, XElement e, string filename, Dictionary<string, string> parameters) {
 			var type = "png";
-			int hash = 0;
-			bool addhash = false, nohash = false;
+			int? hash = null;
+			bool nohash = false;
 
 			foreach (var key in parameters.Keys.ToList()) {
 
@@ -24,18 +24,16 @@ namespace XamlImageConverter {
 					if (key == "Image" || key == "File" || key == "Filename") nohash = true;
 					else if (key == "Type") type = parameters["Type"];
 					else {
-						addhash = !nohash;
-						hash += Hash.Compute(key + "=" + parameters[key]);
+						hash = (hash ?? 0) + Hash.Compute(key + "=" + parameters[key]);
 					}
 					e.SetAttributeValue(key, parameters[key]);
 					parameters.Remove(key);
-					addhash = !nohash;
 				} else {
-					addhash = !nohash;
-					hash += Hash.Compute(key + "=" + parameters[key]);
+					hash = (hash ?? 0) + Hash.Compute(key + "=" + parameters[key]);
+					if (key == "Source") parameters.Remove(key);
 				}
 			}
-			if (addhash) {
+			if (hash != null && !nohash) {
 				compiler.hash = hash;
 				e.SetAttributeValue("Hash", hash);
 			}
@@ -47,13 +45,17 @@ namespace XamlImageConverter {
 		public static XElement CreateDirect(Compiler compiler, string filename, Dictionary<string, string> parameters) {
 			if (filename.EndsWith(".xic.xaml")) {
 				foreach (var key in validAttributes) parameters.Remove(key);
-				return XElement.Load(compiler.MapPath(filename), LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo);
+				filename = compiler.MapPath(filename);
+				using (compiler.FileLock(filename)) {
+					return XElement.Load(filename, LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo);
+				}
 			}
 			XElement snapshot;
 			var res = new XElement(xic + "XamlImageConverter",
-					new XElement(xic + "Scene",
+					new XAttribute(XNamespace.Xmlns+"xic", xic.NamespaceName),
+					new XElement(xic+"Scene",
 						new XAttribute("Source", filename),
-						snapshot = new XElement(xic + "Snapshot")
+						snapshot = new XElement(xic+"Snapshot")
 					)
 				);
 			ApplyParameters(compiler, snapshot, null, parameters);
@@ -62,17 +64,32 @@ namespace XamlImageConverter {
 		
 		public static XElement CreateDirect(Compiler compiler, string filename, XElement e, Dictionary<string, string> parameters) {
 			XElement scene;
-			if (e.Name == xic + "XamlImageConverter") return e;
-			var res = new XElement(xic + "XamlImageConverter",
-					scene = new XElement(xic + "Scene", new XElement(xic  + "Xaml", e))
-				);
-			if (parameters.ContainsKey("Image") || parameters.ContainsKey("File") || parameters.ContainsKey("Filename") || parameters.ContainsKey("Type")) {
-				var snapshot = new XElement(xic + "Snapshot");
-				ApplyParameters(compiler, snapshot, filename, parameters);
-				scene.Add(snapshot);
+			if (e.Name != xic + "XamlImageConverter") {
+				XNamespace mc = "http://schemas.openxmlformats.org/markup-compatibility/2006";
+				var res = new XElement(xic + "XamlImageConverter",
+						new XAttribute("xmlns", Parser.xamlns),
+						new XAttribute(XNamespace.Xmlns+"x", Parser.xxamlns.NamespaceName),
+						new XAttribute(XNamespace.Xmlns+"xic", xic.NamespaceName),
+						new XAttribute(XNamespace.Xmlns+"mc", mc.NamespaceName), 
+						new XAttribute(XNamespace.Xmlns+"d", "http://schemas.microsoft.com/expression/blend/2008"), 
+						new XAttribute(mc+"Ignorable", "d"), 
+						scene = new XElement(xic+"Scene", new XElement(xic+"Xaml", e))
+					);
+					if (e.Name.NamespaceName == "") {
+						e.Name = Parser.xamlns + e.Name.LocalName;
+						foreach (var child in e.Descendants()) {
+							if (child.Name.NamespaceName == "") child.Name = Parser.xamlns + child.Name.LocalName;
+						}
+					}
+				if (parameters.ContainsKey("Image") || parameters.ContainsKey("File") || parameters.ContainsKey("Filename") || parameters.ContainsKey("Type")) {
+					var snapshot = new XElement(xic + "Snapshot");
+					ApplyParameters(compiler, snapshot, filename, parameters);
+					scene.Add(snapshot);
+				}
+				return res;
+			} else {
+				return e;
 			}
-
-			return res;
 		}
 
 		public static XElement CreateAxd(Compiler compiler, Dictionary<string, string> par) {
@@ -81,9 +98,9 @@ namespace XamlImageConverter {
 				compiler.Errors.Error("Source cannot be empty.", "32", new TextSpan());
 				return null;
 			}
-			if (src.Trim()[0] == '#') src = (string)System.Web.HttpContext.Current.Session["XamlImageConverter.Xaml:" + src];
+			if (src.Trim()[0] == '#') src = (string)compiler.Context.Session[src];
 			if (!src.Trim().StartsWith("<")) return CreateDirect(compiler, src, par);
-			return CreateDirect(compiler, XamlImageHandler.Cache + "/" + Hash.Compute(src).ToString("X") , XElement.Parse(src, LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo), par);
+			return CreateDirect(compiler, "xic.axd" , XElement.Parse(src, LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo), par);
 		}
 	}
 }

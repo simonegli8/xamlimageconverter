@@ -13,7 +13,7 @@ namespace XamlImageConverter {
 
 		public static string Path { get; set; }
 
-		static XNamespace ns = Parser.ns1;
+		static XNamespace ns = Parser.xic;
 
 		public static string File(string id, XElement xaml, string type = null, string path = null) {
 			var e = xaml.DescendantsAndSelf(ns + id).FirstOrDefault();

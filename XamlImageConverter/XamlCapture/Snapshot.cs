@@ -51,7 +51,6 @@ namespace XamlImageConverter {
 			}
 			set { base.Filename = value; }
 		}
-
 		/// <summary>
 		/// Save a snapshot of a WPF element
 		/// </summary>
@@ -67,8 +66,6 @@ namespace XamlImageConverter {
 			}
 		}
 
-		static Dictionary<string, FixedDocument> XpsDocs = new Dictionary<string, FixedDocument>();
-
 		double ParseLength(string token) {
 			double res = 0;
 			if (token.EndsWith("mm") && double.TryParse(token.Substring(0, token.Length-2), out res)) return res*3.779528;
@@ -79,7 +76,7 @@ namespace XamlImageConverter {
 			return res;
 		}
 
-		public Size GetSize() {
+		public Size GetSize(FrameworkElement element) {
 			Size size = new Size(96 * 8.3, 96 * 11.7); // A4;
 			if (!string.IsNullOrEmpty(Page)) {
 				var page = Page.ToLower();
@@ -124,10 +121,7 @@ namespace XamlImageConverter {
 				case "ledger": return new Size(96 * 11, 96 * 17);
 				case "tabloid": return new Size(96 * 17, 96 * 11);
 				default:
-					FrameworkElement e;
-					if (string.IsNullOrEmpty(ElementName)) e = Scene.Element as FrameworkElement;
-					else e = Element as FrameworkElement;
-					return e.DesiredSize;
+					return Element.DesiredSize;
 				}
 			}
 			return size;
@@ -135,9 +129,11 @@ namespace XamlImageConverter {
 
 		private void SaveXpsPage(string filename) {
 	
+			var clone = VisualClone();
+
 			if (!XpsDocs.ContainsKey(filename)) {
 				var d = new FixedDocument();
-				d.DocumentPaginator.PageSize = GetSize();
+				d.DocumentPaginator.PageSize = GetSize(clone);
 				XpsDocs.Add(filename, d);
 			}
 			var doc = XpsDocs[filename];
@@ -146,9 +142,10 @@ namespace XamlImageConverter {
 			var pg = new FixedPage();
 			var canvas = new Canvas();
 
-			var clone = ElementClone();
 
 			clone.MeasureAndArrange(new Size(clone.ActualWidth, clone.ActualHeight));
+			var width = clone.Width;
+			var height = clone.Height;
 
 			canvas.Children.Add(clone);
 			canvas.Width = size.Width;
@@ -163,37 +160,16 @@ namespace XamlImageConverter {
 
 			((IAddChild)cont).AddChild(pg);
 
-			cont.Measure(size);
-			cont.Arrange(new Rect(new Point(), size));
-			cont.UpdateLayout();
-
-			var left = Canvas.GetLeft(this);
-			var right = Canvas.GetRight(this);
-			var top = Canvas.GetTop(this);
-			var bottom = Canvas.GetBottom(this);
-			var width = Width;
-			var height = Height;
-
-			if (!double.IsNaN(left) && !double.IsNaN(right)) { width = right - left; right = double.NaN; }
-			if (!double.IsNaN(top) && !double.IsNaN(bottom)) { height = bottom - top; bottom = double.NaN; }
-			if (!double.IsNaN(width) && !double.IsNaN(right)) { left = clone.DesiredSize.Width - right - width; right = double.NaN; }
-			if (!double.IsNaN(height) && !double.IsNaN(bottom)) { top = clone.DesiredSize.Height - bottom - height; bottom = double.NaN; }
-			if (double.IsNaN(left)) left = 0;
-			if (double.IsNaN(top)) top = 0;
-			if (double.IsNaN(width)) width = clone.ActualWidth;
-			if (double.IsNaN(height)) height = clone.ActualHeight;
-			Canvas.SetTop(clone, (size.Height - height) / 2);
-			Canvas.SetLeft(clone, (size.Width - width) / 2);
-			var clip = new RectangleGeometry();
-			clip.Rect = new Rect(left, top, width, height);
-			clone.Clip = clip;
-
 			double zoom = 1;
 			if (FitToPage) zoom = Math.Min(size.Width / width, size.Height / height);
 			if (zoom != 1) {
-				canvas.RenderTransform = new ScaleTransform(zoom, zoom);
-				canvas.RenderTransformOrigin = new Point(size.Width / 2, size.Height / 2);
+				clone.RenderTransform = new MatrixTransform(zoom, 0, 0, zoom, 0, 0);
+				width *= zoom;
+				height *= zoom;
 			}
+
+			Canvas.SetLeft(clone, (size.Width - width) / 2);
+			Canvas.SetTop(clone, (size.Height - height) / 2);
 
 			cont.Measure(size);
 			cont.Arrange(new Rect(new Point(), size));
@@ -218,37 +194,42 @@ namespace XamlImageConverter {
 			}
 
 			ext = ext.ToLower();
-			if (ext == ".eps" || ext == ".ps" || ext == ".pdf") SaveXpsPage(filename + "._temp.xps");
-			else if (ext == ".xps") SaveXpsPage(filename);
+			if (ext == ".eps" || ext == ".ps" || ext == ".pdf") {
+				TempFiles.Add(XpsTempFile);
+				SaveXpsPage(filename + "._temp.xps");
+			} else if (ext == ".xps") SaveXpsPage(filename);
 			else if (ext == ".xaml") {
-				var element = Element ?? Scene;
-				var xamlsave = false;
-				if (Element == null) {
-					if (Scene.XamlPath != null) {
-						DirectoryCopy(Scene.XamlPath, Path.GetDirectoryName(filename));
-						File.Move(Path.Combine(Path.GetDirectoryName(filename), Path.GetFileName(Scene.XamlFile)), filename);
-						File.WriteAllText(LocalFilename, File.ReadAllText(filename).Replace(Scene.XamlPath + "\\", ""));
-					} else if (Scene.XamlFile != null) File.Copy(Scene.XamlFile, filename);
-					else if (Scene.Source.ToLower().EndsWith(".svg") || Scene.Source.ToLower().EndsWith(".svgz")) {
-						SvgConvert.ConvertUtility.ConvertSvg(Compiler.MapPath(Scene.Source), filename);
-					} else xamlsave = true;
-				} else {
-					xamlsave = true;
-				}
-				if (xamlsave) {
-					var settings = new System.Xml.XmlWriterSettings();
-					settings.CheckCharacters = true;
-					settings.CloseOutput = true;
-					settings.Encoding = Encoding.UTF8;
-					settings.Indent = true;
-					settings.IndentChars = "  ";
-					using (var w = System.Xml.XmlWriter.Create(filename, settings)) {
-						try {
-							XamlWriter.Save(element, w);
-						} catch { }
+				using (FileLock(filename)) {
+					var xamlsave = false;
+					if (Element == Scene.Element) {
+						if (Scene.XamlPath != null) {
+							DirectoryCopy(Scene.XamlPath, Path.GetDirectoryName(filename));
+							File.Move(Path.Combine(Path.GetDirectoryName(filename), Path.GetFileName(Scene.XamlFile)), filename);
+							File.WriteAllText(filename, File.ReadAllText(filename).Replace(Scene.XamlPath + "\\", ""));
+						} else if (Scene.XamlFile != null) {
+							File.Copy(Scene.XamlFile, filename);
+						} else if (Scene.Source.ToLower().EndsWith(".svg") || Scene.Source.ToLower().EndsWith(".svgz")) {
+							SvgConvert.ConvertUtility.ConvertSvg(Compiler.MapPath(Scene.Source), filename);
+						} else xamlsave = true;
+					} else {
+						xamlsave = true;
 					}
+					if (xamlsave) {
+						var settings = new System.Xml.XmlWriterSettings();
+						settings.CheckCharacters = true;
+						settings.CloseOutput = true;
+						settings.Encoding = Encoding.UTF8;
+						settings.Indent = true;
+						settings.IndentChars = "  ";
+						using (var w = System.Xml.XmlWriter.Create(filename, settings)) {
+							try {
+								XamlWriter.Save(Element, w);
+							} catch { }
+						}
+					}
+					Errors.Message("Created {0} ({1} MB RAM used)", Path.GetFileName(Filename), System.Environment.WorkingSet / (1024 * 1024));
+					ImageCreated();
 				}
-				Errors.Message("Created {0} ({1} MB RAM used)", Path.GetFileName(Filename), System.Environment.WorkingSet / (1024 * 1024));
 			} else {
 				Bitmaps = Capture.GetBitmaps(this).ToList();
 				var encoder = CreateEncoder(filename, Quality, Dpi);
@@ -256,7 +237,7 @@ namespace XamlImageConverter {
 				if (Filmstrip) encoder.Frames.Add(BitmapFrame.Create(MakeFilmstrip(Bitmaps, Dpi)));
 				else foreach (var b in Bitmaps) encoder.Frames.Add(BitmapFrame.Create(b));
 
-				encoder.Save(filename);
+				using (FileLock(filename)) encoder.Save(filename);
 
 				if (Loop != 1 && ext == ".gif") {
 					string file = Path.GetFileName(filename);
@@ -269,23 +250,20 @@ namespace XamlImageConverter {
 					var args = " -loop " + Loop;
 					if (Pause != 0) args += " -pause " + Pause;
 					args += " " + file + " " + file;
-					var pinfo = new System.Diagnostics.ProcessStartInfo(exe);
-					pinfo.CreateNoWindow = true;
-					pinfo.Arguments = args;
-					pinfo.UseShellExecute = false;
-					pinfo.RedirectStandardOutput = true;
-					pinfo.RedirectStandardError = true;
-					pinfo.RedirectStandardInput = true;
-					pinfo.WorkingDirectory = Path.GetDirectoryName(filename);
-					var process = System.Diagnostics.Process.Start(pinfo);
-					Processes.Add(process);
+					var process = NewProcess(exe, args, Path.GetDirectoryName(filename));
+					//var filelock = FileLock(filename);
 					var filename2 = file;
 					var frames = Bitmaps.Count();
 					process.Exited += (sender, args2) => {
 						Errors.Message("Created {0} ({1}{2} MB RAM used)", filename2, (frames != 1) ? frames.ToString() + " frames, " : "", System.Environment.WorkingSet / (1024 * 1024));
+						//filelock.Dispose();
+						ImageCreated();
+						ExitProcess(process);
 					};
+					process.Start();
 				} else {
 					Errors.Message("Created {0} ({1}{2} MB RAM used)", Path.GetFileName(Filename), (Bitmaps.Count() != 1) ? Bitmaps.Count().ToString() + " frames, " : "", System.Environment.WorkingSet / (1024 * 1024));
+					ImageCreated();
 				}
 			}
 
@@ -295,69 +273,7 @@ namespace XamlImageConverter {
 			return this;
 		}
 
-		public static void SaveXps(List<System.Diagnostics.Process> Processes, Errors errors) {
-			foreach (var key in XpsDocs.Keys.ToList()) {
-				var doc = XpsDocs[key];
 
-				var dir = Path.GetDirectoryName(key);
-				if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
-				if (File.Exists(key)) File.Delete(key);
-
-				using (XpsDocument xpsd = new XpsDocument(key, FileAccess.ReadWrite)) {
-					// var fds = xpsd.AddFixedDocumentSequence();
-					// var w = fds.AddFixedDocument();
-					var xw = XpsDocument.CreateXpsDocumentWriter(xpsd);
-					xw.Write(doc);
-					//xpsd.Close();
-				}
-
-				XpsDocs.Remove(key);
-
-				string final;
-
-				if (key.EndsWith("._temp.xps")) { // convert xps to final format
-					TempFiles.Add(key);
-					var filename = key.Substring(0, key.Length - "._temp.xps".Length);
-					var ext = Path.GetExtension(filename);
-					string device, exe;
-
-					//TODO ps2write doesn't work!? Use ghostscript to convert pdf to ps.
-
-					if (ext == ".pdf") {
-						device = "pdfwrite";
-						exe = "gxps-9.05-win32.exe";
-					} else {
-						device = "ps2write";
-						exe = "gxps-9.07-win32.exe";
-					}
-					var apath = AppDomain.CurrentDomain.BaseDirectory;
-					var rpath = (";" + AppDomain.CurrentDomain.RelativeSearchPath)
-						.Split(';')
-						.FirstOrDefault(p => File.Exists(Path.Combine(apath, p, "Lazy\\psd2xaml\\Endogine.dll")));
-					exe = Path.Combine(apath, rpath, "Lazy\\gxps\\" + exe);
-					//if (!File.Exists(exe)) exe = Path.Combine(path, @"\gxps.exe");
-					var pinfo = new System.Diagnostics.ProcessStartInfo(exe);
-					pinfo.CreateNoWindow = true;
-					pinfo.Arguments =  string.Format("-sDEVICE={0} -dNOPAUSE \"-sOutputFile={1}\" \"{2}\"", device, filename, key);
-					pinfo.UseShellExecute = false;
-					pinfo.RedirectStandardOutput = true;
-					pinfo.RedirectStandardError = true;
-					pinfo.RedirectStandardInput = true;
-					pinfo.WorkingDirectory = Path.GetDirectoryName(filename);
-					var process = System.Diagnostics.Process.Start(pinfo);
-					process.Exited += (sender, args) => {
-						final = filename;
-						var info = new FileInfo(final);
-						errors.Message("Created {0} ({1} pages, {2:f2} MB)", info.Name, doc.Pages.Count, (double)info.Length / (1024 * 1024));
-					};
-					Processes.Add(process);
-				} else {
-					final = key;
-					var info = new FileInfo(final);
-					errors.Message("Created {0} ({1} pages, {2:f2} MB)", info.Name, doc.Pages.Count, (double)info.Length / (1024*1024));
-				}
-			}
-		}
 
 		/// <summary>
 		/// Create a <see cref="BitmapEncoder"/> based on the target file extension

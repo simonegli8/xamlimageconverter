@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Threading;
 using System.Threading;
+using System.Linq;
 
 namespace XamlImageConverter {
 
@@ -69,26 +70,28 @@ namespace XamlImageConverter {
 		/// <param name="clipRect">Clipping rectangle (optional)</param>
 		/// <returns>Returns a <see cref="BitmapSource"/> containing the snapshot</returns>
 		public static BitmapSource GetBitmap(Snapshot snapshot) {
-			var scene = snapshot.Scene;
-			var window = snapshot.Window;
+			using (snapshot.ApplyStyleWithLock()) {
+				var scene = snapshot.Scene;
+				var window = snapshot.Window;
 
-			var element = scene.Element;
-			var dpi = snapshot.Dpi ?? defaultDpi;
+				var element = scene.Element;
+				var dpi = snapshot.Dpi ?? defaultDpi;
 
-			var bitmap = new RenderTargetBitmap(
-					(int)Math.Round(window.ActualWidth * dpi / defaultDpi),
-					(int)Math.Round(window.ActualHeight * dpi / defaultDpi),
-					dpi, dpi, PixelFormats.Pbgra32);
+				var bitmap = new RenderTargetBitmap(
+						(int)Math.Round(window.ActualWidth * dpi / defaultDpi),
+						(int)Math.Round(window.ActualHeight * dpi / defaultDpi),
+						dpi, dpi, PixelFormats.Pbgra32);
 
-			if (element != null) {
-				var T = element.RenderTransform;
-				element.RenderTransform = new MatrixTransform(Matrix.Multiply(T.Value, snapshot.Transform.Value));;
-				element.MeasureAndArrange(new Size(element.ActualWidth, element.ActualHeight));
-				bitmap.Render(element);
-				element.RenderTransform = T;
-			} else System.Diagnostics.Debugger.Break();
+				if (element != null) {
+					var T = element.RenderTransform;
+					element.RenderTransform = new MatrixTransform(Matrix.Multiply(T.Value, snapshot.Transform.Value)); ;
+					element.MeasureAndArrange(new Size(element.ActualWidth, element.ActualHeight));
+					bitmap.Render(element);
+					element.RenderTransform = T;
+				} else System.Diagnostics.Debugger.Break();
 
-			return bitmap;
+				return bitmap;
+			}
 		}
 
 		/// <summary>

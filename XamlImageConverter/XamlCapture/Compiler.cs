@@ -13,7 +13,9 @@ using System.Globalization;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 using System.Windows.Interop;
+using System.Diagnostics.Contracts;
 using System.Windows.Threading;
+using System.Threading.Tasks;
 
 namespace XamlImageConverter {
 	//TODO: ImageMaps
@@ -37,6 +39,7 @@ namespace XamlImageConverter {
 		bool RebuildAll { get; set; }
 		bool UseService { get; set; }
 		bool SeparateAppDomain { get; set; }
+		bool Parallel { get; set; }
 		CultureInfo Culture { get; set; }
 		Dictionary<string, string> Parameters { get; set; }
 		List<ILogger> Loggers { get; }
@@ -57,19 +60,101 @@ namespace XamlImageConverter {
 		public bool CheckBuilding { get; set; }
 		public bool NeedsBuildingChecked { get; set; }
 		public bool SeparateAppDomain { get; set; }
+		public bool ChildAppDomain { get; set; }
 		public bool RebuildAll { get; set; }
 		public bool UseService { get; set; }
+		public bool Parallel { get; set; }
+		public int GCLevel { get; set; }
+		public Action Serve { get; set; }
 		public CultureInfo Culture { get; set; }
 		public Dictionary<string, string> Parameters { get; set; }
 		static int id = 0;
 		public List<Step> Steps { get; set; }
 		public List<Process> Processes { get; set; }
+		public System.Web.HttpContext Context { get; set; }  
 		public int? hash;
+		[NonSerialized]
+		public List<string> TempPaths = new List<string>();
+		[NonSerialized]
+		public List<string> TempFiles = new List<string>();
+		[NonSerialized]
+		public static string CurrentTheme = "";
+		[NonSerialized]
+		public static string CurrentSkin = "";
+		[NonSerialized]
+		public int Cpus = 1;
+		[NonSerialized]
+		public int? Cores = null;
+		[NonSerialized]
+		int CreatedImages = 0;
+		[NonSerialized]
+		DateTime Start;
+		[NonSerialized]
+		List<Thread> Threads = new List<Thread>();
+		[NonSerialized]
+		public ManualResetEvent Finished = new ManualResetEvent(true);
 
-		public void FinishWork() { foreach (var p in Processes.Where(p => !p.HasExited)) p.WaitForExit(); } 
+		public void Finish() {
+	
+			foreach (var t in Threads) t.Join();
+			Threads.Clear();
+	
+			IEnumerable<System.Diagnostics.Process> active;
+			lock (Processes) active = Processes.ToList();
+			foreach (var p in active) p.WaitForExit();
+			lock (Processes) Processes.Clear();
+		}
 
+		public class FileLocks: IDisposable {
+			static Dictionary<string, object> Locks = new Dictionary<string, object>();
+			string path;
+			bool IsLocked = false, IsBlocking = false;
+
+
+			public FileLocks(string path) {
+				this.path = path;
+				lock (Locks) {
+					if (!Locks.ContainsKey(path)) Locks.Add(path, new object());
+				}
+				IsBlocking = true;
+				Monitor.Enter(Locks[path]);
+				IsLocked = true; IsBlocking = false;
+			}
+
+			public void Dispose() {
+				Monitor.Exit(Locks[path]);
+				IsLocked = false;
+			}
+		}
+
+		public IDisposable FileLock(string path) {
+			return new FileLocks(path);
+		}
+
+		public void Cleanup() {
+			Errors.Flush();
+
+			foreach (var file in TempFiles) {
+				System.IO.File.Delete(file);
+			}
+			TempFiles.Clear();
+
+			foreach (var path in TempPaths) {
+				try {
+					Directory.Delete(path, true);
+				} catch { }
+			}
+			TempPaths.Clear();
+
+			if (GCLevel > 0) System.GC.Collect(GCLevel, GCCollectionMode.Optimized);
+		}
+
+		public void ImageCreated() {
+			lock (this) CreatedImages++;
+		}
+	
 		public Compiler() {
-			NeedsBuilding = true; CheckBuilding = false; SeparateAppDomain = true; NeedsBuildingChecked = false;
+			NeedsBuilding = true; CheckBuilding = false; SeparateAppDomain = true; NeedsBuildingChecked = false; ChildAppDomain = false;
 			RebuildAll = false; UseService = false;
 			SourceFiles = new List<string>();
 			Parameters = new Dictionary<string, string>();
@@ -88,6 +173,10 @@ namespace XamlImageConverter {
 			dest.Errors.Loggers = Errors.Loggers;
 			//dest.Errors = Errors;
 			dest.Initialized = this.Initialized;
+			dest.Parallel = this.Parallel;
+			dest.GCLevel = this.GCLevel;
+			dest.Serve = this.Serve;
+			dest.Cores = this.Cores;
 		}
 
 		public List<ILogger> Loggers { get { return Errors.Loggers; } } 
@@ -154,17 +243,23 @@ namespace XamlImageConverter {
 
 		public bool Initialized { get { return init; } set { init = value; } }
 
-		void Init() {
+	/*	void Init() {
 			if (!init) {
 				init = true;
 				Errors.Message("XamlImageConverter 3.5 by Chris Cavanagh & David Egli");
+				Cpus = Parallel ? Environment.ProcessorCount : 1;
+				Errors.Message("Using {0} CPU Cores.", Cpus);
 			}
-		}
+		} */
 
 		void LoadDlls() {
 			lock (DllLock) {
+				var baseDir =  AppDomain.CurrentDomain.BaseDirectory;
+				var projDir = ProjectPath;
+				if (baseDir.EndsWith("\\")) baseDir = baseDir.Substring(0, baseDir.Length-1);
+				if (projDir.EndsWith("\\")) projDir = projDir.Substring(0, projDir.Length-1);
 				if (dllsLoaded || string.IsNullOrEmpty(LibraryPath) ||
-					(ProjectPath == AppDomain.CurrentDomain.BaseDirectory && AppDomain.CurrentDomain.RelativeSearchPath.Split(';').Contains(LibraryPath))) return;
+					(projDir == baseDir && AppDomain.CurrentDomain.RelativeSearchPath.Split(';').Contains(LibraryPath))) return;
 				var path = Path.Combine(ProjectPath, LibraryPath);
 				if (!string.IsNullOrEmpty(path)) {
 					var files = Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories);
@@ -193,11 +288,27 @@ namespace XamlImageConverter {
 		*/
 
 		void Compile(string filename) {
-			Init();
-			Errors.Path = filename;
+
+			SkinPath = ProjectPath;
+			bool xaml = false;
+			if (filename.Trim()[0] == '#') filename = (string)Context.Session[filename];
+			if (filename.Trim()[0] == '<') {
+				var res = Parameters.TryGetValue("File", out filename) || Parameters.TryGetValue("Filename", out filename) || Parameters.TryGetValue("Image", out filename);
+				filename = MapPath(filename);
+				xaml = true;
+			}
+
+			var root = new Group();
+			root.Filename = filename;
+			root.Compiler = this;
+			if (!CheckBuilding) {
+				root.Errors.Message("XamlImageConverter 3.5 by Chris Cavanagh & David Egli");
+				root.Errors.Message("Using {0} CPU Cores.", Cpus);
+				root.Errors.Message(Path.GetFileName(filename) + ":");
+			}
+
 			if (string.IsNullOrEmpty(ProjectPath)) ProjectPath = Path.GetDirectoryName(filename);
- 
-			SkinPath = Path.Combine(ProjectPath, Path.GetDirectoryName(filename));
+			SkinPath = Path.GetDirectoryName(MapPath(filename));
 
 			List<string> directExtensions = new List<string> { ".xaml", ".psd", ".svg", ".svgz", ".html" };
 
@@ -208,37 +319,163 @@ namespace XamlImageConverter {
 					FileInfo info = new FileInfo(filename);
 					if (info.Exists) Version = info.LastWriteTimeUtc;
 				}
-				var lowername = filename.ToLower();
-				if (filename.Trim()[0] == '#') filename = (string)System.Web.HttpContext.Current.Session["XamlImageConverter.Xaml:" + filename];
-				if (filename.Trim()[0] == '<') {
+				var ext = Path.GetExtension(filename).ToLower();
+				if (xaml) {
+					Version = DateTime.MinValue;
 					using (var r = new StringReader(filename)) {
 						var xdoc = XElement.Load(r, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo | LoadOptions.SetBaseUri);
-						if (xdoc.Name.LocalName == "XamlImageConverter" && (xdoc.Name.NamespaceName == Parser.ns1 || xdoc.Name.NamespaceName == Parser.ns2)) config = xdoc;
+						if (xdoc.Name == xic+"XamlImageConverter" || xdoc.Name == sb+"SkinBuilder") config = xdoc;
 						else config = XamlScene.CreateDirect(this, null, xdoc, Parameters);
 					}
-				} else if (directExtensions.Any(x => lowername.EndsWith(x))) {
+				} else if (directExtensions.Any(x => ext == x)) {
 					config = XamlScene.CreateDirect(this, filename, Parameters);
 				} else if (filename == "xic.axd" || filename.EndsWith("\\xic.axd")) {
 					config = XamlScene.CreateAxd(this, Parameters);
 				} else {
-					config = XElement.Load(filename, LoadOptions.SetBaseUri | LoadOptions.SetLineInfo | LoadOptions.PreserveWhitespace);
+					using (FileLock(filename)) {
+						config = XElement.Load(filename, LoadOptions.SetBaseUri | LoadOptions.SetLineInfo | LoadOptions.PreserveWhitespace);
+					}
 				}
 			} catch (FileNotFoundException) {
-				Errors.Error("Unable to read the configuration file", "1", null);
+				root.Errors.Error("Unable to read the configuration file", "1", null);
 				return;
 			} catch (Exception ex) {
-				Errors.Error(ex.Message, "21", null);
+				root.Errors.Error(ex.Message, "21", null);
 				return;
 			}
-			if (config != null) Compile(Version, config);
+			if (config != null) Compile(root, Version, config);
+			//if (!CheckBuilding) root.ExitProcess(null);
 		}
 
-		void Compile(DateTime Version, XElement config) {
+		public class StepQueue {
+			public int Cpus;
+			public Compiler Compiler;
+			public Group Root;
+			public XElement config;
+			public bool CheckBuilding;
+			public List<Group> scenes;
+			public Dictionary<int, List<Step>> steps = new Dictionary<int,List<Step>>();
+			public Dictionary<int, List<Step>> todo = new Dictionary<int, List<Step>>();
+			public Dictionary<int, Group> roots = new Dictionary<int, Group>();
+			public List<Group> total = new List<Group>();
+			public DateTime version;
+			int running, icpu;
+			ManualResetEvent signal = new ManualResetEvent(false);
 
-			Step lastStep = null;
+			public StepQueue(Group root, DateTime version, XElement config, Compiler comp, List<Group> scenes, bool CheckBuilding) {
+				Cpus = comp.Cpus;
+				running = Cpus;
+				Compiler = comp;
+				Root = root;
+				this.version = version;
+				this.config = config;
+				this.scenes = scenes;
+				this.CheckBuilding = CheckBuilding;
+				icpu = Cpus <= 2 ? Cpus - 1 : (new Random().Next(Cpus - 2) + 1);
+			}
+
+			int initialized = 0;
+			public void Init(int cpu) {
+				List<Group> s;
+				if (cpu == 0) {
+					s = scenes;
+					roots[0] = Root;
+				} else {
+					var root = new Group();
+					root.Master = Root;
+					roots[cpu] = root;
+					s = Compiler.ParseScenes(root, version, config).ToList<Group>();
+				}
+				//steps[cpu] = s.SelectMany(st => st.Steps()).ToList();
+				steps[cpu] = new List<Step>();
+				todo[cpu] = new List<Step>();
+				foreach (var scene in s) {
+					steps[cpu].AddRange(scene.Steps());
+				}
+
+				int n;
+				lock (this) n = ++initialized;
+				
+				if (cpu == icpu) {
+					var root = new Group();
+					root.Master = Root;
+					s = Compiler.ParseScenes(root, version, config).OfType<Group>().ToList();
+					var seq = s.SelectMany(st => st.Steps()).ToList();
+					var mainthread = seq.OfType<Snapshot>()
+							.Where(sn => (sn.Scene.Source ?? "").EndsWith(".psd"))
+							.ToList<Step>();
+					var sequential = seq.OfType<Snapshot>()
+							.GroupBy(sn => sn.LocalFilename)
+							.Where(g => g.Count() > 1)
+							.SelectMany(g => g)
+							.ToList<Step>();
+					sequential.RemoveAll(sn => mainthread.Contains(sn)); 
+					var todosequential = new List<Step>();
+					
+					n = 0;
+					foreach (var st in seq) {
+						if (sequential.Contains(st)) todosequential.Add(st);
+						if (st is Snapshot) {
+							if (!sequential.Contains(st)) {
+								for (int c = 0; c < Cpus; c++) {
+									if (c == 0 || !mainthread.Contains(st)) todo[c].Add(steps[c][n]);
+								}
+							}
+						} else {
+							for (int c = 0; c < Cpus; c++) {
+								 if (c == 0 || !mainthread.Contains(st)) todo[c].Add(steps[c][n]);
+							}
+							if (st is Parameters) todosequential.Add(st); 
+						}
+						n++;
+					}
+				
+					n = 0;
+					foreach (var st in todosequential) todo[cpu].Insert(n++, st);
+					if (Cpus > 1) signal.Set();
+				} else {
+					signal.WaitOne();
+				}
+			}
+
+			public Group Next(int cpu) {
+				lock (this) {
+					if (todo[cpu].Count == 0) return null;
+					var step = todo[cpu][0];
+					int n;
+					if (!(step is Parameters) && (n = steps[cpu].IndexOf(step)) >= 0) {
+						for (int c = 0; c < Cpus; c++) {
+							int ix = todo[c].IndexOf(steps[c][n]);
+							if (ix >= 0) todo[c].RemoveAt(ix);
+						}
+					} else {
+						todo[cpu].RemoveAt(0);
+					}
+					return (Group)step;
+				}
+			}
+
+			public void Stop(int cpu) {
+				lock (this) {
+					roots[cpu].Finish();
+					if (cpu != 0) {
+						List<Process> active;
+						lock (roots[cpu]) active = roots[cpu].LocalProcesses.ToList();
+						foreach (var p in active) p.WaitForExit();
+					}
+					running--;
+					if (running == 0 && !CheckBuilding) {
+						Root.ExitProcess(null);
+					}
+				}
+			}
+		}
+
+		void Compile(Group root, DateTime Version, XElement config) {
+
 			if (RebuildAll) Version = DateTime.Now.ToUniversalTime();
 			try {
-				var scenes = ParseScenes(Version, config).ToList();
+				var scenes = ParseScenes(root, Version, config).ToList();
 
 				var building = CheckNeedsBuilding(scenes);
 
@@ -258,55 +495,40 @@ namespace XamlImageConverter {
 				if (!building || CheckBuilding) return;
 
 				LoadDlls();
-				// Get flattened list of snapshots
-				// Could just return enumerator and parse + save per iteration, but pre-populating with ToList()
-				// means we can throw parsing errors etc before any snapshots are saved (so the user doesn't have
-				// to wait as long to see potential errors)
-				Steps = scenes.SelectMany(scene => scene.Steps()).ToList();
+	
+				var steps = new StepQueue(root, Version, config, this, scenes, CheckBuilding); 
 
-				foreach (var step in Steps) {
-					lastStep = step;
-					//TODO collect?
-					//System.GC.Collect(System.GC.MaxGeneration, GCCollectionMode.Forced);
-					step.Process();
+				for (int cpu = Cpus-1; cpu >= 0; cpu--) {
+					var cpul = cpu;
+					ParameterizedThreadStart task = (state) => { // iterate over all steps
+						steps.Init(cpul);
+						var step = steps.Next(cpul);
+						while (step != null) {
+							step.Process();
+							step = steps.Next(cpul);
+						}
+						steps.Stop(cpul);
+					};
+
+					if (cpul > 0) {
+						var thread = new Thread(new ParameterizedThreadStart(task));
+						thread.SetApartmentState(ApartmentState.STA);
+						if (Culture != null) { thread.CurrentCulture = thread.CurrentUICulture = Culture; }
+						thread.Start();
+						Threads.Add(thread);
+					} else {
+						task(null);
+					}
 				}
-				// flush Dispatcher
-				//Dispatcher.CurrentDispatcher.Invoke((Action)(() => {}), DispatcherPriority.ApplicationIdle);
-				Group.Close(Processes, Errors, scenes);
 			} catch (CompilerException cex) {
-				Errors.Error(cex.Message, cex.ErrorCode.ToString(), cex.XObject);
+				root.Errors.Error(cex.Message, cex.ErrorCode.ToString(), cex.XObject);
 			} catch (Exception ex) {
-				XObject xobj = null;
-				if (lastStep != null && lastStep is Group) xobj = ((Group)lastStep).XElement;
-				Errors.Warning("An internal error occurred\n\n" + ex.Message + "\n" + ex.StackTrace, "2", xobj);
+				root.Errors.Warning("An internal error occurred\n\n" + ex.Message + "\n" + ex.StackTrace, "2", null);
 			} finally {
-				lastStep = null;
-				System.GC.Collect(System.GC.MaxGeneration, GCCollectionMode.Forced);
 			}
 		}
 
 		void RawCompile() {
-			/*
-			var dispatcher = Dispatcher.FromThread(Thread.CurrentThread);
-			if (dispatcher == null) {
-				AutoResetEvent are = new AutoResetEvent(false);
-
-				Thread thread = new Thread((ThreadStart)delegate {
-					var d = Dispatcher.CurrentDispatcher;
-					d.UnhandledException += delegate(object sender, DispatcherUnhandledExceptionEventArgs e) {
-						if (!Debugger.IsAttached) e.Handled = true;
-					};
-					are.Set();
-					Dispatcher.Run();
-				});
-
-				thread.Name = "BackgroundStaDispatcher";
-				thread.SetApartmentState(ApartmentState.STA);
-				thread.IsBackground = true;
-				thread.Start();
-
-				are.WaitOne();
-			} */
 			foreach (var file in SourceFiles) Compile(file);
 		}
 
@@ -335,6 +557,8 @@ namespace XamlImageConverter {
 		public long MemorySet { get { return GC.GetTotalMemory(false); } }
 
 		public void Compile() {
+			Cpus = Cores ?? (Parallel ? Environment.ProcessorCount : 1);
+
 			if (SourceFiles != null && SourceFiles.Count > 0) {
 				if (!ProjectPath.Contains(":")) { ProjectPath = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, ProjectPath)).FullName; }
 					
@@ -364,22 +588,25 @@ namespace XamlImageConverter {
 							Compiler compiler = (Compiler)domain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, "XamlImageConverter.Compiler");
 							CopyTo(compiler);
 							compiler.SeparateAppDomain = false;
+							compiler.ChildAppDomain = true;
 							//compiler.STAThread = true;
 							compiler.Compile();
+							TempFiles.AddRange(compiler.TempFiles);
+							TempPaths.AddRange(compiler.TempPaths);
 						} catch (Exception ex2) {
 						} finally {
 							AppDomain.Unload(domain);
-							//GC.Collect(10, GCCollectionMode.Forced);
-							//GC.WaitForFullGCComplete(1000);
 						}
 					}
 				} else {
 					CoreCompile();
-					//GC.Collect(10, GCCollectionMode.Forced);
 				}
 
-				FinishWork();
-
+				Finish();
+				if (!ChildAppDomain) {
+					if (Serve != null) Serve();
+					Cleanup();
+				}
 				foreach (var logger in Errors.Loggers.OfType<IDisposable>()) logger.Dispose();
 			}
 		}

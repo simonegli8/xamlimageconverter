@@ -15,6 +15,9 @@ namespace Silversite.Web {
 		[NonSerialized]
 		public static XNamespace xic = "http://schemas.johnshope.com/XamlImageConverter/2012";
 		public static XNamespace sb = "http://www.chriscavanagh.com/SkinBuilder";
+		public static XNamespace xamlns = "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
+		public static XNamespace xxamlns = "http://schemas.microsoft.com/winfx/2006/xaml";
+
 		public static XNamespace ns;
 
 		public DateTime nsVersion = DateTime.MinValue, Version = DateTime.MinValue;
@@ -171,22 +174,30 @@ namespace Silversite.Web {
 			var validAttributes = new string[] { "Element", "Storyboard", "Frames", "Filmstrip", "Dpi", "RenderDpi", "Quality", "Filename", "Left", "Top", "Right", "Bottom", "Width", "Height", "Cultures", "RenderTimeout", "Page", "FitToPage", "File", "Loop", "Pause", "Skin", "Theme", "Type", "Image" };
 
 			var type = "png";
-			int h = 0;
-			bool addhash = false, nohash = false;
+			int? h = 0;
+			bool nohash = false;
 
 			foreach (var key in parameters.Keys.ToList()) {
-				h += Hash.Compute(key + "=" + parameters[key]);
+
 				if (validAttributes.Any(a => a == key)) {
 					if (key == "Image" || key == "File" || key == "Filename") nohash = true;
 					else if (key == "Type") type = parameters["Type"];
+					else {
+						h = (h ?? 0) + Hash.Compute(key + "=" + parameters[key]);
+					}
 					e.SetAttributeValue(key, parameters[key]);
 					parameters.Remove(key);
-					addhash = !nohash;
+				} else {
+					h = (h ?? 0) + Hash.Compute(key + "=" + parameters[key]);
+					if (key == "Source") parameters.Remove(key);
 				}
 			}
-			if (addhash) {
+			if (h != null && !nohash) {
 				hash = h;
-				e.SetAttributeValue("Hash", h);
+				e.SetAttributeValue("Hash", hash);
+			}
+			if (!nohash && filename != null) {
+				e.SetAttributeValue("File", filename + "." + type);
 			}
 
 			foreach (var key in parameters.Keys.ToList()) {
@@ -213,6 +224,7 @@ namespace Silversite.Web {
 			if (filename.EndsWith(".xic.xaml")) return XElement.Load(InFilename(filename), LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo);
 			XElement snapshot;
 			var res = new XElement(xic+"XamlImageConverter",
+					new XAttribute(XNamespace.Xmlns+"xic", xic.NamespaceName),
 					new XElement(xic+"Scene",
 						new XAttribute("Source", filename),
 						snapshot = new XElement(xic+"Snapshot")
@@ -226,18 +238,35 @@ namespace Silversite.Web {
 
 		public XElement CreateDirect(string filename, XElement e, Dictionary<string, string> parameters) {
 			XElement scene;
-			if (e.Name == xic+"XamlImageConverter") return e;
-			var res = new XElement(xic+"XamlImageConverter",
-					scene = new XElement(xic+"Scene", new XElement(xic+"Xaml", e))
-				);
-			if (parameters.ContainsKey("Image") || parameters.ContainsKey("File") || parameters.ContainsKey("Filename") || parameters.ContainsKey("Type")) {
-				var snapshot = new XElement(xic+"Snapshot");
-				ApplyParameters(filename, snapshot, parameters);
-				scene.Add(snapshot);
+			if (e.Name != xic + "XamlImageConverter") {
+				XNamespace mc = "http://schemas.openxmlformats.org/markup-compatibility/2006";
+				var res = new XElement(xic + "XamlImageConverter",
+						new XAttribute("xmlns", xamlns),
+						new XAttribute(XNamespace.Xmlns + "x", xxamlns.NamespaceName),
+						new XAttribute(XNamespace.Xmlns + "xic", xic.NamespaceName),
+						new XAttribute(XNamespace.Xmlns + "mc", mc.NamespaceName),
+						new XAttribute(XNamespace.Xmlns + "d", "http://schemas.microsoft.com/expression/blend/2008"),
+						new XAttribute(mc + "Ignorable", "d"),
+						scene = new XElement(xic + "Scene", new XElement(xic + "Xaml", e))
+					);
+				if (e.Name.NamespaceName == "") {
+					e.Name = xamlns + e.Name.LocalName;
+					e.SetAttributeValue(XNamespace.Xmlns + "x", xxamlns.NamespaceName);
+					foreach (var child in e.Descendants()) {
+						if (child.Name.NamespaceName == "") child.Name = xamlns + child.Name.LocalName;
+					}
+				}
+				if (parameters.ContainsKey("Image") || parameters.ContainsKey("File") || parameters.ContainsKey("Filename") || parameters.ContainsKey("Type")) {
+					var snapshot = new XElement(xic + "Snapshot");
+					ApplyParameters(filename, snapshot, parameters);
+					scene.Add(snapshot);
+				}
+				DynamicResult = true;
+				if (parameters.Count > 0) return Dynamic;
+				return res;
+			} else {
+				return e;
 			}
-			DynamicResult = true;
-			if (parameters.Count > 0) return Dynamic;
-			return res;
 		}
 
 		public XElement CreateAxd(Dictionary<string, string> par) {
@@ -246,9 +275,10 @@ namespace Silversite.Web {
 				DynamicResult = false;
 				return Dynamic;
 			}
-			if (src.Trim()[0] == '#') src = (string)HttpContext.Current.Session["XamlImageConverter.Xaml:" + src];
+			if (src.Trim()[0] == '#') src = (string)HttpContext.Current.Session[src];
 			if (!src.Trim().StartsWith("<")) return CreateDirect(src, par);
-			return CreateDirect("~/Images/Cache/" + Hash.Compute(src).ToString("X"), XElement.Parse(src, LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo), par);
+
+			return CreateDirect("xic.axd", XElement.Parse(src, LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo), par);
 		}
 	}
 
@@ -303,10 +333,8 @@ namespace Silversite.Web {
 			}
 		}
 	}
-
 #else
-			public class Hash: Silversite.Services.Hash {
-			}
+			public class Hash: Silversite.Services.Hash { }
 #endif
 
 #if Silversite
@@ -316,10 +344,20 @@ namespace Silversite.Web {
 		public bool UseSevice { get { return (bool)(this["UseService"] ?? true); } set { this["UseService"] = value; } }
 		[ConfigurationProperty("Log", IsRequired = false, DefaultValue = true)]
 		public bool Log { get { return (bool)(this["Log"] ?? true); } set { this["Log"] = value; } }
+		[ConfigurationProperty("cache", IsRequired = false, DefaultValue = null)]
+		public string Cache { get { return (string)this["cache"]; } set { this["cache"] = value; } }
+		[ConfigurationProperty("separateDomain", IsRequired = false, DefaultValue = false)]
+		public bool SeparateDomain { get { return (bool)(this["separateDomain"] ?? false); } set { this["separateDomain"] = value; } }
+		[ConfigurationProperty("gcLevel", IsRequired = false, DefaultValue = 1)]
+		public int GCLevel { get { return (bool)(this["gcLevel"] ?? 1); } set { this["gcLevel"] = value; } }
+		[ConfigurationProperty("cores", IsRequired = false, DefaultValue = null)]
+		public int? Cores { get { return (int?)(this["cores"]); } set { this["cores"] = value; } }
+		[ConfigurationProperty("parallel", IsRequired = false, DefaultValue = false)]
+		public bool Parallel { get { return (bool)(this["parallel"] ?? false); } set { this["parallel"] = value; } }
 	}
 #endif
 
-	public class XamlImageHandler : System.Web.IHttpHandler {
+	public class XamlImageHandler : System.Web.IHttpHandler, System.Web.SessionState.IReadOnlySessionState {
 
 #if Silversite
 		public static Configuration Configuration = new Configuration();
@@ -341,7 +379,6 @@ namespace Silversite.Web {
 						handlerInfo.Load();
 						handler = handlerInfo.New();
 #else
-
 						var a = Assembly.LoadFrom(context.Server.MapPath("~/Bin/Lazy/XamlImageConverter.dll"));
 						var type = a.GetType("XamlImageConverter.XamlImageHandler");
 						handler = (System.Web.IHttpHandler)Activator.CreateInstance(type);
@@ -355,6 +392,9 @@ namespace Silversite.Web {
 				context.Application.Lock();
 				context.Application["XamlImageConverter.Configuration.UseService"] = Configuration.UseService;
 				context.Application["XamlImageConverter.Configuration.Log"] = Configuration.Log;
+				context.Application["XamlImageConverter.Configuration.Cache"] = Configuration.Cache;
+				context.Application["XamlImageConverter.Configuration.SeparateDomain"] = Configuration.SeparateDomain;
+				context.Application["XamlImageConverter.Configuration.GCLevel"] = Configuration.GCLevel;
 				context.Application.UnLock();
 #endif
 				handler.ProcessRequest(context);

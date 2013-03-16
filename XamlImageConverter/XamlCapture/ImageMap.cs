@@ -300,7 +300,7 @@ namespace XamlImageConverter {
 			}
 
 			public IEnumerable<Geometry> Areas() {
-				var group = new DrawingGroup();
+				/* var group = new DrawingGroup();
 				group.Transform = Transform.Identity;
 				if (Element is Drawing) {
 					group.Children.Add((Drawing)Element);
@@ -310,6 +310,20 @@ namespace XamlImageConverter {
 					var onRender = type.GetMethod("OnRender", System.Reflection.BindingFlags.InvokeMethod | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 					onRender.Invoke(Element, new object[] { group.Open() });
 				} else Errors.Error(string.Format("Unsupported Elementtype {0}.", Element.GetType().FullName), "27", Area);
+				*/
+				DrawingGroup group = new DrawingGroup();
+				if (Element is Drawing) {
+					if (Element is DrawingGroup) group = (DrawingGroup)Element;
+					else {
+						group = new DrawingGroup();
+						group.Transform = Transform.Identity;
+						group.Children.Add((Drawing)Element);
+					}
+				} else if (Element is Visual) {
+					group = VisualTreeHelper.GetDrawing((Visual)Element);
+				} else {
+					Errors.Error(string.Format("Unsupported Elementtype {0}.", Element.GetType().FullName), "27", Area);
+				}
 
 				// compute transform
 				var ta = TransformToAncestor(Scene.Element, Element);
@@ -604,6 +618,7 @@ namespace XamlImageConverter {
 					System.IO.File.WriteAllText(file, str.ToString(), Encoding.UTF8);
 
 					Errors.Message("Created {0} html image map.", Path.GetFileName(file));
+					ImageCreated();
 				}
 			}
 		}

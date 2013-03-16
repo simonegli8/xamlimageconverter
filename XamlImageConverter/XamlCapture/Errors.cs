@@ -5,6 +5,7 @@ using System.Text;
 using System.Xml.Linq;
 using System.Xml;
 using System.Reflection;
+using System.Diagnostics.Contracts;
 
 namespace XamlImageConverter {
 	
@@ -46,6 +47,7 @@ namespace XamlImageConverter {
 
 	public interface ILogger {
 		void Message(string path, string message, string errorNumber, TextSpan span, Severity severity);
+		void Flush();
 	}
 
 	public class ConsoleLogger: MarshalByRefObject, ILogger {
@@ -58,14 +60,16 @@ namespace XamlImageConverter {
 			}
 			Console.WriteLine(message);
 		}
+		public void Flush() { }
 	}
 
 	public class FileLogger: MarshalByRefObject, ILogger, IDisposable {
 		string lastPath = string.Empty;
-		StringBuilder text = new StringBuilder();
+		Dictionary<string, StringBuilder> texts = new Dictionary<string, StringBuilder>();
 
 		public virtual void Message(string path, string message, string errorCode, TextSpan span, Severity severity) {
-			if (path != lastPath) Flush(path);
+			if (!texts.ContainsKey(path)) texts.Add(path, new StringBuilder());
+			var text = texts[path];
 			switch (severity) {
 			case Severity.Error: text.Append(string.Format("  Error {0} ({1},{2}): ", errorCode, span.Start.Line, span.Start.Column)); break;
 			case Severity.Warning: text.Append(string.Format("  Warning {0} ({1},{2}): ", errorCode, span.Start.Line, span.Start.Column)); break;
@@ -74,29 +78,27 @@ namespace XamlImageConverter {
 			text.AppendLine("   " + message);
 		}
 
-		private void Flush(string newpath) {
-			if (!StringUtil.IsNullOrWhiteSpace(lastPath)) {
+		public void Flush() {
+			foreach (var file in texts.Keys) {
+				var text = texts[file];
 				var str = text.ToString();
-				var logpath = lastPath + ".log";
-				if (!string.IsNullOrEmpty(lastPath)) {
-					try {
-						if (str != null && str.Trim() != string.Empty) System.IO.File.WriteAllText(logpath, str);
-						else if (System.IO.File.Exists(logpath)) System.IO.File.Delete(logpath);
-					} catch { }
-				}
-				text = new StringBuilder();
+				var logpath = file + ".log";
+				try {
+					if (!string.IsNullOrEmpty(str)) System.IO.File.WriteAllText(logpath, str.Replace(Environment.NewLine, "\n").Replace("\n", Environment.NewLine));
+					else if (System.IO.File.Exists(logpath)) System.IO.File.Delete(logpath);
+				} catch { }
 			}
-			lastPath = newpath;
+			texts.Clear();
 		}
 
 		public void Dispose() {
-			Flush(string.Empty);
+			Flush();
 		}
 	}
 
 	[Serializable]
 	public class Errors: MarshalByRefObject {
-		string lastPath = string.Empty; 
+		HashSet<string> Paths = new HashSet<string>(); 
 
 		public bool HasErrors = false;
 
@@ -105,23 +107,30 @@ namespace XamlImageConverter {
 
 		public string Path { get; set; }
 
-		private void Write(string message, string errorCode, TextSpan span, Severity severity) {
-			if (Path != lastPath && !StringUtil.IsNullOrWhiteSpace(Path)) {
-				lastPath = Path;
-				Write(System.IO.Path.GetFileName(Path) + ":", "", new TextSpan(), Severity.Message);
-			} else {
-				lastPath = Path;
+		private void Write(string path, string message, string errorCode, TextSpan span, Severity severity) {
+			if (path == null) return;
+			lock (this) {
+				if (!Paths.Contains(path)) Paths.Add(path);
+				foreach (var logger in Loggers) logger.Message(path, message, errorCode, span, severity);
 			}
-			foreach (var logger in Loggers) logger.Message(Path, message, errorCode, span, severity);
 		}
 
-		public void Message(string message) { Write(message, string.Empty, new TextSpan(), Severity.Message); }
-		public void Message(string message, params object[] args) { Write(string.Format(message, args), string.Empty, new TextSpan(), Severity.Message); }
-		public void Note(string message) { Write(message, string.Empty, new TextSpan(), Severity.Note); }
-		public void Note(string message, params object[] args) { Write(string.Format(message, args), string.Empty, new TextSpan(), Severity.Note); }
-		public void Error(string message, string errorCode, TextSpan span) { Write(message, errorCode, span, Severity.Error); }
-		public void Warning(string message, string errorCode, TextSpan span) { Write(message, errorCode, span, Severity.Warning); }
-		public void Error(string message, string errorCode, XObject xobj) { HasErrors = true; Write(message, errorCode, new TextSpan(xobj), Severity.Error); }
-		public void Warning(string message, string errorCode, XObject xobj) { Write(message, errorCode, new TextSpan(xobj), Severity.Warning); }
+		public Errors Clone(string path) {
+			return new Errors { Loggers = this.Loggers, Path = path };
+		}
+
+		public void LocalMessage(string path, string message) { Write(path, message, string.Empty, new TextSpan(), Severity.Message); }
+		public void LocalMessage(string path, string message, params object[] args) { Write(path, string.Format(message, args), string.Empty, new TextSpan(), Severity.Message); }
+		public void Message(string message) { Write(Path, message, string.Empty, new TextSpan(), Severity.Message); }
+		public void Message(string message, params object[] args) { Write(Path, string.Format(message, args), string.Empty, new TextSpan(), Severity.Message); }
+		public void Note(string message) { Write(Path, message, string.Empty, new TextSpan(), Severity.Note); }
+		public void Note(string message, params object[] args) { Write(Path, string.Format(message, args), string.Empty, new TextSpan(), Severity.Note); }
+		public void Error(string message, string errorCode, TextSpan span) { Write(Path, message, errorCode, span, Severity.Error); }
+		public void Warning(string message, string errorCode, TextSpan span) { Write(Path, message, errorCode, span, Severity.Warning); }
+		public void Error(string message, string errorCode, XObject xobj) { HasErrors = true; Write(Path, message, errorCode, new TextSpan(xobj), Severity.Error); }
+		public void Warning(string message, string errorCode, XObject xobj) { Write(Path, message, errorCode, new TextSpan(xobj), Severity.Warning); }
+		public void Flush() {
+			foreach (var log in Loggers) log.Flush();
+		}
 	}
 }

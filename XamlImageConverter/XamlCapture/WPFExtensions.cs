@@ -161,6 +161,7 @@ namespace XamlImageConverter {
 
 		public static Rect Bounds(this FrameworkElement e, FrameworkElement from) {
 			var bounds = new Rect(0, 0, e.ActualWidth, e.ActualHeight);
+			if (from == null) return bounds;
 			var t = e.TransformToVisual(from);
 			if (t != Transform.Identity) bounds = t.TransformBounds(bounds);
 			return bounds;

@@ -19,7 +19,7 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <TargetFrameworkProfile />
-    <UseIISExpress>false</UseIISExpress>
+    <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -72,7 +72,6 @@
     <Content Include="XamlImageConverter.Demo\blog-banner.jpg" />
     <Content Include="XamlImageConverter.Demo\Kaxaml.gif" />
     <Content Include="XamlImageConverter.Demo\Readme.aspx" />
-    <Content Include="XamlImageConverter.Demo\Usa.Map - Copy.html" />
     <Content Include="XamlImageConverter.Demo\generic-lines.png" />
     <Content Include="XamlImageConverter.Demo\jquery.js" />
     <Content Include="XamlImageConverter.Demo\jquery.maphilight.min.js" />
@@ -120,6 +119,9 @@
       <Name>XamlImageConverter</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="XamlImageConverter.Demo\Planet.psd" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
@@ -148,7 +150,7 @@
           <AutoAssignPort>False</AutoAssignPort>
           <DevelopmentServerPort>49592</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost/XamlImageConverter.Test.Web</IISUrl>
+          <IISUrl>http://localhost:49592/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

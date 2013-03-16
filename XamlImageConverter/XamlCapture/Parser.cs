@@ -25,14 +25,14 @@ namespace XamlImageConverter {
 		public Compiler Compiler { get { return this as Compiler; } } 
 
 		[NonSerialized]
-		public static string ns1 = "http://schemas.johnshope.com/XamlImageConverter/2012";
+		public static XNamespace xic = "http://schemas.johnshope.com/XamlImageConverter/2012";
 		[NonSerialized]
-		public static string ns2 ="http://www.chriscavanagh.com/SkinBuilder";
+		public static XNamespace sb = "http://www.chriscavanagh.com/SkinBuilder";
+		[NonSerialized]
+		public static XNamespace xamlns = "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
+		[NonSerialized]
+		public static XNamespace xxamlns = "http://schemas.microsoft.com/winfx/2006/xaml";
 
-		[NonSerialized]
-		public static XNamespace xic = ns1;
-		[NonSerialized]
-		public static XNamespace sb = ns2;
 		[NonSerialized]
 		public XNamespace ns;
 
@@ -57,8 +57,7 @@ namespace XamlImageConverter {
 		/// </summary>
 		/// <param name="config">Configuration element</param>
 		/// <returns>Returns a collection of snapshot bitmaps</returns>
-		public IEnumerable<Group> ParseScenes(DateTime Version, XElement config) {
-			var Root = new Group();
+		public IEnumerable<Group> ParseScenes(Group Root, DateTime Version, XElement config) {
 			Root.XElement = config;
 			Root.Compiler = Compiler;
 			ns = config.Name.Namespace;
@@ -71,24 +70,24 @@ namespace XamlImageConverter {
 					if (x.Name == ns+"Scene") {
 						Group scene = null;
 						try {
-							scene = ParseScene(Version, x);
+							scene = ParseScene(Root, Version, x);
 						} catch (CompilerInnerException ex) {
-							Errors.Error(ex.Message + "\n" + ex.InnerException.Message + "\n" + ex.InnerException.StackTrace, ex.ErrorCode.ToString(), ex.XObject);
+							Root.Errors.Error(ex.Message + "\n" + ex.InnerException.Message + "\n" + ex.InnerException.StackTrace, ex.ErrorCode.ToString(), ex.XObject);
 						} catch (CompilerException ex) {
-							Errors.Error(ex.Message, ex.ErrorCode.ToString(), ex.XObject);
+							Root.Errors.Error(ex.Message, ex.ErrorCode.ToString(), ex.XObject);
 						} catch (Exception ex) {
-							Errors.Warning("An internal parsing error occurred\n\n" + ex.Message + "\n" + ex.StackTrace, "2", x);
+							Root.Errors.Warning("An internal parsing error occurred\n\n" + ex.Message + "\n" + ex.StackTrace, "2", x);
 						}
 						if (scene != null) {
 							Root.Children.Add(scene);
 							yield return scene;
 						}
 					} else {
-						Errors.Error("Invalid element " + x.Name.LocalName, "24", x);
+						Root.Errors.Error("Invalid element " + x.Name.LocalName, "24", x);
 					}
 				}
 			} else {
-				Errors.Error("Invalid namespace " + config.Name.NamespaceName, "25", config);
+				Root.Errors.Error("Invalid namespace " + config.Name.NamespaceName, "25", config);
 			}
 		}
 
@@ -97,7 +96,7 @@ namespace XamlImageConverter {
 		/// </summary>
 		/// <param name="snapshots">A collection of snapshot configuration elements</param>
 		/// <returns>Returns a list of <see cref="Snapshot"/>s</returns>
-		public Group ParseScene(DateTime Version, XElement x) {
+		public Group ParseScene(Group Root, DateTime Version, XElement x) {
 			var scene = new Group() { Compiler = Compiler, XElement = x, IsScene = true };
 
 			var xaml = x.Elements(ns+"Xaml").SingleOrDefault();
@@ -168,7 +167,7 @@ namespace XamlImageConverter {
 
 			foreach (var node in x.Nodes().Where(node => !(node is XElement || node is XComment ||
 				(node is XText && (string.IsNullOrWhiteSpace(((XText)node).Value) || node.NodeType == System.Xml.XmlNodeType.Whitespace || node.NodeType == System.Xml.XmlNodeType.SignificantWhitespace))))) {
-				Errors.Error(string.Format("Invalid content {0}", node.ToString(SaveOptions.DisableFormatting | SaveOptions.OmitDuplicateNamespaces)), "23", node);
+				Root.Errors.Error(string.Format("Invalid content {0}", node.ToString(SaveOptions.DisableFormatting | SaveOptions.OmitDuplicateNamespaces)), "23", node);
 			}
 
 			return scene;
@@ -201,17 +200,17 @@ namespace XamlImageConverter {
 				}
 				foreach (var node in x.Nodes().Where(node => !(node is XElement || node is XComment ||
 					(node is XText && (string.IsNullOrWhiteSpace(((XText)node).Value) || node.NodeType == System.Xml.XmlNodeType.Whitespace || node.NodeType == System.Xml.XmlNodeType.SignificantWhitespace))))) {
-					Errors.Error(string.Format("Invalid content {0}", node.ToString(SaveOptions.DisableFormatting | SaveOptions.OmitDuplicateNamespaces)), "23", node);
+					container.Errors.Error(string.Format("Invalid content {0}", node.ToString(SaveOptions.DisableFormatting | SaveOptions.OmitDuplicateNamespaces)), "23", node);
 				}
 			}
 
 			return item;
 		}
 
-		public void ValidAttributes(XElement x, params string[] names) {
+		public void ValidAttributes(XElement x, Group container, params string[] names) {
 			foreach (var a in x.Attributes()) {
 				if (!names.Contains(a.Name.LocalName)) {
-					Errors.Error("Invalid attribute " + a.Name.LocalName, "22", a);
+					container.Errors.Error("Invalid attribute " + a.Name.LocalName, "22", a);
 				}
 			}
 		}
@@ -240,10 +239,11 @@ namespace XamlImageConverter {
 					Loop = (int?)x.Attribute("Loop") ?? 1,
 					Pause = (double?)x.Attribute("Pause") ?? 0,
 					Type = (string)x.Attribute("Type"),
-					Hash = (int?)x.Attribute("Hash")
+					Hash = (int?)x.Attribute("Hash"),
+					Layer = (int?)x.Attribute("Layer")
 				};
-				ValidAttributes(x, "Element", "Storyboard", "Frames", "Filmstrip", "Dpi", "Quality", "Filename", "Left", "Top", "Right", "Bottom", "Width", "Height", "Cultures", "Page", "FitToPage", 
-					"File", "Loop", "Pause", "Skin", "Theme", "TextMode", "Type", "Image", "Culture", "Hash");
+				ValidAttributes(x, container, "Element", "Storyboard", "Frames", "Filmstrip", "Dpi", "Quality", "Filename", "Left", "Top", "Right", "Bottom", "Width", "Height", "Cultures", "Page", "FitToPage", 
+					"File", "Loop", "Pause", "Skin", "Theme", "TextMode", "Type", "Image", "Culture", "Hash", "Layer");
 				break;
 			case "ImageMap":
 			case "Map":
@@ -287,18 +287,18 @@ namespace XamlImageConverter {
 				break;
 			case "Undo":
 				result = new Undo();
-				ValidAttributes(x);
+				ValidAttributes(x, container);
 				break;
 			case "Reset":
 				result = new Reset();
-				ValidAttributes(x);
+				ValidAttributes(x, container);
 				break;
 			case "Group":
 				result = new Group { OutputPath = (string)x.Attribute("OutputPath") };
-				ValidAttributes(x, "Element", "OutputPath", "Left", "Top", "Right", "Bottom", "Width", "Height", "Skin", "Theme", "TextMode");
+				ValidAttributes(x, container, "Element", "OutputPath", "Left", "Top", "Right", "Bottom", "Width", "Height", "Skin", "Theme", "TextMode");
 				break;
 			default:
-				Errors.Error("Invalid element " +  x.Name.LocalName, "20", x);
+				container.Errors.Error("Invalid element " +  x.Name.LocalName, "20", x);
 				result = new Group();
 				break;
 			}

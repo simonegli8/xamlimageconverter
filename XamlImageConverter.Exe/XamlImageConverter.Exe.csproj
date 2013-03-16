@@ -116,26 +116,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="img\test\page_header.pdf" />
     <None Include="src\Planet.psd" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="img\ImageMaps\Readme.aspx">
-      <SubType>ASPXCodeBehind</SubType>
-    </Content>
-    <Content Include="img\test\animated-loader-filmstrip.jpg" />
-    <Content Include="img\test\animated-loader.gif" />
-    <Content Include="img\test\copyright_bar.png" />
-    <Content Include="img\test\copyright_bar_element.png" />
-    <Content Include="img\test\main_content_bkgd.png" />
-    <Content Include="img\test\main_content_bkgd_lft.png" />
-    <Content Include="img\test\main_content_bkgd_rt.png" />
-    <Content Include="img\test\page_header_ctr.png" />
-    <Content Include="img\test\page_header_lft.png" />
-    <Content Include="img\test\page_header_rt.png" />
-    <Content Include="Readme.aspx">
-      <SubType>ASPXCodeBehind</SubType>
-    </Content>
     <Content Include="src\blog-banner.jpg" />
     <Content Include="src\generic-lines.png" />
     <Content Include="src\jquery.js" />
@@ -190,6 +173,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="img\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

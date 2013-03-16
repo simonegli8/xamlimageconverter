@@ -92,8 +92,9 @@ namespace XamlImageConverter {
 				var ext = Path.GetExtension(pdf).ToUpper().TrimStart('.');
 				var adjoin = " ";
 				if (IntermediateFiles[pdf].Count > 1) adjoin = " -adjoin ";
+				//var pinfo = new System.Diagnostics.ProcessStartInfo(exe, (GlobalOptions ?? "") + adjoin + sb.ToString() + "\"" + pdf + "\"");
 				var process = Process.Start(exe, (GlobalOptions ?? "") + adjoin + sb.ToString() + "\"" + pdf + "\"");
-				Processes.Add(process);
+				lock (Processes) Processes.Add(process);
 				var tpdf = pdf;
 				var tempFiles = IntermediateFiles[tpdf];
 				process.Exited += (sedner, args) => {

@@ -35,6 +35,7 @@
 		<xic:Snapshot File="full.png" />
 		<xic:Snapshot File="full.eps" />
 		<xic:Snapshot File="full.pdf" />
+		<xic:Snapshot Element="rotatingTest" File="arrow.xps" />
 
 	</xic:Scene>
 

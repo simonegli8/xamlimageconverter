@@ -63,6 +63,7 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Printing" />
     <Reference Include="System.Web" />
@@ -104,6 +105,17 @@
     <None Include="Lazy\svg2xaml\SharpVectors\SharpVectorRenderingWpf\Properties\Settings.settings" />
     <None Include="Lazy\svg2xaml\SharpVectors\SharpVectorRuntime\Properties\Settings.settings" />
     <None Include="Lazy\svg2xaml\SharpVectors\SharpVectorRuntime\SharpVectors.Runtime.snk" />
+    <None Include="Lazy\XamlImageConverter.xsc">
+      <DependentUpon>XamlImageConverter.xsd</DependentUpon>
+    </None>
+    <None Include="Lazy\XamlImageConverter.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>XamlImageConverter.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Lazy\XamlImageConverter.xss">
+      <DependentUpon>XamlImageConverter.xsd</DependentUpon>
+    </None>
     <None Include="XamlCapture\AppDomain.cs" />
     <None Include="XamlCapture\Capture.old.cs" />
     <Compile Include="Configuration.cs" />
@@ -602,6 +614,11 @@
     <Compile Include="Lazy\svg2xaml\SharpVectors\SharpVectorRuntime\ZoomPanAnimationHelper.cs" />
     <Compile Include="Lazy\svg2xaml\SharpVectors\SharpVectorRuntime\ZoomPanControl.cs" />
     <Compile Include="Lazy\svg2xaml\SharpVectors\SharpVectorRuntime\ZoomPanControl.IScrollInfo.cs" />
+    <None Include="Lazy\XamlImageConverter.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>XamlImageConverter.xsd</DependentUpon>
+    </None>
     <Compile Include="StringUtil.cs" />
     <Compile Include="XamlCapture\BackgroundDispatcher.cs" />
     <Compile Include="XamlCapture\CompilerServer.cs" />
@@ -673,6 +690,7 @@
     </Content>
     <Content Include="Lazy\ImageMagick\mime.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Lazy\ImageMagick\msvcp100.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

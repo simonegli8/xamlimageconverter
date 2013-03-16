@@ -18,6 +18,7 @@ namespace XamlImageConverter {
 
 		Dictionary<string, object> values = new Dictionary<string, object>();
 		Dictionary<string, XObject> xobjects = new Dictionary<string, XObject>();
+		public bool First = true;
 
 		public Parameters() { }
 
@@ -87,12 +88,14 @@ namespace XamlImageConverter {
 			return xobjects.ContainsKey(key) ? xobjects[key] : null;
 		}
 
-		static Dictionary<Group, Stack<Parameters>> undoStack = new Dictionary<Group, Stack<Parameters>>();
+		static Dictionary<FrameworkElement, Stack<Parameters>> undoStack = new Dictionary<FrameworkElement, Stack<Parameters>>();
 		public Stack<Parameters> UndoStack {
 			get {
-				if (Scene == null) return null;
-				if (!undoStack.ContainsKey(Scene)) undoStack[Scene] = new Stack<Parameters>();
-				return undoStack[Scene];
+				lock (undoStack) {
+					if (Scene == null) return null;
+					if (!undoStack.ContainsKey(Scene.Element)) undoStack.Add(Scene.Element, new Stack<Parameters>());
+					return undoStack[Scene.Element];
+				}
 			}
 		}
 
@@ -129,6 +132,7 @@ namespace XamlImageConverter {
 		public FrameworkElement Apply(FrameworkElement element) {
 			var undo = new Parameters();
 			undo.Compiler = Compiler;
+			undo.First = First;
 			foreach (var p in values) {
 				string elemName, propName, depPropName = null;
 				Split(p.Key, out elemName, out propName);
@@ -158,7 +162,7 @@ namespace XamlImageConverter {
 					} else {
 						fieldInfo = t.GetField(propName, BindingFlags.FlattenHierarchy | BindingFlags.Public);
 						if (fieldInfo == null) {
-							Errors.Error(string.Format("  Set {0}: Element {1} has no property {2}.", p.Key, elemName, propName), "3", XObject(p.Key));
+							if (First) Errors.Error(string.Format("  Set {0}: Element {1} has no property {2}.", p.Key, elemName, propName), "3", XObject(p.Key));
 						}
 						pType = fieldInfo.GetType();
 					}
@@ -168,7 +172,7 @@ namespace XamlImageConverter {
 							if (value is string) value = converter.ConvertFromInvariantString(value as string);
 							else value = converter.ConvertFrom(value);
 						} else {
-							Errors.Error(string.Format("  Set {0}: Cannot convert from {1} to {2}.", p.Key, vType.Name, pType.Name), "4", XObject(p.Key));
+							if (First) Errors.Error(string.Format("  Set {0}: Cannot convert from {1} to {2}.", p.Key, vType.Name, pType.Name), "4", XObject(p.Key));
 							continue;
 						}
 					}
@@ -179,9 +183,9 @@ namespace XamlImageConverter {
 						undo[p.Key] = fieldInfo.GetValue(elem);
 						fieldInfo.SetValue(elem, value);
 					}
-					Errors.Message("  {0}={1}", p.Key, value.ToString());
+					if (First) Errors.Message("  {0}={1}", p.Key, value.ToString());
 				} else {
-					Errors.Error(string.Format("  Set {0}: There is no element {1}.", p.Key, elemName), "5", XObject(p.Key));
+					if (First) Errors.Error(string.Format("  Set {0}: There is no element {1}.", p.Key, elemName), "5", XObject(p.Key));
 				}
 			}
 			if (UndoStack != null) UndoStack.Push(undo);
@@ -197,22 +201,28 @@ namespace XamlImageConverter {
 		}
 
 		public override void Process() {
-			Errors.Message("Set");
+			First = First && Compiler.Cpus == 1;
+			if (First) Errors.Message("Set");
 			Apply();
+			First = false;
 		}
 	} 
 
 	public class Undo: Parameters {
 		public override void  Process() {
-			Errors.Message("Undo");
+			First = First && Compiler.Cpus == 1;
+			if (First) Errors.Message("Undo");
 			Undo();
+			First = false;
 		}
 	}
 
 	public class Reset: Parameters {
 		public override void  Process() {
-			Errors.Message("Reset");
+			First = First && Compiler.Cpus == 1;
+			if (First) Errors.Message("Reset");
 			Reset();
+			First = false;
 		}
 	}
 

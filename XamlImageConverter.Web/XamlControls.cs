@@ -14,18 +14,19 @@ namespace Silversite.Web.UI {
 
 
 	[ToolboxData("<{0}:XamlImage runat=\"server\" />")]
-	[ParseChildren(ChildrenAsProperties = false, DefaultProperty="XamlContent")]
+	[ParseChildren(ChildrenAsProperties = false)]
 	[PersistChildren(true)]
 	public class XamlImage: Image {
 
-		XNamespace ns = "http://schemas.johnshope.com/XamlImageConverter/2012";
-		XNamespace xaml ="http://schemas.microsoft.com/winfx/2006/xaml/presentation";
-      XNamespace xamlx="http://schemas.microsoft.com/winfx/2006/xaml";
+		static XNamespace xic = "http://schemas.johnshope.com/XamlImageConverter/2012";
+		static XNamespace xaml ="http://schemas.microsoft.com/winfx/2006/xaml/presentation";
+		static XNamespace xamlx="http://schemas.microsoft.com/winfx/2006/xaml";
+		const string SessionPrefix = "#XamlImageConverter.Xaml:";
 
 		protected override void OnInit(EventArgs e) {
 			base.OnInit(e);
-			if (XamlContent.Count == 1 && XamlContent[0] is Literal) {
-				Xaml = ((Literal)XamlContent[0]).Text;
+			if (Controls.Count == 1 && Controls[0] is LiteralControl) {
+				Content = ((LiteralControl)Controls[0]).Text;
 			}
 		}
 		protected override void CreateChildControls() {
@@ -41,66 +42,78 @@ namespace Silversite.Web.UI {
 		public int? Loops { get { return (int?)ViewState["Loops"]; } set { ViewState["Loops"] = value; } }
 		public double? Pause { get { return (double?)ViewState["Pause"]; } set { ViewState["Pause"] = value; } }
 		public int? Dpi { get { return (int?)ViewState["Dpi"]; } set { ViewState["Dpi"] = value; } }
-
-		public Guid Guid { get { return (Guid)(ViewState["Guid"] ?? (Guid = new Guid())); } set { ViewState["Guid"] = value; } }
+		public string Parameters { get { return (string)ViewState["Parameters"]; } set { ViewState["Parameters"] = value; } }
+		public Guid Guid { get { return (Guid)(ViewState["Guid"] ?? (Guid = System.Guid.NewGuid())); } set { ViewState["Guid"] = value; } }
+		public string Type { get { return (string)ViewState["Type"]; } set { ViewState["Type"] = value; } }
+		public string Image { get { return ImageUrl; } set { ImageUrl = value; } }
+		string SessionID { get { return SessionPrefix + Guid.ToString(); } }
 
 		XElement element = null;
 		public XElement XElement {
-			get { return element ?? (element = new XElement(Xaml)); }
+			get { return element ?? (element = XElement.Parse(Content)); }
 			set {
 				using (var w = new StringWriter()) {
 					value.Save(w , SaveOptions.OmitDuplicateNamespaces);
-					Xaml = w.ToString();
+					Content = w.ToString();
 				}
 			}
 		}
 
-		public string Xaml {
-			get { return (string)Page.Session["XamlImageConverter.Xaml:#XamlImage" + Guid.ToString()]; }
-			set {
-				if (Page.Session["XamlImageConverter.Xaml:#XamlImage" + Guid.ToString()] != value) {
-					Page.Session["XamlImageConverter.Xaml:#XamlImage" + Guid.ToString()] = value;
-					element = null;
-					if (XElement.Name == ns + "XamlImageConverter") {
-						var snapshot = XElement.Descendants()
-							.FirstOrDefault(x => x.Name == ns + "Snapshot" && (string.IsNullOrEmpty(ImageUrl) || (string)x.Attribute("File") == ImageUrl || (string)x.Attribute("Filename") == ImageUrl));
-						if (snapshot == null) {
-							snapshot = XElement.Descendants()
-								.FirstOrDefault(x => x.Name == ns + "Snapshot");
-							ImageUrl = (string)(snapshot.Attribute("File") ?? snapshot.Attribute("Filename"));
-						}
+		public string Content { get; set; }
+
+		string Url {
+			get {
+				var sb = new StringBuilder();
+				sb.Append("xic.axd?Source="); sb.Append(HttpUtility.UrlEncode(SessionID));
+				var e = XElement;
+				if (e.Name != xic+"XamlImageConverter") {
+					if (!string.IsNullOrEmpty(Storyboard)) { sb.Append("&Storyboard="); sb.Append(HttpUtility.UrlEncode(Storyboard)); }
+					if (!string.IsNullOrEmpty(Theme)) { sb.Append("&Theme="); sb.Append(HttpUtility.UrlEncode(Theme)); }
+					if (!string.IsNullOrEmpty(Skin)) { sb.Append("&Skin="); sb.Append(HttpUtility.UrlEncode(Skin)); }
+					if (!string.IsNullOrEmpty(Cultures)) { sb.Append("&Cultures="); sb.Append(HttpUtility.UrlEncode(Cultures)); }
+					if (Quality.HasValue) { sb.Append("&Quality="); sb.Append(Quality.Value); }
+					if (Loops.HasValue) { sb.Append("&Loops="); sb.Append(Loops.Value); }
+					if (Pause.HasValue) { sb.Append("&Pause="); sb.Append(Pause.Value); }
+					if (Dpi.HasValue) { sb.Append("&Dpi="); sb.Append(Dpi.Value); }
+					if (!string.IsNullOrEmpty(Type)) { sb.Append("&Type="); sb.Append(HttpUtility.UrlEncode(Type)); }
+					/*if (e.Name.NamespaceName == "") {
+						e.Name = xaml + e.Name.LocalName;
+						e.SetAttributeValue(XNamespace.Xmlns + "x", xamlx.NamespaceName);
+					}
+					var xml = new StringBuilder();
+					using (var w = System.Xml.XmlWriter.Create(xml)) {
+						e.Save(w);
+					}*/
+					Page.Session[SessionID] = Content.Trim(); //xml.ToString();
+				} else {
+					Page.Session[SessionID] = Content.Trim();
+				}
+
+				foreach (var par in (Parameters ?? "").Split(new char[] { '&' }, StringSplitOptions.RemoveEmptyEntries)) {
+					sb.Append("&");
+					if (par.Contains('=')) {
+						var tokens = par.Split('=');
+						sb.Append(tokens[0]);
+						sb.Append(HttpUtility.UrlEncode(tokens[1]));
 					} else {
-						if (Storyboard != null) XElement.SetAttributeValue(ns + "Storyboard", Storyboard);
-						if (Theme != null) XElement.SetAttributeValue(ns + "Theme", Theme);
-						if (Skin != null) XElement.SetAttributeValue(ns + "Skin", Skin);
-						if (Cultures != null) XElement.SetAttributeValue(ns + "Cultures", Cultures);
-						if (TextMode != null) XElement.SetAttributeValue(ns + "TextMode", TextMode);
-						if (Quality != null) XElement.SetAttributeValue(ns + "Quality", Quality);
-						if (Loops != null) XElement.SetAttributeValue(ns + "Loops", Quality);
-						if (Pause != null) XElement.SetAttributeValue(ns + "Pause", Quality);
-						if (Dpi != null) XElement.SetAttributeValue(ns + "Dpi", Quality);
-						if (!string.IsNullOrEmpty(ImageUrl)) {
-							var namewhash = Path.GetFileNameWithoutExtension(ImageUrl);
-							var name = Path.GetFileNameWithoutExtension(namewhash);
-							var hashid = Path.GetExtension(namewhash);
-							int id = 0;
-							if (!int.TryParse(hashid, out id)) name = namewhash;
-							XElement.SetAttributeValue(ns + "File", "__XamlImageConverter.ImageUrl" + name);
-							var hash = Hash.Compute(XElement.ToString(SaveOptions.DisableFormatting | SaveOptions.OmitDuplicateNamespaces));
-							ImageUrl = name + "." + hash + "." + Path.GetExtension(ImageUrl);
-							XElement.SetAttributeValue(ns + "File", ImageUrl);
-						} else if (!XElement.DescendantsAndSelf().Any(x => x.Attributes().Any(a => a.Name == ns + "Normal.View"))) {
-							XElement.SetAttributeValue(ns + "Normal.View", "");
-						}
-						Page.Session["XamlImageConverter.Xaml:#XamlImage" + Guid.ToString()] = value = XElement.ToString(SaveOptions.OmitDuplicateNamespaces);
+						sb.Append(HttpUtility.UrlEncode(par));
 					}
 				}
+				if (!string.IsNullOrEmpty(ImageUrl)) {
+					var hashsb = new StringBuilder();
+					hashsb.Append(Storyboard ?? "");
+					hashsb.Append(Theme ?? "");
+					hashsb.Append(Skin ?? "");
+					hashsb.Append(Cultures ?? "");
+					hashsb.Append(Type ?? "");
+					hashsb.Append(Content ?? "");
+					var hash = Hash.Compute(hashsb.ToString());
+					hash += 10*(Quality ?? 90) + 1000*(Loops ?? 1) + (int)(10000*(Pause??0)) + 100000*(Dpi??96);
+					sb.Append("&Image="); sb.Append(HttpUtility.UrlEncode(Path.ChangeExtension(ImageUrl, hash.ToString("X") + Path.GetExtension(ImageUrl))));
+				}
+				return sb.ToString();
 			}
 		}
-
-		public ControlCollection XamlContent { get; set; }
-
-		public XamlImage() { XamlContent = new ControlCollection(this); }
 
 		protected override object SaveViewState() {
 			return base.SaveViewState();
@@ -108,7 +121,7 @@ namespace Silversite.Web.UI {
 
 		protected override void Render(HtmlTextWriter writer) {
 			var oldimage = ImageUrl;
-			ImageUrl = "xic.axd?Image=" + ImageUrl + "&Xaml=#XamlImage" + Guid.ToString();
+			ImageUrl = Url;
 			base.Render(writer);
 			ImageUrl = oldimage;
 		}
