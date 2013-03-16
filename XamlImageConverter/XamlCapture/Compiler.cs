@@ -40,6 +40,8 @@ namespace XamlImageConverter {
 		bool UseService { get; set; }
 		bool SeparateAppDomain { get; set; }
 		bool Parallel { get; set; }
+		int? Cores { get; set; }
+		int GCLevel { get; set; }
 		CultureInfo Culture { get; set; }
 		Dictionary<string, string> Parameters { get; set; }
 		List<ILogger> Loggers { get; }
@@ -65,6 +67,7 @@ namespace XamlImageConverter {
 		public bool UseService { get; set; }
 		public bool Parallel { get; set; }
 		public int GCLevel { get; set; }
+		public int? Cores { get; set; }
 		public Action Serve { get; set; }
 		public CultureInfo Culture { get; set; }
 		public Dictionary<string, string> Parameters { get; set; }
@@ -83,8 +86,6 @@ namespace XamlImageConverter {
 		public static string CurrentSkin = "";
 		[NonSerialized]
 		public int Cpus = 1;
-		[NonSerialized]
-		public int? Cores = null;
 		[NonSerialized]
 		int CreatedImages = 0;
 		[NonSerialized]
@@ -154,7 +155,7 @@ namespace XamlImageConverter {
 		}
 	
 		public Compiler() {
-			NeedsBuilding = true; CheckBuilding = false; SeparateAppDomain = true; NeedsBuildingChecked = false; ChildAppDomain = false;
+			NeedsBuilding = true; CheckBuilding = false; SeparateAppDomain = true; NeedsBuildingChecked = false; ChildAppDomain = false; Cores = null; Parallel = true;
 			RebuildAll = false; UseService = false;
 			SourceFiles = new List<string>();
 			Parameters = new Dictionary<string, string>();
