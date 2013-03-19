@@ -241,12 +241,7 @@ namespace XamlImageConverter {
 
 				if (Loop != 1 && ext == ".gif") {
 					string file = Path.GetFileName(filename);
-					var apath = AppDomain.CurrentDomain.BaseDirectory;
-					var rpath = (";" + AppDomain.CurrentDomain.RelativeSearchPath)
-						.Split(';')
-						.FirstOrDefault(p => File.Exists(Path.Combine(apath, p, "Lazy\\ImageMagick\\convert.exe")));
-
-					var exe = Path.Combine(apath, rpath, "Lazy\\ImageMagick\\convert.exe");
+					var exe = Compiler.BinPath("ImageMagick\\convert.exe");
 					var args = " -loop " + Loop;
 					if (Pause != 0) args += " -pause " + Pause;
 					args += " " + file + " " + file;

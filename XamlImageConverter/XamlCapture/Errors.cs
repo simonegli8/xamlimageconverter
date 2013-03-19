@@ -47,7 +47,8 @@ namespace XamlImageConverter {
 
 	public interface ILogger {
 		void Message(string path, string message, string errorNumber, TextSpan span, Severity severity);
-		void Flush();
+		void Flush(string path);
+		void Clear(string path);
 	}
 
 	public class ConsoleLogger: MarshalByRefObject, ILogger {
@@ -60,7 +61,8 @@ namespace XamlImageConverter {
 			}
 			Console.WriteLine(message);
 		}
-		public void Flush() { }
+		public void Flush(string path) { }
+		public void Clear(string path) { }
 	}
 
 	public class FileLogger: MarshalByRefObject, ILogger, IDisposable {
@@ -68,31 +70,41 @@ namespace XamlImageConverter {
 		Dictionary<string, StringBuilder> texts = new Dictionary<string, StringBuilder>();
 
 		public virtual void Message(string path, string message, string errorCode, TextSpan span, Severity severity) {
-			if (!texts.ContainsKey(path)) texts.Add(path, new StringBuilder());
-			var text = texts[path];
-			switch (severity) {
-			case Severity.Error: text.Append(string.Format("  Error {0} ({1},{2}): ", errorCode, span.Start.Line, span.Start.Column)); break;
-			case Severity.Warning: text.Append(string.Format("  Warning {0} ({1},{2}): ", errorCode, span.Start.Line, span.Start.Column)); break;
-			default: break;
+			lock (texts) {
+				if (!texts.ContainsKey(path)) texts.Add(path, new StringBuilder());
+				var text = texts[path];
+				switch (severity) {
+				case Severity.Error: text.Append(string.Format("  Error {0} ({1},{2}): ", errorCode, span.Start.Line, span.Start.Column)); break;
+				case Severity.Warning: text.Append(string.Format("  Warning {0} ({1},{2}): ", errorCode, span.Start.Line, span.Start.Column)); break;
+				default: break;
+				}
+				text.AppendLine("   " + message);
 			}
-			text.AppendLine("   " + message);
 		}
 
-		public void Flush() {
-			foreach (var file in texts.Keys) {
-				var text = texts[file];
-				var str = text.ToString();
-				var logpath = file + ".log";
-				try {
-					if (!string.IsNullOrEmpty(str)) System.IO.File.WriteAllText(logpath, str.Replace(Environment.NewLine, "\n").Replace("\n", Environment.NewLine));
-					else if (System.IO.File.Exists(logpath)) System.IO.File.Delete(logpath);
-				} catch { }
+		public void Flush(string path) {
+			lock (texts) {
+				if (texts.ContainsKey(path)) {
+					var text = texts[path];
+					var str = text.ToString();
+					var logpath = path + ".log";
+					try {
+						if (!string.IsNullOrEmpty(str)) System.IO.File.WriteAllText(logpath, str.Replace(Environment.NewLine, "\n").Replace("\n", Environment.NewLine));
+						else if (System.IO.File.Exists(logpath)) System.IO.File.Delete(logpath);
+					} catch { }
+					texts.Remove(path);
+				}
 			}
-			texts.Clear();
+		}
+
+		public void Clear(string path) {
+			lock (texts) {
+				if (texts.ContainsKey(path)) texts.Remove(path);
+			}
 		}
 
 		public void Dispose() {
-			Flush();
+			foreach (var path in texts.Keys) Flush(path);
 		}
 	}
 
@@ -129,8 +141,11 @@ namespace XamlImageConverter {
 		public void Warning(string message, string errorCode, TextSpan span) { Write(Path, message, errorCode, span, Severity.Warning); }
 		public void Error(string message, string errorCode, XObject xobj) { HasErrors = true; Write(Path, message, errorCode, new TextSpan(xobj), Severity.Error); }
 		public void Warning(string message, string errorCode, XObject xobj) { Write(Path, message, errorCode, new TextSpan(xobj), Severity.Warning); }
+		public void Clear() {
+			foreach (var log in Loggers) log.Clear(Path);
+		}
 		public void Flush() {
-			foreach (var log in Loggers) log.Flush();
+			foreach (var log in Loggers) log.Flush(Path);
 		}
 	}
 }

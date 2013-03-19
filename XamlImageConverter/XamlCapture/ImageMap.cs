@@ -27,13 +27,13 @@ namespace XamlImageConverter {
 
 		public string Image { get; set; }
 		public double? Scale, XScale, YScale, XOffset, YOffset, Angle;
-		Transform Transform;
 		public string File { get { return Filename; } set { Filename = value; } }
 		public Types Type { get; set; }
 		public double Flatness { get; set; }
 		public FileTypes? FileType { get; set; }
 		public IdentChars? Ident { get; set; }
 		public double Dpi { get; set; }
+		new Transform Transform;
 
 		AttributeCollection attributes = new AttributeCollection();
 		public AttributeCollection Attributes { get { return attributes; } }
@@ -349,7 +349,7 @@ namespace XamlImageConverter {
 			XElement Area;
 			Errors Errors;
 			double Flatness;
-			public GeneralTransform VisualTransform;
+			public new GeneralTransform VisualTransform;
 
 			public Renderer(ImageMap map, DependencyObject element, XElement area) {
 				Errors = map.Errors;

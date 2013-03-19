@@ -24,7 +24,8 @@ namespace XamlImageConverter {
 				}
 			}
 		}
-		public void Flush() { }
+		public void Flush(string path) { }
+		public void Clear(string path) { }
 	}
 
 }

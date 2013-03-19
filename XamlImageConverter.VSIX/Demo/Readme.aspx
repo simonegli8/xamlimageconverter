@@ -18,31 +18,39 @@
 <body>
 	 <form id="form1" runat="server">
 	 <div>
-		<h3>A direct conversion of xaml &gt; png</h3> 
+		
+		<h3>A direct conversion of xaml =&gt; png</h3> 
 		<pre><code>&lt;img src="Homepage.xaml?png" runat="server" /&gt;</code></pre>
-		<img src="Homepage.xaml?png" runat="server" />
+		<img id="Img1" src="Homepage.xaml?png" runat="server" />
 		<hr />
-		 
+
 		 <h3>A PDF of the above xaml</h3>
 		<pre><code>&lt;a href="Homepage.xaml?pdf"&gt;Homepage PDF&lt;/a&gt;</code></pre>
 		<a href="Homepage.xaml?pdf">Homepage PDF</a>
 		<hr />
 
-		<h3>A conversion of multiple images with a batch script file, and of an animated gif.</h3>	
-		<pre><code>&lt;img src="CreateImages.xic.xaml?image=Images/animated-loader.gif" runat="server" /&gt;</code></pre>
-		<img src="CreateImages.xic.xaml?image=Images/animated-loader.gif" runat="server" />
+		<h3>Rendering of multiple images with a batch script file, and of an animated gif.</h3>	
+		<pre><code>&lt;img src="CreateImages.xic.xaml?Image=Images/Homepage/animated-loader.gif" runat="server" /&gt;</code></pre>
+		<img id="Img2" src="CreateImages.xic.xaml?Image=Images/Homepage/animated-loader.gif" runat="server" />
 		<hr />
 		
 		<h3>A html image map created from a svg source</h3>
 		<p>This map was generated from <a href="http://en.wikipedia.org/wiki/Image:Map_of_USA_with_state_names.svg">"Map of USA with state names.svg"</a>.
-		Note that in the current version the font is not resolved correctly.</p>
-		<pre><code>&lt;asp:ImageMap ID="usamap" runat="server" ImageUrl="CreateImages.xic.xamll?image=Images/Usa.Map.png" CssClass="map" /&gt;</code></pre>
-		<asp:ImageMap ID="usamap" runat="server" ImageUrl="CreateImages.xic.xaml?image=Images/Usa.Map.png" CssClass="map" />
+		Note that in the current version the SVG font is not resolved correctly.</p>
+		<pre><code>&lt;asp:ImageMap ID="usamap" runat="server" ImageUrl="CreateImages.xic.xaml?Image=Images/Usa.Map.png" CssClass="map" /&gt;</code></pre>
+		 and in CreateImages.xic.xaml:
+		<pre><code>&lt;xic:Snapshot Image="Usa.Map.png" &gt;
+&lt;xic:ImageMap ID="usamap" Image="Usa.Map.png" File="Readme.aspx" &gt;
+  &lt;HotSpots Elements="WA,OR,CA,AK,ID,NV,AZ,UT,MT,WY,CO,NM,TX,OK,KS,NE,SD,ND,MN,IA,MO,AR,LA,WI,IL,TN,MS,MI,IN,KY,AL,FL,GA,SC,NC,VA,WV,OH,PA,MD,NJ,NY,CT,MA,VT,NH,ME,RI,DE,HI" HotSpotMode="PostBack" PostBackValue="%ID%"/&gt;
+&lt;/xic:ImageMap&gt
+			  </code></pre>
+
+		<asp:ImageMap ID="usamap" runat="server" ImageUrl="CreateImages.xic.xaml?Image=Images/Usa.Map.png" CssClass="map" />
 		<hr />
 		
-		 <h3>Conversion of 3D content doesn't work under IIS (only on IIS6).</h3>
-		<pre><code>&lt;img src="Kaxaml.xaml?gif&Storyboard=rotate&Frames=50" runat="server" /&gt;</code></pre>
-		<img src="Kaxaml.xaml?gif&Storyboard=rotate&Frames=50" runat="server" />
+		 <h3>Rendering of 3D content doesn't work under IIS (only on IIS6 & IISExpress, because IIS does not run in a user session and can't access video drivers).</h3>
+		<pre><code>&lt;img src="Kaxaml.xaml?gif&Storyboard=rotate&Frames=50&Loop=0" runat="server" /&gt;</code></pre>
+		<img id="Img3" src="Kaxaml.xaml?gif&Storyboard=rotate&Frames=50&Loop=0" runat="server" />
 
 		 <h3>Conversion of 3D content doesn't work under IIS, so here is a precompiled version.</h3>
 		<pre><code>&lt;img src="Kaxaml.gif" runat="server" /&gt;</code></pre>

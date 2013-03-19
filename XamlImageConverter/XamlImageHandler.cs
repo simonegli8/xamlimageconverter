@@ -109,7 +109,7 @@ namespace XamlImageConverter {
 			}
 			if (System.IO.File.Exists(image)) context.Response.WriteFile(image);
 			else context.Response.StatusCode = 404;
-			context.Response.End();
+			context.ApplicationInstance.CompleteRequest();
 		}
 
 		public void ProcessRequest(System.Web.HttpContext context) {
@@ -119,7 +119,6 @@ namespace XamlImageConverter {
 				var direct = false;
 				var par = new Dictionary<string, string>();
 				var ext = System.IO.Path.GetExtension(filename).ToLower();
-				var imgext = "";
 				if (ext == ".xaml" || ext == ".psd" || ext == ".svg" || ext == ".svgz") {
 					var exts = context.Request.QueryString.GetValues(null);
 					if (exts != null && exts.Length > 0) {
@@ -177,7 +176,7 @@ namespace XamlImageConverter {
 				}
 			} catch (Exception ex) {
 				context.Response.StatusCode = 500;
-				context.Response.End();
+				context.ApplicationInstance.CompleteRequest();
 			}
 		}
 	}

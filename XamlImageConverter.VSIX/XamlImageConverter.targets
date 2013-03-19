@@ -49,13 +49,4 @@
       DependsOnTargets="$(CoreCompileDependsOn);XamlImageConverterCompilerTarget">
   </Target>-->
 
-	<Target Name="InstallXamlImageConverter">
-		<MakeDir Directories="$(MSBuildExtensionsPath)\JohnsHope Software\XamlImageConverter\2.0" />
-		<Copy SourceFiles="XamlImageConverter.targets" DestinationFolder="$(MSBuildExtensionsPath)\JohnsHope Software\XamlImageConverter\2.0" />
-	</Target>
-
-	<Target Name="RemoveXamlImageConverter">
-		<Delete Files="$(MSBuildExtensionsPath)\JohnsHope Software\XamlImageConverter\2.0\XamlImageConverter.targets" />
-	</Target>
-
 </Project>

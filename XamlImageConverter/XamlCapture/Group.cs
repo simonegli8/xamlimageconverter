@@ -70,7 +70,7 @@ namespace XamlImageConverter {
 		public int CreatedImages = 0;
 		public DateTime Start = DateTime.Now;
 		Errors errors = null;
-		public Errors Errors { get { return Root.errors ?? (Root.errors = Compiler.Errors.Clone(Master.Filename)); } set { Root.errors = value; } }
+		public Errors Errors { get { return Master.errors ?? (Master.errors = Compiler.Errors.Clone(Master.Filename)); } set { Master.errors = value; } }
 		Dictionary<string, FixedDocument> xpsDocs;
 		public Dictionary<string, FixedDocument> XpsDocs { get { return Root.xpsDocs ?? (Root.xpsDocs = new Dictionary<string,FixedDocument>()); } set { Root.xpsDocs = value; } }
 
@@ -115,7 +115,8 @@ namespace XamlImageConverter {
 				ProcessCount--;
 				if (ProcessCount == 0) {
 					var time = DateTime.Now - Master.Start;
-					Errors.Message("{0} Images rendered in {1:G3} seconds.", Master.CreatedImages, time.TotalSeconds);
+					Errors.Message("{0} images rendered in {1:G3} seconds.", Master.CreatedImages, time.TotalSeconds);
+					Errors.Flush();
 				}
 			}
 		}
@@ -132,7 +133,7 @@ namespace XamlImageConverter {
 			}
 		}
 		public Group Root { get { return Scene != null ? Scene.Parent : this; } }
-		public Group Parent { get { return (Group)base.Parent; } }
+		public new Group Parent { get { return (Group)base.Parent; } }
 
 		public string CreateTempPath(string file) {
 			TempPath = System.IO.Path.GetTempPath();
@@ -626,11 +627,7 @@ namespace XamlImageConverter {
 						device = "ps2write";
 						exe = "gxps-9.07-win32.exe";
 					}
-					var apath = AppDomain.CurrentDomain.BaseDirectory;
-					var rpath = (";" + AppDomain.CurrentDomain.RelativeSearchPath)
-						.Split(';')
-						.FirstOrDefault(p => File.Exists(Path.Combine(apath, p, "Lazy\\psd2xaml\\Endogine.dll")));
-					exe = Path.Combine(apath, rpath, "Lazy\\gxps\\" + exe);
+					exe = Compiler.BinPath("Lazy\\gxps\\" + exe);
 					//if (!File.Exists(exe)) exe = Path.Combine(path, @"\gxps.exe");
 					var args = string.Format("-sDEVICE={0} -dNOPAUSE \"-sOutputFile={1}\" \"{2}\"", device, filename, key);
 					var process = NewProcess(exe, args, Path.GetDirectoryName(filename));
@@ -711,7 +708,7 @@ namespace XamlImageConverter {
 					var locks = LocalFilename.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
 						.Select(file => FileLock(file));
 
-					return Version = new DateTime(LocalFilename.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+					Version = new DateTime(LocalFilename.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
 						.Max(file => {
 							FileInfo info = new FileInfo(file);
 							if (info.Exists) return info.LastWriteTimeUtc.Ticks;
@@ -719,6 +716,8 @@ namespace XamlImageConverter {
 						}));
 
 					foreach (var file in locks) file.Dispose();
+
+					return Version;
 				} else {
 					FileInfo info = new FileInfo(LocalFilename);
 					using (FileLock(LocalFilename)) {

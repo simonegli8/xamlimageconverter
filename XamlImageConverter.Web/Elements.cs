@@ -68,6 +68,7 @@ namespace XamlImageConverter.Elements {
 	public class Xaml : ISceneElement {
 		public string File { get; set; }
 		public string Source { get; set; }
+		public string Image { get; set; }
 		public string Type { get; set; }
 		public string Assembly { get; set; }
 		public bool Dynamic { get; set; }
@@ -75,7 +76,7 @@ namespace XamlImageConverter.Elements {
 		public List<object> Content { get; set; }
 	}
 
-	public class Snapshot : Group {
+	public class Snapshot : Group, ISceneElement {
 
 		public string Storyboard { get; set; }
 		public int Frames { get; set; }
@@ -99,7 +100,7 @@ namespace XamlImageConverter.Elements {
 
 	[ContentProperty("Areas")]
 	[DefaultProperty("Areas")]
-	public class ImageMap : System.Web.UI.WebControls.ImageMap {
+	public class ImageMap : System.Web.UI.WebControls.ImageMap, ISceneElement {
 		public enum FileTypes { UserControl, IncludeFile, Insert };
 		public enum Types { AspNet, Html };
 		public enum IdentChars { Tab, Space };
@@ -117,13 +118,7 @@ namespace XamlImageConverter.Elements {
 		public double YScale { get; set; }
 		public double Angle { get; set; }
 
-		public string Element { get; set; }
 		public string OutputPath { get; set; }
-		public DateTime Version { get; set; }
-		public string Cultures { get; set; }
-		public string Theme { get; set; }
-		public string Skin { get; set; }
-		public string TextMode { get; set; }
 
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
 		public List<IArea> Areas { get; set; }
@@ -131,13 +126,21 @@ namespace XamlImageConverter.Elements {
 
 	[ContentProperty("Areas")]
 	[DefaultProperty("Areas")]
-	public class Map : Group {
+	public class Map : Group, ISceneElement {
 		public string Image { get; set; }
 		public string File { get; set; }
 		public ImageMap.Types Type { get; set; }
 		public double Flatness { get; set; }
 		public ImageMap.FileTypes FileType { get; set; }
 		public ImageMap.IdentChars Ident { get; set; }
+		public string onclick { get; set; }
+		public string onmouseout { get; set; }
+		public string onmouseover { get; set; }
+		public string style { get; set; }
+		public string id { get; set; }
+		public string ID { get; set; }
+		public string name { get; set; }
+		//public string class { get; set; }
 
 		public double XOffset { get; set; }
 		public double YOffset { get; set; }
@@ -150,10 +153,9 @@ namespace XamlImageConverter.Elements {
 		public List<IArea> Areas { get; set; }
 	}
 
-	public class Area : System.Web.UI.WebControls.HotSpot, IArea {
+	public class Area : IArea {
 		public string Element { get; set; }
-		public override string GetCoordinates() { throw new NotImplementedException(); }
-		protected override string MarkupName { get { throw new NotImplementedException(); } }
+		public string Elements { get; set; }
 
 		public string href { get; set; }
 		public string onclick { get; set; }
@@ -162,10 +164,15 @@ namespace XamlImageConverter.Elements {
 		public string alt { get; set; }
 		public string title { get; set; }
 		public string style { get; set; }
+		public string id { get; set; }
+		//public string class { get; set; }
 	}
-	public class Areas : Area { }
+	public class Areas : Area, IArea { }
 
 	public class HotSpot : System.Web.UI.WebControls.HotSpot, IArea {
+		public string Element { get; set; }
+		public string Elements { get; set; }
+
 		public override string GetCoordinates() {
 			throw new NotImplementedException();
 		}

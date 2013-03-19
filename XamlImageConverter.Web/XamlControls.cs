@@ -89,6 +89,8 @@ namespace Silversite.Web.UI {
 					Page.Session[SessionID] = Content.Trim();
 				}
 
+				Page.Response.Cache.SetCacheability(HttpCacheability.NoCache);
+
 				foreach (var par in (Parameters ?? "").Split(new char[] { '&' }, StringSplitOptions.RemoveEmptyEntries)) {
 					sb.Append("&");
 					if (par.Contains('=')) {

@@ -85,9 +85,6 @@ namespace XamlImageConverter.Elements {
 		public bool FitToPage { get; set; }
 		public int Loop { get; set; }
 		public double Pause { get; set; }
-		public string Theme { get; set; }
-		public string Skin { get; set; }
-		public string TextMode { get; set; }
 	}
 
 
@@ -109,8 +106,6 @@ namespace XamlImageConverter.Elements {
 		public double Right { get; set; }
 		public double Top { get; set; }
 		public double Bottom { get; set; }
-		public double Width { get; set; }
-		public double Height { get; set; }
 		public string Element { get; set; }
 		public string OutputPath { get; set; }
 		public DateTime Version { get; set; }

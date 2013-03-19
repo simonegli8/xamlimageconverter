@@ -78,10 +78,10 @@
     <Content Include="XamlImageConverter.Demo\SiteSpecification.xml" />
     <Content Include="XamlImageConverter.Demo\Tux.svg" />
     <Content Include="XamlImageConverter.Demo\Usa.Map.html" />
-    <Content Include="XamlImageConverter.Demo\Usa.Map.svg" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="XamlImageConverter.Demo\Usa.Map.svg" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="iisuser.aspx.cs">

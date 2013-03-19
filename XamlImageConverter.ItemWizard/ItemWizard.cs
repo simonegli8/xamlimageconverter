@@ -20,7 +20,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.TemplateWizard;
 using EnvDTE;
-using EnvDTE100;
+using VSLangProj;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.BuildEngine;
@@ -125,7 +125,10 @@ namespace XamlImageConverter {
 
 				//foreach (var x in proj.Properties.OfType<Property>()) System.Diagnostics.Debugger.Log(1, "Debug", x.Name + "\n");
 
+				CopyBin();
+				ConfigureProject(proj);
 				CopyDemo();
+				proj.Save();
 
 				dte.ExecuteCommand("File.SaveAll", string.Empty);
 
@@ -136,10 +139,6 @@ namespace XamlImageConverter {
 				//bool change = false;
 				var path = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 				var imppath = Path.Combine(path, target);
-				/*
-				var targets = File.ReadAllText(imppath)					.Replace("#{XamlImageConverter.dll}", Path.Combine(path, "XamlImageConverter.dll"));
-				File.WriteAllText(imppath, targets);
-				*/
 
 				Import sbimp = null;
 				foreach (Import imp in bproj.Imports) {
@@ -189,6 +188,31 @@ namespace XamlImageConverter {
 
 		public static readonly string nl = Environment.NewLine;
 
+		public void ConfigureProject(EnvDTE.Project proj) {
+			// add imports
+			/* var path = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+			var imppath = Path.Combine(path, target);
+			var old = vslang.Imports.OfType<string>()
+				.FirstOrDefault(imp => imp.Contains(target));
+			if (old != null) vslang.Imports.Remove(old);
+			vslang.Imports.Add(imppath);
+			vslang.BuildManager. */
+
+			//add reference to XamlImageConverter.Web.dll
+			var vslang = (VSLangProj.VSProject)proj.Object;
+			var dll = "XamlImageConverter.Web.dll";
+			var path = Path.GetDirectoryName(proj.FullName);
+			var reference = Path.Combine(path, "bin", dll);
+			var oldref = vslang.References.OfType<VSLangProj.Reference>()
+				.FirstOrDefault(r => r.Name == "XamlImagesConverter.Web");
+			if (oldref != null) oldref.Remove();
+
+			try {
+				vslang.References.Add(reference);
+			} catch (Exception ex) {
+			}
+		}
+
 		public void CopyDemo() {
 			var proj = item.ContainingProject.FullName;
 			var dest = Path.GetDirectoryName(proj);
@@ -223,35 +247,58 @@ namespace XamlImageConverter {
 			}
 		}
 
-		public void ModifyWebConfig() {
-			var proj = item.ContainingProject.FullName;
-			var dest = Path.GetDirectoryName(proj);
+		public void CopyBin() {
+			var proj = item.ContainingProject;
+			var projname = proj.FullName;
+			var dest = Path.GetDirectoryName(projname);
 			var conf = Path.Combine(dest, "web.config");
 			var src = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
 			var IsWeb = File.Exists(conf);
 			if (!IsWeb) return;
 
+			// copy lazy dll's
 			var bin = Path.Combine(dest, "Bin");
 			var binlazy = bin + "\\Lazy";
-			if (!Directory.Exists(bin)) {
+			if (!Directory.Exists(binlazy)) {
 				Directory.CreateDirectory(binlazy);
 				Files.Copy(Path.Combine(src, "XamlImageConverter.dll"), binlazy);
 				Files.Copy(Path.Combine(src, "XamlImageConverter.pdb"), binlazy);
 				Files.Copy(Path.Combine(src, "Lazy"), bin);
-				var cache = Path.Combine(dest, "Images\\Cache");
-				if (!Directory.Exists(cache)) Directory.CreateDirectory(cache);
-			}
-			
-			var Silversite = File.Exists(Path.Combine(src, "Bin\\Silversite.Core.dll"));
-			if (!Silversite) {
-				Files.Copy(Path.Combine(src, "XamlImageConverter.Web.*"), Path.Combine(dest, "Bin"));
+				//var cache = Path.Combine(dest, "Images\\Cache");
+				//if (!Directory.Exists(cache)) Directory.CreateDirectory(cache);
 			}
 
+			// copy XamlImageConverter.Web.dll when not using Silversite.
+			var Silversite = File.Exists(Path.Combine(bin, "Silversite.Core.dll"));
+			if (!Silversite) {
+				Files.Copy(Path.Combine(src, "XamlImageConverter.Web.*"), bin);
+			}
+		}
+		
+		public void ModifyWebConfig() {
+			var proj = item.ContainingProject;
+			var projname = proj.FullName;
+			var dest = Path.GetDirectoryName(projname);
+			var conf = Path.Combine(dest, "web.config");
+			var src = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+			var bin = Path.Combine(dest, "Bin");
+
+			var IsWeb = File.Exists(conf);
+			if (!IsWeb) return;
+
+			// save & close opened web.config
+			var wc = proj.ProjectItems.OfType<EnvDTE.ProjectItem>()
+				.FirstOrDefault(it => it.Name.ToLower() == "web.config");
+			if (wc.Document != null) {
+				wc.Document.Save();
+				wc.Document.Close();
+			}
 
 			// modify web.config
 			var webconfig = XElement.Load(conf);
 
+			var Silversite = File.Exists(Path.Combine(bin, "Silversite.Core.dll"));
 			if (!Silversite) {
 				//configSections
 				XElement configSections = webconfig.Element("configSections");
@@ -305,7 +352,7 @@ namespace XamlImageConverter {
 
 			File.Copy(conf, conf + ".backup");
 			webconfig.Save(conf);
-		}
 
+		}
 	}
 }

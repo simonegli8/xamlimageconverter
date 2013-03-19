@@ -72,7 +72,6 @@ namespace XamlImageConverter {
 		public CultureInfo Culture { get; set; }
 		public Dictionary<string, string> Parameters { get; set; }
 		static int id = 0;
-		public List<Step> Steps { get; set; }
 		public List<Process> Processes { get; set; }
 		public System.Web.HttpContext Context { get; set; }  
 		public int? hash;
@@ -88,8 +87,6 @@ namespace XamlImageConverter {
 		public int Cpus = 1;
 		[NonSerialized]
 		int CreatedImages = 0;
-		[NonSerialized]
-		DateTime Start;
 		[NonSerialized]
 		List<Thread> Threads = new List<Thread>();
 		[NonSerialized]
@@ -109,22 +106,17 @@ namespace XamlImageConverter {
 		public class FileLocks: IDisposable {
 			static Dictionary<string, object> Locks = new Dictionary<string, object>();
 			string path;
-			bool IsLocked = false, IsBlocking = false;
-
 
 			public FileLocks(string path) {
 				this.path = path;
 				lock (Locks) {
 					if (!Locks.ContainsKey(path)) Locks.Add(path, new object());
 				}
-				IsBlocking = true;
 				Monitor.Enter(Locks[path]);
-				IsLocked = true; IsBlocking = false;
 			}
 
 			public void Dispose() {
 				Monitor.Exit(Locks[path]);
-				IsLocked = false;
 			}
 		}
 
@@ -133,8 +125,6 @@ namespace XamlImageConverter {
 		}
 
 		public void Cleanup() {
-			Errors.Flush();
-
 			foreach (var file in TempFiles) {
 				System.IO.File.Delete(file);
 			}
@@ -177,6 +167,7 @@ namespace XamlImageConverter {
 			dest.Parallel = this.Parallel;
 			dest.GCLevel = this.GCLevel;
 			dest.Serve = this.Serve;
+			this.Serve = null;
 			dest.Cores = this.Cores;
 		}
 
@@ -206,6 +197,20 @@ namespace XamlImageConverter {
 				path = Path.Combine(SkinPath, path);
 			}
 			return new DirectoryInfo(path).FullName;
+		}
+
+		public string BinPath(string path) {
+			var bpath = AppDomain.CurrentDomain.BaseDirectory;
+			var dpath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+			var paths = (";" + AppDomain.CurrentDomain.RelativeSearchPath)
+				.Split(';')
+				.Select(p => Path.Combine(bpath, p))
+				.ToList();
+			paths.Add(dpath);
+
+			foreach (var p in paths.ToArray()) paths.Add(Path.Combine(p, "Lazy"));
+			return paths.Select(p => Path.Combine(p, path))
+				.FirstOrDefault(p => File.Exists(p) || Directory.Exists(p));
 		}
 
 		public void MapType(string path, out string assemblyName, out string typeName, out string assemblyQualifiedName) {
@@ -295,21 +300,21 @@ namespace XamlImageConverter {
 			if (filename.Trim()[0] == '#') filename = (string)Context.Session[filename];
 			if (filename.Trim()[0] == '<') {
 				var res = Parameters.TryGetValue("File", out filename) || Parameters.TryGetValue("Filename", out filename) || Parameters.TryGetValue("Image", out filename);
-				filename = MapPath(filename);
 				xaml = true;
 			}
+			filename = MapPath(filename);
 
 			var root = new Group();
 			root.Filename = filename;
 			root.Compiler = this;
 			if (!CheckBuilding) {
 				root.Errors.Message("XamlImageConverter 3.5 by Chris Cavanagh & David Egli");
-				root.Errors.Message("Using {0} CPU Cores.", Cpus);
+				root.Errors.Message("{0:G}, using {1} CPU cores.", DateTime.Now, Cpus);
 				root.Errors.Message(Path.GetFileName(filename) + ":");
 			}
 
 			if (string.IsNullOrEmpty(ProjectPath)) ProjectPath = Path.GetDirectoryName(filename);
-			SkinPath = Path.GetDirectoryName(MapPath(filename));
+			SkinPath = Path.GetDirectoryName(filename);
 
 			List<string> directExtensions = new List<string> { ".xaml", ".psd", ".svg", ".svgz", ".html" };
 
@@ -493,7 +498,10 @@ namespace XamlImageConverter {
 					}
 				}
 
-				if (!building || CheckBuilding) return;
+				if (!building || CheckBuilding) {
+					if (!CheckBuilding) root.Errors.Clear();
+					return;
+				}
 
 				LoadDlls();
 	
@@ -573,8 +581,8 @@ namespace XamlImageConverter {
 					CheckBuilding = false;
 					if (NeedsBuilding) {
 						var setup = new AppDomainSetup();
-						setup.ApplicationBase = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
-						setup.PrivateBinPath = "bin;bin\\Lazy";
+						setup.ApplicationBase = ProjectPath;
+						setup.PrivateBinPath = MapPath("~/bin") + ";" + MapPath("~/bin/Lazy");
 						var domain = AppDomain.CreateDomain("XamlImageConverter Compiler", null, setup);
 						AppDomain.CurrentDomain.AssemblyResolve += (sender, args) => {
 							var file = MapPath("~/bin/Lazy/" + new AssemblyName(args.Name).Name + ".dll");
@@ -583,7 +591,9 @@ namespace XamlImageConverter {
 							}
 							return null;
 						};
-						
+						var current = Assembly.GetExecutingAssembly().Location;
+						domain.Load(File.ReadAllBytes(current), File.ReadAllBytes(Path.ChangeExtension(current, "pdb")));
+
 						try 
 						{
 							Compiler compiler = (Compiler)domain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, "XamlImageConverter.Compiler");
@@ -592,8 +602,7 @@ namespace XamlImageConverter {
 							compiler.ChildAppDomain = true;
 							//compiler.STAThread = true;
 							compiler.Compile();
-							TempFiles.AddRange(compiler.TempFiles);
-							TempPaths.AddRange(compiler.TempPaths);
+							hash = compiler.hash;
 						} catch (Exception ex2) {
 						} finally {
 							AppDomain.Unload(domain);
@@ -604,10 +613,9 @@ namespace XamlImageConverter {
 				}
 
 				Finish();
-				if (!ChildAppDomain) {
-					if (Serve != null) Serve();
-					Cleanup();
-				}
+				if (Serve != null) Serve();
+				Cleanup();
+
 				foreach (var logger in Errors.Loggers.OfType<IDisposable>()) logger.Dispose();
 			}
 		}

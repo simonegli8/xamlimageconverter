@@ -385,7 +385,7 @@ namespace Silversite.Web {
 #endif
 					} catch {
 						context.Response.StatusCode = 500;
-						context.Response.End();
+						context.ApplicationInstance.CompleteRequest();
 					}
 				}
 #if Silversite
@@ -446,7 +446,7 @@ namespace Silversite.Web {
 				else {
 					context.Response.StatusCode = 404;
 				}
-				context.Response.End();
+				context.ApplicationInstance.CompleteRequest();
 			}
 		}
 	}
