@@ -119,6 +119,10 @@
     <None Include="src\Planet.psd" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="img\ImageMaps\Readme.aspx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
+    <Content Include="img\ImageMaps\usa.map.html" />
     <Content Include="src\blog-banner.jpg" />
     <Content Include="src\generic-lines.png" />
     <Content Include="src\jquery.js" />
@@ -174,9 +178,7 @@
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="img\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

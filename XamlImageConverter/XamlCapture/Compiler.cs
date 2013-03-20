@@ -66,7 +66,8 @@ namespace XamlImageConverter {
 		public bool RebuildAll { get; set; }
 		public bool UseService { get; set; }
 		public bool Parallel { get; set; }
-		public int GCLevel { get; set; }
+		int gclevel = 1;
+		public int GCLevel { get { return SeparateAppDomain ? 0 : gclevel; } set { gclevel = value; } }
 		public int? Cores { get; set; }
 		public Action Serve { get; set; }
 		public CultureInfo Culture { get; set; }
@@ -580,19 +581,13 @@ namespace XamlImageConverter {
 					CoreCompile();
 					CheckBuilding = false;
 					if (NeedsBuilding) {
+						var current = Assembly.GetExecutingAssembly().Location;
 						var setup = new AppDomainSetup();
 						setup.ApplicationBase = ProjectPath;
-						setup.PrivateBinPath = MapPath("~/bin") + ";" + MapPath("~/bin/Lazy");
+						setup.PrivateBinPath = MapPath("~/bin") + ";" + MapPath("~/bin/Lazy") + ";" + MapPath("~/bin/Debug") + ";" + MapPath("~/bin/Release");
 						var domain = AppDomain.CreateDomain("XamlImageConverter Compiler", null, setup);
-						AppDomain.CurrentDomain.AssemblyResolve += (sender, args) => {
-							var file = MapPath("~/bin/Lazy/" + new AssemblyName(args.Name).Name + ".dll");
-							if (File.Exists(file)) {
-								return Assembly.LoadFrom(file);
-							}
-							return null;
-						};
-						var current = Assembly.GetExecutingAssembly().Location;
-						domain.Load(File.ReadAllBytes(current), File.ReadAllBytes(Path.ChangeExtension(current, "pdb")));
+						var aname = Assembly.GetExecutingAssembly().GetName();
+						domain.Load(aname);
 
 						try 
 						{
@@ -606,6 +601,8 @@ namespace XamlImageConverter {
 						} catch (Exception ex2) {
 						} finally {
 							AppDomain.Unload(domain);
+							System.Diagnostics.Debugger.Log(1, "XIC", "Domain unloaded.");
+							foreach (var a in AppDomain.CurrentDomain.GetAssemblies()) System.Diagnostics.Debugger.Log(1, "XIC", a.FullName);
 						}
 					}
 				} else {
