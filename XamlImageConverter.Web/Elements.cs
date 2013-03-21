@@ -14,8 +14,9 @@ namespace XamlImageConverter.Elements {
 	[DefaultProperty("Children")]
 	public class XamlImageConverter {
 		public XamlImageConverter() : base() { }
-		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]	
 		public List<Scene> Children { get; set; }
+		[Description("The OS Theme to use for rendering. One of Aero, Aero2, AeroLite, Royale, Classic, Luna, Luna.Metallic, Luna.Homestead.")]
 		public string Theme { get; set; }
 		public string Skin { get; set; }
 		public string TextMode { get; set; }
@@ -33,7 +34,7 @@ namespace XamlImageConverter.Elements {
 		public string Source { get; set; }
 		public string File { get; set; }
 		public string Assembly { get; set; }
-		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public List<ISceneElement> Children { get; set; }
 		public string Theme { get; set; }
 		public string Skin { get; set; }
@@ -56,7 +57,7 @@ namespace XamlImageConverter.Elements {
 		public DateTime Version { get; set; }
 		public string Cultures { get; set; }
 		public string Culture { get; set; }
-		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public List<ISceneElement> Children { get; set; }
 		public string Theme { get; set; }
 		public string Skin { get; set; }
@@ -72,12 +73,12 @@ namespace XamlImageConverter.Elements {
 		public string Type { get; set; }
 		public string Assembly { get; set; }
 		public bool Dynamic { get; set; }
-		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public List<object> Content { get; set; }
 	}
 
 	public class Snapshot : Group, ISceneElement {
-
+		[Description("The Storyboard for an animation.")]
 		public string Storyboard { get; set; }
 		public int Frames { get; set; }
 		public bool Filmstrip { get; set; }
@@ -120,7 +121,7 @@ namespace XamlImageConverter.Elements {
 
 		public string OutputPath { get; set; }
 
-		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public List<IArea> Areas { get; set; }
 	}
 
@@ -149,7 +150,7 @@ namespace XamlImageConverter.Elements {
 		public double YScale { get; set; }
 		public double Angle { get; set; }
 
-		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public List<IArea> Areas { get; set; }
 	}
 
@@ -186,7 +187,7 @@ namespace XamlImageConverter.Elements {
 	[ContentProperty("Setters")]
 	[DefaultProperty("Setters")]
 	public class Set : ISceneElement {
-		[DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		List<object> Setters { get; set; }
 	}
 

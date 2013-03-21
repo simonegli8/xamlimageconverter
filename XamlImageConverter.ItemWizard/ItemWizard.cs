@@ -169,6 +169,7 @@ namespace XamlImageConverter {
 				if (sbimp == null) bproj.Imports.AddNewImport(imppath, null);
 				bproj.Save(filename);
 				dte.ExecuteCommand("Project.ReloadProject", string.Empty);
+
 			} catch (Exception ex) {
 			}
 		}
@@ -203,6 +204,11 @@ namespace XamlImageConverter {
 			var dll = "XamlImageConverter.Web.dll";
 			var path = Path.GetDirectoryName(proj.FullName);
 			var reference = Path.Combine(path, "bin", dll);
+			if (!File.Exists(reference)) {
+				path = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+				reference = Path.Combine(path, dll);
+			}
+
 			var oldref = vslang.References.OfType<VSLangProj.Reference>()
 				.FirstOrDefault(r => r.Name == "XamlImagesConverter.Web");
 			if (oldref != null) oldref.Remove();
@@ -224,23 +230,30 @@ namespace XamlImageConverter {
 				try {
 					Directory.CreateDirectory(demo);
 					var path = Path.Combine(src, "Demo\\*");
-					//Files.Copy(path, demo);
 					var vsproj = item.ContainingProject;
 
 					var folder = vsproj.ProjectItems.AddFolder(DemoFolder);
-					//var items = folder.ProjectItems.AddFromDirectory(demo);
 
 					foreach (var file in Files.All(path)) {
 						try {
 							var litem = folder.ProjectItems.AddFromFileCopy(file);
-							//foreach (var x in litem.Properties.OfType<Property>()) System.Diagnostics.Debugger.Log(1, "Debug", x.Name + "\n");
 							litem.Properties.Item("CustomTool").Value = "";
 							if (file.EndsWith(".xic.xaml")) litem.Properties.Item("ItemType").Value = "XamlImageConverterPostCompile";
 							else if (file.EndsWith(".xaml")) litem.Properties.Item("ItemType").Value = "Content";
 						} catch (Exception ex) {
 						}
 					}
-					// TODO collapse folder
+					// collapse folder
+					var solutionExplorer = (UIHierarchy)vsproj.DTE.Windows.Item(Constants.vsext_wk_SProjectWindow).Object;
+ 
+					if (solutionExplorer.UIHierarchyItems.Count > 0) {
+						UIHierarchyItem rootNode = solutionExplorer.UIHierarchyItems.Item(1);
+
+						UIHierarchyItem uiproj = rootNode.UIHierarchyItems.Item(vsproj.Name);
+						UIHierarchyItem demoNode = uiproj.UIHierarchyItems.Item(DemoFolder);
+						demoNode.UIHierarchyItems.Expanded = false;
+					}
+
 					vsproj.Save();
 				} catch (Exception ex) {
 				}
@@ -260,7 +273,7 @@ namespace XamlImageConverter {
 			// copy lazy dll's
 			var bin = Path.Combine(dest, "Bin");
 			var binlazy = bin + "\\Lazy";
-			if (!Directory.Exists(binlazy)) {
+			if (IsWeb && !Directory.Exists(binlazy)) {
 				Directory.CreateDirectory(binlazy);
 				Files.Copy(Path.Combine(src, "XamlImageConverter.dll"), binlazy);
 				Files.Copy(Path.Combine(src, "XamlImageConverter.pdb"), binlazy);
@@ -271,7 +284,7 @@ namespace XamlImageConverter {
 
 			// copy XamlImageConverter.Web.dll when not using Silversite.
 			var Silversite = File.Exists(Path.Combine(bin, "Silversite.Core.dll"));
-			if (!Silversite) {
+			if (!Silversite || !IsWeb) {
 				Files.Copy(Path.Combine(src, "XamlImageConverter.Web.*"), bin);
 			}
 		}

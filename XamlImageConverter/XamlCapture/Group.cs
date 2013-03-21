@@ -195,22 +195,18 @@ namespace XamlImageConverter {
 
 									xaml = CreateTempPath(file);
 
-									var apath = AppDomain.CurrentDomain.BaseDirectory;
-									var rpath = (";" + AppDomain.CurrentDomain.RelativeSearchPath)
-										.Split(';')
-										.FirstOrDefault(p => File.Exists(Path.Combine(apath, p, "Lazy\\psd2xaml\\Endogine.dll")));
 									if (Layer == null) {
 										try {
 											Type doctype;
-											apath = Path.Combine(apath, rpath, "Lazy\\psd2xaml\\");
+											var apath = Compiler.BinPath("Lazy\\psd2xaml\\");
 											using (FileLock(apath)) {
 												if (psd) {
-													var a = Assembly.LoadFrom(apath + "Endogine.dll");
-													a = Assembly.LoadFrom(apath + "Endogine.Codecs.Photoshop.dll");
+													var a = Assembly.Load(File.ReadAllBytes(apath + "Endogine.dll"));
+													a = Assembly.Load(File.ReadAllBytes(apath + "Endogine.Codecs.Photoshop.dll"));
 													doctype = a.GetType("Endogine.Codecs.Photoshop.Document");
 												} else {
-													var a = Assembly.LoadFrom(apath + "Endogine.dll");
-													a = Assembly.LoadFrom(apath + "Endogine.Codecs.Flash.dll");
+													var a = Assembly.Load(File.ReadAllBytes(apath + "Endogine.dll"));
+													a = Assembly.Load(File.ReadAllBytes(apath + "Endogine.Codecs.Flash.dll"));
 													doctype = a.GetType("Endogine.Codecs.Flash.Document");
 												}
 											}
@@ -218,7 +214,9 @@ namespace XamlImageConverter {
 											dynamic doc = Activator.CreateInstance(doctype, file);
 											using (FileLock(file)) doc.SaveXaml(xaml);
 											file = xaml;
-										} catch {
+										} catch (Exception ex) {
+											if (Source.ToLower().EndsWith(".psd")) Errors.Error("Unable to convert PSD to xaml.", "32", XElement);
+											else Errors.Error("Unable to convert SWF to xaml.", "33", XElement);
 											Layer = 0;
 										}
 									}
@@ -241,23 +239,33 @@ namespace XamlImageConverter {
 									using (FileLock(file)) element = SvgConvert.ConvertUtility.LoadSvg(file);
 								} else {
 									if (directXaml != null) {// file is direct xaml
-										using (var sr = new StringReader(directXaml))
-										using (var r = System.Xml.XmlReader.Create(sr, new System.Xml.XmlReaderSettings() { CloseInput = true })) {
-											element = XamlReader.Load(r) as FrameworkElement;
+										try {
+											using (var sr = new StringReader(directXaml))
+											using (var r = System.Xml.XmlReader.Create(sr, new System.Xml.XmlReaderSettings() { CloseInput = true })) {
+												element = XamlReader.Load(r) as FrameworkElement;
+											}
+										} catch (Exception ex) {
+											throw new CompilerException("Error loading xaml: " + ex.Message, 34, XElement);
 										}
 									} else {
 										Scene.XamlFile = file;
 
-										using (FileLock(file))
-										using (var stream = File.OpenRead(file)) {
-											if (Source.ToLower().EndsWith(".xaml") || Source.ToLower().EndsWith(".psd") || Source.ToLower().EndsWith(".svg")) {
-												ParserContext context;
-												if (string.IsNullOrEmpty(XamlElement.BaseUri)) context = new ParserContext { BaseUri = new Uri("file:///" + file) };
-												else context = new ParserContext { BaseUri = new Uri(XamlElement.BaseUri) };
-												element = XamlReader.Load(stream, context) as FrameworkElement;
-											} else {
-												throw new CompilerException("Input format not supported.", 20, XElement);
+										try {
+											using (FileLock(file))
+											using (var stream = File.OpenRead(file)) {
+												if (Source.ToLower().EndsWith(".xaml") || Source.ToLower().EndsWith(".psd") || Source.ToLower().EndsWith(".svg")) {
+													ParserContext context;
+													//if (string.IsNullOrEmpty(XamlElement.BaseUri))
+													context = new ParserContext { BaseUri = new Uri("file:///" + file) };
+													//else context = new ParserContext { BaseUri = new Uri(XamlElement.BaseUri) };
+													element = XamlReader.Load(stream, context) as FrameworkElement;
+												} else {
+													throw new CompilerException("Input format not supported.", 20, XElement);
+												}
 											}
+										} catch (Exception ex) {
+											if (ex is CompilerException) throw ex;
+											else throw new CompilerException("Error loading xaml: " + ex.Message, 34, XElement);
 										}
 									}
 								}

@@ -64,10 +64,15 @@ namespace XamlImageConverter.MSBuild {
 				compiler = new Compiler();
 			}
 
+			//System.Diagnostics.Debugger.Launch();
+			//System.Diagnostics.Debugger.Break();
 			compiler.SourceFiles = SourceFiles.ToList();
 			compiler.ProjectPath = ProjectPath;
 			compiler.LibraryPath = LibraryPath;
 			compiler.Loggers.Add(new Logger(Log));
+//#if DEBUG
+			compiler.Loggers.Add(new FileLogger());
+//#endif
 			compiler.SeparateAppDomain = true;
 			compiler.Parallel = true;
 			compiler.Compile();

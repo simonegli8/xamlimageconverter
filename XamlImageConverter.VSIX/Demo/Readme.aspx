@@ -52,7 +52,7 @@
 		<pre><code>&lt;img src="Kaxaml.xaml?gif&Storyboard=rotate&Frames=50&Loop=0" runat="server" /&gt;</code></pre>
 		<img id="Img3" src="Kaxaml.xaml?gif&Storyboard=rotate&Frames=50&Loop=0" runat="server" />
 
-		 <h3>Conversion of 3D content doesn't work under IIS, so here is a precompiled version.</h3>
+		 <h3>Rendering of 3D content doesn't work under IIS, so here is a precompiled version.</h3>
 		<pre><code>&lt;img src="Kaxaml.gif" runat="server" /&gt;</code></pre>
 		<img src="Kaxaml.gif" runat="server" />
 

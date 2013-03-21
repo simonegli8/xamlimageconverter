@@ -79,6 +79,7 @@ Features:
 		<CustomExtension Type="Resource">Demo\Kaxaml.xaml</CustomExtension>
 		<CustomExtension Type="Resource">Demo\Planet.psd</CustomExtension>
 		<CustomExtension Type="Resource">Demo\Readme.apsx</CustomExtension>
+		<CustomExtension Type="Resource">Demo\SiteSpecification.xml</CustomExtension>
 		<CustomExtension Type="Resource">Demo\Tux.svg</CustomExtension>
 		<CustomExtension Type="Resource">Demo\Usa.Map.html</CustomExtension>
 		<CustomExtension Type="Resource">Demo\Usa.Map.svg</CustomExtension>

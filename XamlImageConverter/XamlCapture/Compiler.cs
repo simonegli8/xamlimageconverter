@@ -145,6 +145,14 @@ namespace XamlImageConverter {
 			lock (this) CreatedImages++;
 		}
 	
+		public void InitDomain() {
+			AppDomain.CurrentDomain.AssemblyResolve += (sender, args) => {
+				var aname = new AssemblyName(args.Name);
+				return AppDomain.CurrentDomain.GetAssemblies()
+					.FirstOrDefault(a => a.FullName.StartsWith(aname.FullName));
+			};
+		}
+
 		public Compiler() {
 			NeedsBuilding = true; CheckBuilding = false; SeparateAppDomain = true; NeedsBuildingChecked = false; ChildAppDomain = false; Cores = null; Parallel = true;
 			RebuildAll = false; UseService = false;
@@ -202,14 +210,14 @@ namespace XamlImageConverter {
 
 		public string BinPath(string path) {
 			var bpath = AppDomain.CurrentDomain.BaseDirectory;
-			var dpath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+			var dpath = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
 			var paths = (";" + AppDomain.CurrentDomain.RelativeSearchPath)
 				.Split(';')
 				.Select(p => Path.Combine(bpath, p))
 				.ToList();
-			paths.Add(dpath);
+			paths.Insert(0, dpath);
 
-			foreach (var p in paths.ToArray()) paths.Add(Path.Combine(p, "Lazy"));
+			foreach (var p in paths.ToArray()) paths.Insert(0, Path.Combine(p, "Lazy"));
 			return paths.Select(p => Path.Combine(p, path))
 				.FirstOrDefault(p => File.Exists(p) || Directory.Exists(p));
 		}
@@ -379,6 +387,7 @@ namespace XamlImageConverter {
 				this.scenes = scenes;
 				this.CheckBuilding = CheckBuilding;
 				icpu = Cpus <= 2 ? Cpus - 1 : (new Random().Next(Cpus - 2) + 1);
+				Contract.Assert(icpu < Cpus);
 			}
 
 			int initialized = 0;
@@ -443,6 +452,7 @@ namespace XamlImageConverter {
 				} else {
 					signal.WaitOne();
 				}
+				Contract.Assert(steps[cpu].Count == steps[0].Count);
 			}
 
 			public Group Next(int cpu) {
@@ -452,6 +462,7 @@ namespace XamlImageConverter {
 					int n;
 					if (!(step is Parameters) && (n = steps[cpu].IndexOf(step)) >= 0) {
 						for (int c = 0; c < Cpus; c++) {
+							Contract.Assert(n >= 0 && steps[c].Count > n);
 							int ix = todo[c].IndexOf(steps[c][n]);
 							if (ix >= 0) todo[c].RemoveAt(ix);
 						}
@@ -511,13 +522,27 @@ namespace XamlImageConverter {
 				for (int cpu = Cpus-1; cpu >= 0; cpu--) {
 					var cpul = cpu;
 					ParameterizedThreadStart task = (state) => { // iterate over all steps
-						steps.Init(cpul);
-						var step = steps.Next(cpul);
-						while (step != null) {
-							step.Process();
-							step = steps.Next(cpul);
+						try {
+							steps.Init(cpul);
+							try {
+								var step = steps.Next(cpul);
+								while (step != null) {
+									try {
+										step.Process();
+										step = steps.Next(cpul);
+									} catch (Exception ex) {
+										root.Errors.Warning("An internal error occurred\n\n" + ex.Message + "\n" + ex.StackTrace, "2", null);
+									}
+								}
+							} catch (Exception ex) {
+								root.Errors.Warning("An internal error occurred\n\n" + ex.Message + "\n" + ex.StackTrace, "2", null);
+							} finally {
+								steps.Stop(cpul);
+							}
+						} catch (Exception ex) {
+							root.Errors.Warning("An internal error occurred\n\n" + ex.Message + "\n" + ex.StackTrace, "2", null);
+						} finally {
 						}
-						steps.Stop(cpul);
 					};
 
 					if (cpul > 0) {
@@ -581,17 +606,27 @@ namespace XamlImageConverter {
 					CoreCompile();
 					CheckBuilding = false;
 					if (NeedsBuilding) {
-						var current = Assembly.GetExecutingAssembly().Location;
+						var current = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 						var setup = new AppDomainSetup();
 						setup.ApplicationBase = ProjectPath;
 						setup.PrivateBinPath = MapPath("~/bin") + ";" + MapPath("~/bin/Lazy") + ";" + MapPath("~/bin/Debug") + ";" + MapPath("~/bin/Release");
+						setup.ShadowCopyDirectories = MapPath("~/bin") + ";" + MapPath("~/bin/Lazy") + ";" + MapPath("~/bin/Debug") + ";" + MapPath("~/bin/Release");
+						setup.ShadowCopyFiles = "true";
 						var domain = AppDomain.CreateDomain("XamlImageConverter Compiler", null, setup);
 						var aname = Assembly.GetExecutingAssembly().GetName();
-						domain.Load(aname);
+
+						var source = setup.PrivateBinPath.Split(';')
+							.Select(p => Path.Combine(p, "XamlImageConverter.dll"))
+							.FirstOrDefault(p => File.Exists(p));
 
 						try 
 						{
-							Compiler compiler = (Compiler)domain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, "XamlImageConverter.Compiler");
+
+							Compiler compiler = null;
+							if (source == null) compiler = (Compiler)domain.CreateInstanceFromAndUnwrap(aname.CodeBase, "XamlImageConverter.Compiler");
+							else compiler = (Compiler)domain.CreateInstanceAndUnwrap(aname.FullName, "XamlImageConverter.Compiler");
+
+							compiler.InitDomain();
 							CopyTo(compiler);
 							compiler.SeparateAppDomain = false;
 							compiler.ChildAppDomain = true;
@@ -599,10 +634,10 @@ namespace XamlImageConverter {
 							compiler.Compile();
 							hash = compiler.hash;
 						} catch (Exception ex2) {
+							Errors.Error("Internal Error, unable to create child AppDomain", "33", null);
+
 						} finally {
 							AppDomain.Unload(domain);
-							System.Diagnostics.Debugger.Log(1, "XIC", "Domain unloaded.");
-							foreach (var a in AppDomain.CurrentDomain.GetAssemblies()) System.Diagnostics.Debugger.Log(1, "XIC", a.FullName);
 						}
 					}
 				} else {

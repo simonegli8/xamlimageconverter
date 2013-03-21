@@ -187,7 +187,9 @@
       <SubType>ASPXCodeBehind</SubType>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Demo\SiteSpecification.xml" />
+    <Content Include="Demo\SiteSpecification.xml">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="Demo\Tux.svg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>

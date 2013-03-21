@@ -42,6 +42,20 @@ namespace XamlImageConverter {
 			}
 		}
 
+		public static void ParseXaml(XElement xaml, XElement scene) {
+			var isnapshots = xaml.DescendantsAndSelf()
+				.Where(e => e.Attributes().Any(a => a.Name.Namespace == xic));
+			foreach (var isn in isnapshots) {
+				var name = isn.Attribute(Compiler.xxamlns + "Name") ?? isn.Attribute("Name");
+				if (name == null) continue;
+				var sn = new XElement(xic + "Snapshot", new XAttribute("Element", name.Value));
+				foreach (var ia in isn.Attributes().Where(a => a.Name.Namespace == xic)) {
+					sn.Add(new XAttribute(ia.Name.LocalName, ia.Value));
+				}
+				scene.Add(sn);
+			}
+		}
+
 		public static XElement CreateDirect(Compiler compiler, string filename, Dictionary<string, string> parameters) {
 			if (filename.EndsWith(".xic.xaml")) {
 				foreach (var key in validAttributes) parameters.Remove(key);
@@ -50,15 +64,21 @@ namespace XamlImageConverter {
 					return XElement.Load(filename, LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo);
 				}
 			}
-			XElement snapshot;
+			XElement snapshot, scene;
 			var res = new XElement(xic + "XamlImageConverter",
 					new XAttribute(XNamespace.Xmlns+"xic", xic.NamespaceName),
-					new XElement(xic+"Scene",
-						new XAttribute("Source", filename),
-						snapshot = new XElement(xic+"Snapshot")
+					scene = new XElement(xic+"Scene",
+						new XAttribute("Source", filename)
 					)
 				);
-			ApplyParameters(compiler, snapshot, null, parameters);
+			if (parameters.Count > 0) {
+				if (!parameters.Keys.Contains("xic")) {
+					scene.Add(snapshot = new XElement(xic + "Snapshot"));
+					ApplyParameters(compiler, snapshot, null, parameters);
+				} else parameters.Remove("xic");
+			}
+			var source = XElement.Load(compiler.MapPath(filename));
+			ParseXaml(source, scene);
 			return res;
 		}
 		
@@ -86,6 +106,7 @@ namespace XamlImageConverter {
 					ApplyParameters(compiler, snapshot, filename, parameters);
 					scene.Add(snapshot);
 				}
+				ParseXaml(e, scene);
 				return res;
 			} else {
 				return e;

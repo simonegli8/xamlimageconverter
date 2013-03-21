@@ -220,17 +220,37 @@ namespace Silversite.Web {
 			}
 		}
 
+		public static void ParseXaml(XElement xaml, XElement scene) {
+			var isnapshots = xaml.DescendantsAndSelf()
+				.Where(e => e.Attributes().Any(a => a.Name.Namespace == xic));
+			foreach (var isn in isnapshots) {
+				var name = isn.Attribute(xxamlns+"Name") ?? isn.Attribute("Name");
+				if (name == null) continue;
+				var sn = new XElement(xic+"Snapshot", new XAttribute("Element", name.Value));
+				foreach (var ia in isn.Attributes().Where(a => a.Name.Namespace == xic)) {
+					sn.Add(new XAttribute(ia.Name.LocalName, ia.Value));
+				}
+				scene.Add(sn);
+			}
+		}
+
 		public XElement CreateDirect(string filename, Dictionary<string, string> parameters) {
 			if (filename.EndsWith(".xic.xaml")) return XElement.Load(InFilename(filename), LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo);
-			XElement snapshot;
-			var res = new XElement(xic+"XamlImageConverter",
-					new XAttribute(XNamespace.Xmlns+"xic", xic.NamespaceName),
-					new XElement(xic+"Scene",
-						new XAttribute("Source", filename),
-						snapshot = new XElement(xic+"Snapshot")
+			XElement snapshot, scene;
+			var res = new XElement(xic + "XamlImageConverter",
+					new XAttribute(XNamespace.Xmlns + "xic", xic.NamespaceName),
+					scene = new XElement(xic + "Scene",
+						new XAttribute("Source", filename)
 					)
 				);
-			ApplyParameters(null, snapshot, parameters);
+			if (parameters.Count > 0) {
+				if (!parameters.Keys.Contains("xic")) {
+					scene.Add(snapshot = new XElement(xic + "Snapshot"));
+					ApplyParameters(null, snapshot, parameters);
+				} else parameters.Remove("xic");
+			}
+			var source = XElement.Load(InFilename(filename));
+			ParseXaml(source, scene);
 			DynamicResult = true;
 			if (parameters.Count > 0) return Dynamic;
 			return res;
@@ -261,6 +281,7 @@ namespace Silversite.Web {
 					ApplyParameters(filename, snapshot, parameters);
 					scene.Add(snapshot);
 				}
+				ParseXaml(e, scene);
 				DynamicResult = true;
 				if (parameters.Count > 0) return Dynamic;
 				return res;
