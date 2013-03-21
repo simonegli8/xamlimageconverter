@@ -606,11 +606,11 @@ namespace XamlImageConverter {
 					CoreCompile();
 					CheckBuilding = false;
 					if (NeedsBuilding) {
-						var current = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+						var current = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
 						var setup = new AppDomainSetup();
 						setup.ApplicationBase = ProjectPath;
 						setup.PrivateBinPath = MapPath("~/bin") + ";" + MapPath("~/bin/Lazy") + ";" + MapPath("~/bin/Debug") + ";" + MapPath("~/bin/Release");
-						setup.ShadowCopyDirectories = MapPath("~/bin") + ";" + MapPath("~/bin/Lazy") + ";" + MapPath("~/bin/Debug") + ";" + MapPath("~/bin/Release");
+						setup.ShadowCopyDirectories = setup.PrivateBinPath + ";" + current;
 						setup.ShadowCopyFiles = "true";
 						var domain = AppDomain.CreateDomain("XamlImageConverter Compiler", null, setup);
 						var aname = Assembly.GetExecutingAssembly().GetName();

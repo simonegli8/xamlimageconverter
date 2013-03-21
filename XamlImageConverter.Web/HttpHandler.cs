@@ -169,9 +169,9 @@ namespace Silversite.Web {
 
 		public XElement Dynamic = new XElement(xic+"Dynamic");
 		public bool DynamicResult;
+		public static string[] validAttributes = new string[] { "Element", "Storyboard", "Frames", "Filmstrip", "Dpi", "RenderDpi", "Quality", "Filename", "Left", "Top", "Right", "Bottom", "Width", "Height", "Cultures", "RenderTimeout", "Page", "FitToPage", "File", "Loop", "Pause", "Skin", "Theme", "Type", "Image" };
 
 		public void ApplyParameters(string filename, XElement e, Dictionary<string, string> parameters) {
-			var validAttributes = new string[] { "Element", "Storyboard", "Frames", "Filmstrip", "Dpi", "RenderDpi", "Quality", "Filename", "Left", "Top", "Right", "Bottom", "Width", "Height", "Cultures", "RenderTimeout", "Page", "FitToPage", "File", "Loop", "Pause", "Skin", "Theme", "Type", "Image" };
 
 			var type = "png";
 			int? h = 0;
@@ -225,8 +225,9 @@ namespace Silversite.Web {
 				.Where(e => e.Attributes().Any(a => a.Name.Namespace == xic));
 			foreach (var isn in isnapshots) {
 				var name = isn.Attribute(xxamlns+"Name") ?? isn.Attribute("Name");
-				if (name == null) continue;
-				var sn = new XElement(xic+"Snapshot", new XAttribute("Element", name.Value));
+				if (name == null && isn != xaml) continue;
+				var sn = new XElement(xic+"Snapshot");
+				if (name != null) sn.Add(new XAttribute("Element", name.Value));
 				foreach (var ia in isn.Attributes().Where(a => a.Name.Namespace == xic)) {
 					sn.Add(new XAttribute(ia.Name.LocalName, ia.Value));
 				}
@@ -235,11 +236,19 @@ namespace Silversite.Web {
 		}
 
 		public XElement CreateDirect(string filename, Dictionary<string, string> parameters) {
-			if (filename.EndsWith(".xic.xaml")) return XElement.Load(InFilename(filename), LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo);
+			XElement source;
+			var file = InFilename(filename);
+			source = XElement.Load(file, LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo);
+			if (source.Name == xic+"XamlImageConverter" || source.Name == sb+"SkinBuilder") {
+				foreach (var key in validAttributes) parameters.Remove(key);
+				return source;
+			}
+
 			XElement snapshot, scene;
 			var res = new XElement(xic + "XamlImageConverter",
 					new XAttribute(XNamespace.Xmlns + "xic", xic.NamespaceName),
 					scene = new XElement(xic + "Scene",
+						new XAttribute("OutputPath", Path.GetDirectoryName(filename.Replace("/","\\")).Replace("\\","/")),
 						new XAttribute("Source", filename)
 					)
 				);
@@ -249,7 +258,6 @@ namespace Silversite.Web {
 					ApplyParameters(null, snapshot, parameters);
 				} else parameters.Remove("xic");
 			}
-			var source = XElement.Load(InFilename(filename));
 			ParseXaml(source, scene);
 			DynamicResult = true;
 			if (parameters.Count > 0) return Dynamic;

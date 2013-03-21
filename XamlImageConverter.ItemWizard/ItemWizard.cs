@@ -238,8 +238,8 @@ namespace XamlImageConverter {
 						try {
 							var litem = folder.ProjectItems.AddFromFileCopy(file);
 							litem.Properties.Item("CustomTool").Value = "";
-							if (file.EndsWith(".xic.xaml")) litem.Properties.Item("ItemType").Value = "XamlImageConverterPostCompile";
-							else if (file.EndsWith(".xaml")) litem.Properties.Item("ItemType").Value = "Content";
+							if (file.EndsWith(".xaml")) litem.Properties.Item("ItemType").Value = "XamlImageConverterPostCompile";
+							//else if (file.EndsWith(".xaml")) litem.Properties.Item("ItemType").Value = "Content";
 						} catch (Exception ex) {
 						}
 					}

@@ -240,8 +240,12 @@ namespace XamlImageConverter {
 								} else {
 									if (directXaml != null) {// file is direct xaml
 										try {
-											using (var sr = new StringReader(directXaml))
-											using (var r = System.Xml.XmlReader.Create(sr, new System.Xml.XmlReaderSettings() { CloseInput = true })) {
+											var x = XElement.Parse(directXaml, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo | LoadOptions.SetBaseUri);
+											foreach (var a in x.DescendantsAndSelf()
+												.SelectMany(y => y.Attributes().Where(at => at.Name.Namespace == Compiler.xic))) {
+												a.Remove();
+											}
+											using (var r = x.CreateReader()) {
 												element = XamlReader.Load(r) as FrameworkElement;
 											}
 										} catch (Exception ex) {
@@ -251,14 +255,21 @@ namespace XamlImageConverter {
 										Scene.XamlFile = file;
 
 										try {
-											using (FileLock(file))
-											using (var stream = File.OpenRead(file)) {
+											XElement xe;
+											using (FileLock(file)) {
+												xe = XElement.Load(file, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo | LoadOptions.SetBaseUri);
+											}
+											foreach (var a in xe.DescendantsAndSelf()
+												.SelectMany(y => y.Attributes().Where(at => at.Name.Namespace == Compiler.xic))) {
+												a.Remove();
+											}
+											using (var r = xe.CreateReader()) {
 												if (Source.ToLower().EndsWith(".xaml") || Source.ToLower().EndsWith(".psd") || Source.ToLower().EndsWith(".svg")) {
-													ParserContext context;
+													//ParserContext context;
 													//if (string.IsNullOrEmpty(XamlElement.BaseUri))
-													context = new ParserContext { BaseUri = new Uri("file:///" + file) };
+													//context = new ParserContext { BaseUri = new Uri("file:///" + file) };
 													//else context = new ParserContext { BaseUri = new Uri(XamlElement.BaseUri) };
-													element = XamlReader.Load(stream, context) as FrameworkElement;
+													element = XamlReader.Load(r) as FrameworkElement;
 												} else {
 													throw new CompilerException("Input format not supported.", 20, XElement);
 												}

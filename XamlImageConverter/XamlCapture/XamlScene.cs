@@ -42,13 +42,17 @@ namespace XamlImageConverter {
 			}
 		}
 
-		public static void ParseXaml(XElement xaml, XElement scene) {
+		public static void ParseXaml(Compiler compiler, XElement xaml, XElement scene) {
 			var isnapshots = xaml.DescendantsAndSelf()
 				.Where(e => e.Attributes().Any(a => a.Name.Namespace == xic));
 			foreach (var isn in isnapshots) {
 				var name = isn.Attribute(Compiler.xxamlns + "Name") ?? isn.Attribute("Name");
-				if (name == null) continue;
-				var sn = new XElement(xic + "Snapshot", new XAttribute("Element", name.Value));
+				if (name == null && isn != xaml) {
+					compiler.Errors.Error("Xaml element for snapshot must be named or root element.", "35", isn);
+					continue;
+				}
+				var sn = new XElement(xic + "Snapshot");
+				if (name != null) sn.Add(new XAttribute("Element", name.Value));
 				foreach (var ia in isn.Attributes().Where(a => a.Name.Namespace == xic)) {
 					sn.Add(new XAttribute(ia.Name.LocalName, ia.Value));
 				}
@@ -57,17 +61,20 @@ namespace XamlImageConverter {
 		}
 
 		public static XElement CreateDirect(Compiler compiler, string filename, Dictionary<string, string> parameters) {
-			if (filename.EndsWith(".xic.xaml")) {
+			XElement source;
+			var file = compiler.MapPath(filename);
+			using (compiler.FileLock(file)) {
+				source = XElement.Load(file, LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo);
+			}
+			if (source.Name == xic+"XamlImageConverter" || source.Name == sb+"SkinBuilder") {
 				foreach (var key in validAttributes) parameters.Remove(key);
-				filename = compiler.MapPath(filename);
-				using (compiler.FileLock(filename)) {
-					return XElement.Load(filename, LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo);
-				}
+				return source;
 			}
 			XElement snapshot, scene;
 			var res = new XElement(xic + "XamlImageConverter",
 					new XAttribute(XNamespace.Xmlns+"xic", xic.NamespaceName),
 					scene = new XElement(xic+"Scene",
+						new XAttribute("OutputPath", Path.GetDirectoryName(filename.Replace("/", "\\")).Replace("\\", "/")),
 						new XAttribute("Source", filename)
 					)
 				);
@@ -77,8 +84,7 @@ namespace XamlImageConverter {
 					ApplyParameters(compiler, snapshot, null, parameters);
 				} else parameters.Remove("xic");
 			}
-			var source = XElement.Load(compiler.MapPath(filename));
-			ParseXaml(source, scene);
+			ParseXaml(compiler, source, scene);
 			return res;
 		}
 		
@@ -106,7 +112,7 @@ namespace XamlImageConverter {
 					ApplyParameters(compiler, snapshot, filename, parameters);
 					scene.Add(snapshot);
 				}
-				ParseXaml(e, scene);
+				ParseXaml(compiler, e, scene);
 				return res;
 			} else {
 				return e;
