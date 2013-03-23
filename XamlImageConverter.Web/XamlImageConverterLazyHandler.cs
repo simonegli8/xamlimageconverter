@@ -7,6 +7,10 @@ using System.Xml.Linq;
 using System.IO;
 using System.Reflection;
 using System.Web;
+#if Silversite
+using System.Configuration;
+#endif
+
 
 namespace Silversite.Web {
 
@@ -367,10 +371,10 @@ namespace Silversite.Web {
 #endif
 
 #if Silversite
-	[Configuration.ConfigurationSection(Name = "XamlImageConverter")]
-	public class Configuration : Silversite.Configuration.Section {
+	[Configuration.Section(Name = "XamlImageConverter")]
+	public class XamlImageConverterConfiguration : Silversite.Configuration.Section {
 		[ConfigurationProperty("UseService", IsRequired = false, DefaultValue = false)]
-		public bool UseSevice { get { return (bool)(this["UseService"] ?? true); } set { this["UseService"] = value; } }
+		public bool UseService { get { return (bool)(this["UseService"] ?? true); } set { this["UseService"] = value; } }
 		[ConfigurationProperty("Log", IsRequired = false, DefaultValue = true)]
 		public bool Log { get { return (bool)(this["Log"] ?? true); } set { this["Log"] = value; } }
 		[ConfigurationProperty("cache", IsRequired = false, DefaultValue = null)]
@@ -389,7 +393,7 @@ namespace Silversite.Web {
 	public class XamlImageHandler : System.Web.IHttpHandler, System.Web.SessionState.IReadOnlySessionState {
 
 #if Silversite
-		public static Configuration Configuration = new Configuration();
+		public static XamlImageConverterConfiguration Configuration = new XamlImageConverterConfiguration();
 #endif
 
 		public bool IsReusable { get { return true; } }
@@ -406,7 +410,7 @@ namespace Silversite.Web {
 #if Silversite
 						var handlerInfo = Services.Lazy.Types.Info("XamlImageConverter.XamlImageHandler");
 						handlerInfo.Load();
-						handler = handlerInfo.New();
+						handler = handlerInfo.New<IHttpHandler>();
 #else
 						var a = Assembly.LoadFrom(context.Server.MapPath("~/Bin/Lazy/XamlImageConverter.dll"));
 						var type = a.GetType("XamlImageConverter.XamlImageHandler");
