@@ -272,18 +272,20 @@ namespace XamlImageConverter {
 
 			// copy lazy dll's
 			var bin = Path.Combine(dest, "Bin");
-			var binlazy = bin + "\\Lazy";
+			var Silversite = File.Exists(Path.Combine(bin, "Silversite.Core.dll"));
+			string binlazy;
+			if (Silversite) binlazy = Path.Combine(dest, "Silversite\\Bin");
+			else binlazy = bin + "\\Bin.Lazy";
 			if (IsWeb && !Directory.Exists(binlazy)) {
 				Directory.CreateDirectory(binlazy);
 				Files.Copy(Path.Combine(src, "XamlImageConverter.dll"), binlazy);
 				Files.Copy(Path.Combine(src, "XamlImageConverter.pdb"), binlazy);
-				Files.Copy(Path.Combine(src, "Lazy"), bin);
+				Files.Copy(Path.Combine(src, "Lazy\\*"), binlazy);
 				//var cache = Path.Combine(dest, "Images\\Cache");
 				//if (!Directory.Exists(cache)) Directory.CreateDirectory(cache);
 			}
 
 			// copy XamlImageConverter.Web.dll when not using Silversite.
-			var Silversite = File.Exists(Path.Combine(bin, "Silversite.Core.dll"));
 			if (!Silversite || !IsWeb) {
 				Files.Copy(Path.Combine(src, "XamlImageConverter.Web.*"), bin);
 			}
@@ -318,7 +320,7 @@ namespace XamlImageConverter {
 				if (configSections == null) webconfig.AddFirst(configSections = new XElement("configSections"));
 
 				//configSections.Elements().Where(x => ((string)x.Attribute("type") ?? "").Contains("PublicKeyToken=60c2ec984bc1bb45")).Remove();
-				configSections.Add(XElement.Parse("<section name='XamlImageConverter' type='XamlImageConverter.Configuration, 	XamlImageConverters.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
+				configSections.Add(XElement.Parse("<section name='XamlImageConverter' type='XamlImageConverter.Configuration, 	XamlImageConverters.Web, Version=3.6.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
 				// XamlImageConverter section
 				if (webconfig.Element("XamlImageConverter") == null) configSections.AddAfterSelf(XElement.Parse("<XamlImageConverter Log='true' Cache='~/Images/Cache' />"));
 			}
@@ -329,11 +331,11 @@ namespace XamlImageConverter {
 			var handlers = server.Element("handlers");
 			if (handlers == null) server.Add(handlers = new XElement("handlers"));
 			handlers.Elements().Where(x => ((string)x.Attribute("type") ?? "").Contains("PublicKeyToken=60c2ec984bc1bb45")).Remove();
-			handlers.Add(XElement.Parse("<add name='XamlImageConverter.Xaml' verb='*' path='*.xaml' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-					XElement.Parse("<add name='XamlImageConverter.Svg' verb='*' path='*.svg' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-					XElement.Parse("<add name='XamlImageConverter.Svgz' verb='*' path='*.svgz' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-					XElement.Parse("<add name='XamlImageConverter.Psd' verb='*' path='*.psd' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-					XElement.Parse("<add name='XamlImageConverter.Dynamic' verb='*' path='xic.axd' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
+			handlers.Add(XElement.Parse("<add name='XamlImageConverter.Xaml' verb='*' path='*.xaml' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.6.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
+					XElement.Parse("<add name='XamlImageConverter.Svg' verb='*' path='*.svg' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.6.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
+					XElement.Parse("<add name='XamlImageConverter.Svgz' verb='*' path='*.svgz' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.6.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
+					XElement.Parse("<add name='XamlImageConverter.Psd' verb='*' path='*.psd' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.6.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
+					XElement.Parse("<add name='XamlImageConverter.Dynamic' verb='*' path='xic.axd' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.6.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
 
 			// system.web
 			var web = webconfig.Element("system.web");
@@ -345,7 +347,7 @@ namespace XamlImageConverter {
 			var assemblies = comp.Element("assemblies");
 			if (assemblies == null) comp.Add(assemblies = new XElement("assemblies"));
 			assemblies.Elements().Where(x => ((string)x.Attribute("assembly") ?? "").Contains("PublicKeyToken=60c2ec984bc1bb45")).Remove();
-			assemblies.Add(XElement.Parse("<add assembly='XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45'/>"));
+			assemblies.Add(XElement.Parse("<add assembly='XamlImageConverter.Web, Version=3.6.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45'/>"));
 
 			// pages
 			var pages = web.Element("pages");
@@ -353,7 +355,7 @@ namespace XamlImageConverter {
 			var controls = pages.Element("controls");
 			if (controls == null) pages.Add(controls = new XElement("controls"));
 			controls.Elements().Where(x => ((string)x.Attribute("assembly") ?? "").Contains("PublicKeyToken=60c2ec984bc1bb45")).Remove();
-			controls.Add(XElement.Parse("<add tagPrefix='xic' namespace='Silversite.Web.UI' assembly='XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
+			controls.Add(XElement.Parse("<add tagPrefix='xic' namespace='Silversite.Web.UI' assembly='XamlImageConverter.Web, Version=3.6.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
 
 			/*
 			// httpHandlers

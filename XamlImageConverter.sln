@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XamlImageConverter", "XamlI
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XamlImageConverter.Exe", "XamlImageConverter.Exe\XamlImageConverter.Exe.csproj", "{4218E2D3-56FD-4270-8F65-398E3D5EE899}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XamlImageConverter.VSIX", "XamlImageConverter.VSIX\XamlImageConverter.VSIX.csproj", "{A5AC7D39-86D0-4C65-A85D-074B0A5E8361}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XamlImageConverter.ItemWizard", "XamlImageConverter.ItemWizard\XamlImageConverter.ItemWizard.csproj", "{853DB47F-710F-453D-A21E-E8D88FAC9EDB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XamlImageConverter.Web", "XamlImageConverter.Web\XamlImageConverter.Web.csproj", "{FCD85ABB-B282-409F-BEB8-64E4A979F18A}"
@@ -51,16 +49,6 @@ Global
 		{4218E2D3-56FD-4270-8F65-398E3D5EE899}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{4218E2D3-56FD-4270-8F65-398E3D5EE899}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{4218E2D3-56FD-4270-8F65-398E3D5EE899}.Release|x86.ActiveCfg = Release|Any CPU
-		{A5AC7D39-86D0-4C65-A85D-074B0A5E8361}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A5AC7D39-86D0-4C65-A85D-074B0A5E8361}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A5AC7D39-86D0-4C65-A85D-074B0A5E8361}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{A5AC7D39-86D0-4C65-A85D-074B0A5E8361}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{A5AC7D39-86D0-4C65-A85D-074B0A5E8361}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A5AC7D39-86D0-4C65-A85D-074B0A5E8361}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A5AC7D39-86D0-4C65-A85D-074B0A5E8361}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A5AC7D39-86D0-4C65-A85D-074B0A5E8361}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{A5AC7D39-86D0-4C65-A85D-074B0A5E8361}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{A5AC7D39-86D0-4C65-A85D-074B0A5E8361}.Release|x86.ActiveCfg = Release|Any CPU
 		{853DB47F-710F-453D-A21E-E8D88FAC9EDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{853DB47F-710F-453D-A21E-E8D88FAC9EDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{853DB47F-710F-453D-A21E-E8D88FAC9EDB}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU

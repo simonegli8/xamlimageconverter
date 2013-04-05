@@ -2,222 +2,222 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectTypeGuids>{82b43b9b-a64c-4715-b499-d71e9ca2bd60};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <ProjectGuid>{A5AC7D39-86D0-4C65-A85D-074B0A5E8361}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>XamlImageConverter</RootNamespace>
-    <AssemblyName>XamlImageConverter</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <GeneratePkgDefFile>false</GeneratePkgDefFile>
-    <IncludeAssemblyInVSIXContainer>false</IncludeAssemblyInVSIXContainer>
-    <IncludeDebugSymbolsInVSIXContainer>false</IncludeDebugSymbolsInVSIXContainer>
-    <IncludeDebugSymbolsInLocalVSIXDeployment>false</IncludeDebugSymbolsInLocalVSIXDeployment>
-    <CopyBuildOutputToOutputDirectory>false</CopyBuildOutputToOutputDirectory>
-    <CopyOutputSymbolsToOutputDirectory>false</CopyOutputSymbolsToOutputDirectory>
-    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <OldToolsVersion>4.0</OldToolsVersion>
-    <CodeContractsAssemblyMode>0</CodeContractsAssemblyMode>
-    <TargetFrameworkProfile />
+	 <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	 <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	 <SchemaVersion>2.0</SchemaVersion>
+	 <ProjectTypeGuids>{82b43b9b-a64c-4715-b499-d71e9ca2bd60};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+	 <ProjectGuid>{A5AC7D39-86D0-4C65-A85D-074B0A5E8361}</ProjectGuid>
+	 <OutputType>Library</OutputType>
+	 <AppDesignerFolder>Properties</AppDesignerFolder>
+	 <RootNamespace>XamlImageConverter</RootNamespace>
+	 <AssemblyName>XamlImageConverter</AssemblyName>
+	 <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+	 <GeneratePkgDefFile>false</GeneratePkgDefFile>
+	 <IncludeAssemblyInVSIXContainer>false</IncludeAssemblyInVSIXContainer>
+	 <IncludeDebugSymbolsInVSIXContainer>false</IncludeDebugSymbolsInVSIXContainer>
+	 <IncludeDebugSymbolsInLocalVSIXDeployment>false</IncludeDebugSymbolsInLocalVSIXDeployment>
+	 <CopyBuildOutputToOutputDirectory>false</CopyBuildOutputToOutputDirectory>
+	 <CopyOutputSymbolsToOutputDirectory>false</CopyOutputSymbolsToOutputDirectory>
+	 <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+	 <FileUpgradeFlags>
+	 </FileUpgradeFlags>
+	 <UpgradeBackupLocation>
+	 </UpgradeBackupLocation>
+	 <OldToolsVersion>4.0</OldToolsVersion>
+	 <CodeContractsAssemblyMode>0</CodeContractsAssemblyMode>
+	 <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+	 <DebugSymbols>true</DebugSymbols>
+	 <DebugType>full</DebugType>
+	 <Optimize>false</Optimize>
+	 <OutputPath>bin\Debug\</OutputPath>
+	 <DefineConstants>DEBUG;TRACE</DefineConstants>
+	 <ErrorReport>prompt</ErrorReport>
+	 <WarningLevel>4</WarningLevel>
+	 <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeContractsEnableRuntimeChecking>False</CodeContractsEnableRuntimeChecking>
-    <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
-    <CodeContractsRuntimeThrowOnFailure>True</CodeContractsRuntimeThrowOnFailure>
-    <CodeContractsRuntimeCallSiteRequires>False</CodeContractsRuntimeCallSiteRequires>
-    <CodeContractsRuntimeSkipQuantifiers>False</CodeContractsRuntimeSkipQuantifiers>
-    <CodeContractsRunCodeAnalysis>False</CodeContractsRunCodeAnalysis>
-    <CodeContractsNonNullObligations>False</CodeContractsNonNullObligations>
-    <CodeContractsBoundsObligations>False</CodeContractsBoundsObligations>
-    <CodeContractsArithmeticObligations>False</CodeContractsArithmeticObligations>
-    <CodeContractsEnumObligations>False</CodeContractsEnumObligations>
-    <CodeContractsRedundantAssumptions>False</CodeContractsRedundantAssumptions>
-    <CodeContractsInferRequires>False</CodeContractsInferRequires>
-    <CodeContractsInferEnsures>False</CodeContractsInferEnsures>
-    <CodeContractsInferObjectInvariants>False</CodeContractsInferObjectInvariants>
-    <CodeContractsSuggestAssumptions>False</CodeContractsSuggestAssumptions>
-    <CodeContractsSuggestRequires>True</CodeContractsSuggestRequires>
-    <CodeContractsSuggestEnsures>False</CodeContractsSuggestEnsures>
-    <CodeContractsSuggestObjectInvariants>False</CodeContractsSuggestObjectInvariants>
-    <CodeContractsRunInBackground>True</CodeContractsRunInBackground>
-    <CodeContractsShowSquigglies>True</CodeContractsShowSquigglies>
-    <CodeContractsUseBaseLine>False</CodeContractsUseBaseLine>
-    <CodeContractsEmitXMLDocs>False</CodeContractsEmitXMLDocs>
-    <CodeContractsCustomRewriterAssembly />
-    <CodeContractsCustomRewriterClass />
-    <CodeContractsLibPaths />
-    <CodeContractsExtraRewriteOptions />
-    <CodeContractsExtraAnalysisOptions />
-    <CodeContractsBaseLineFile />
-    <CodeContractsCacheAnalysisResults>True</CodeContractsCacheAnalysisResults>
-    <CodeContractsRuntimeCheckingLevel>Full</CodeContractsRuntimeCheckingLevel>
-    <CodeContractsReferenceAssembly>DoNotBuild</CodeContractsReferenceAssembly>
-    <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+	 <DebugType>pdbonly</DebugType>
+	 <Optimize>true</Optimize>
+	 <OutputPath>bin\Release\</OutputPath>
+	 <DefineConstants>TRACE</DefineConstants>
+	 <ErrorReport>prompt</ErrorReport>
+	 <WarningLevel>4</WarningLevel>
+	 <CodeContractsEnableRuntimeChecking>False</CodeContractsEnableRuntimeChecking>
+	 <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
+	 <CodeContractsRuntimeThrowOnFailure>True</CodeContractsRuntimeThrowOnFailure>
+	 <CodeContractsRuntimeCallSiteRequires>False</CodeContractsRuntimeCallSiteRequires>
+	 <CodeContractsRuntimeSkipQuantifiers>False</CodeContractsRuntimeSkipQuantifiers>
+	 <CodeContractsRunCodeAnalysis>False</CodeContractsRunCodeAnalysis>
+	 <CodeContractsNonNullObligations>False</CodeContractsNonNullObligations>
+	 <CodeContractsBoundsObligations>False</CodeContractsBoundsObligations>
+	 <CodeContractsArithmeticObligations>False</CodeContractsArithmeticObligations>
+	 <CodeContractsEnumObligations>False</CodeContractsEnumObligations>
+	 <CodeContractsRedundantAssumptions>False</CodeContractsRedundantAssumptions>
+	 <CodeContractsInferRequires>False</CodeContractsInferRequires>
+	 <CodeContractsInferEnsures>False</CodeContractsInferEnsures>
+	 <CodeContractsInferObjectInvariants>False</CodeContractsInferObjectInvariants>
+	 <CodeContractsSuggestAssumptions>False</CodeContractsSuggestAssumptions>
+	 <CodeContractsSuggestRequires>True</CodeContractsSuggestRequires>
+	 <CodeContractsSuggestEnsures>False</CodeContractsSuggestEnsures>
+	 <CodeContractsSuggestObjectInvariants>False</CodeContractsSuggestObjectInvariants>
+	 <CodeContractsRunInBackground>True</CodeContractsRunInBackground>
+	 <CodeContractsShowSquigglies>True</CodeContractsShowSquigglies>
+	 <CodeContractsUseBaseLine>False</CodeContractsUseBaseLine>
+	 <CodeContractsEmitXMLDocs>False</CodeContractsEmitXMLDocs>
+	 <CodeContractsCustomRewriterAssembly />
+	 <CodeContractsCustomRewriterClass />
+	 <CodeContractsLibPaths />
+	 <CodeContractsExtraRewriteOptions />
+	 <CodeContractsExtraAnalysisOptions />
+	 <CodeContractsBaseLineFile />
+	 <CodeContractsCacheAnalysisResults>True</CodeContractsCacheAnalysisResults>
+	 <CodeContractsRuntimeCheckingLevel>Full</CodeContractsRuntimeCheckingLevel>
+	 <CodeContractsReferenceAssembly>DoNotBuild</CodeContractsReferenceAssembly>
+	 <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
+	 <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Content Include="Demo\Kaxaml.gif">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Demo\Planet.psd">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\gxps\gxps-9.05-win32.exe">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\gxps\gxps-9.07-win32.exe">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\html2xaml\readme.txt">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\ImageMagick\atl100.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\ImageMagick\colors.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\ImageMagick\configure.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\ImageMagick\convert.exe">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\ImageMagick\delegates.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\ImageMagick\english.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\ImageMagick\locale.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\ImageMagick\log.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\ImageMagick\magic.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\ImageMagick\mfc100.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\ImageMagick\mime.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\ImageMagick\msvcp100.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\ImageMagick\msvcr100.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\ImageMagick\policy.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\ImageMagick\type-ghostscript.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\ImageMagick\type.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\ImageMagick\vcomp100.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\psd2xaml\Endogine.Codecs.Flash.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\psd2xaml\Endogine.Codecs.Photoshop.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\psd2xaml\Endogine.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="XamlImageConverter.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="XamlImageConverter.pdb">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="XamlImageConverter.Web.dll" />
-    <Content Include="xiconvert.exe" />
-    <Content Include="xiconvert.pdb" />
-    <Content Include="__TemplateIcon.old.ico" />
+	 <Compile Include="Properties\AssemblyInfo.cs" />
+	 <Content Include="Demo\Kaxaml.gif">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Demo\Planet.psd">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\gxps\gxps-9.05-win32.exe">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\gxps\gxps-9.07-win32.exe">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\html2xaml\readme.txt">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\ImageMagick\atl100.dll">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\ImageMagick\colors.xml">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\ImageMagick\configure.xml">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\ImageMagick\convert.exe">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\ImageMagick\delegates.xml">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\ImageMagick\english.xml">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\ImageMagick\locale.xml">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\ImageMagick\log.xml">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\ImageMagick\magic.xml">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\ImageMagick\mfc100.dll">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\ImageMagick\mime.xml">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\ImageMagick\msvcp100.dll">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\ImageMagick\msvcr100.dll">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\ImageMagick\policy.xml">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\ImageMagick\type-ghostscript.xml">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\ImageMagick\type.xml">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\ImageMagick\vcomp100.dll">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\psd2xaml\Endogine.Codecs.Flash.dll">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\psd2xaml\Endogine.Codecs.Photoshop.dll">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Lazy\psd2xaml\Endogine.dll">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="XamlImageConverter.dll">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="XamlImageConverter.pdb">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="XamlImageConverter.Web.dll" />
+	 <Content Include="xiconvert.exe" />
+	 <Content Include="xiconvert.pdb" />
+	 <Content Include="__TemplateIcon.old.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Demo\blog-banner.jpg">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Demo\Default.aspx">
-      <IncludeInVSIX>true</IncludeInVSIX>
-      <SubType>ASPXCodeBehind</SubType>
-    </Content>
-    <Content Include="Demo\generic-lines.png">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Demo\jquery.js">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Demo\jquery.maphilight.min.js">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Demo\Readme.aspx">
-      <SubType>ASPXCodeBehind</SubType>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Demo\SiteSpecification.xml">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Demo\Tux.svg">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Demo\Usa.Map.html">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Demo\Usa.Map.svg">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Icon.ico">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="XamlImageConverter.ItemWizard.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="XamlImageConverter.ItemWizard.pdb">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="XamlImageConverter.Web.pdb" />
-    <ZipCS Include="Templates\ProjectItem\XamlImageConverterConfiguration.CSharp.vstemplate" />
-    <ZipVB Include="Templates\ProjectItem\XamlImageConverterConfiguration.VB.vstemplate" />
-    <ZipItem Include="Templates\ProjectItem\__TemplateIcon.ico">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </ZipItem>
-    <Content Include="license.rtf">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <!--<Content Include="ItemTemplates\SkinBuilderConfiguration.VB.zip">
+	 <Content Include="Demo\blog-banner.jpg">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Demo\Default.aspx">
+		<IncludeInVSIX>true</IncludeInVSIX>
+		<SubType>ASPXCodeBehind</SubType>
+	 </Content>
+	 <Content Include="Demo\generic-lines.png">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Demo\jquery.js">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Demo\jquery.maphilight.min.js">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Demo\Readme.aspx">
+		<SubType>ASPXCodeBehind</SubType>
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Demo\SiteSpecification.xml">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Demo\Tux.svg">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Demo\Usa.Map.html">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Demo\Usa.Map.svg">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Icon.ico">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="XamlImageConverter.ItemWizard.dll">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="XamlImageConverter.ItemWizard.pdb">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="XamlImageConverter.Web.pdb" />
+	 <ZipCS Include="Templates\ProjectItem\XamlImageConverterConfiguration.CSharp.vstemplate" />
+	 <ZipVB Include="Templates\ProjectItem\XamlImageConverterConfiguration.VB.vstemplate" />
+	 <ZipItem Include="Templates\ProjectItem\__TemplateIcon.ico">
+		<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	 </ZipItem>
+	 <Content Include="license.rtf">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <!--<Content Include="ItemTemplates\SkinBuilderConfiguration.VB.zip">
 		<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		<IncludeInVSIX>true</IncludeInVSIX>
 	 </Content>
@@ -225,100 +225,100 @@
 		<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		<IncludeInVSIX>true</IncludeInVSIX>
 	 </Content>-->
-    <Content Include="ItemTemplates\CSharp\General\XamlImageConverterConfiguration.CSharp.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="ItemTemplates\VisualBasic\General\XamlImageConverterConfiguration.VB.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="XamlImageConverter.targets">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <None Include="source.extension.vsixmanifest">
-      <SubType>Designer</SubType>
-    </None>
+	 <Content Include="ItemTemplates\CSharp\General\XamlImageConverterConfiguration.CSharp.zip">
+		<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="ItemTemplates\VisualBasic\General\XamlImageConverterConfiguration.VB.zip">
+		<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="XamlImageConverter.targets">
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <None Include="source.extension.vsixmanifest">
+		<SubType>Designer</SubType>
+	 </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\XamlImageConverter.ItemWizard\XamlImageConverter.ItemWizard.csproj">
-      <Project>{853DB47F-710F-453D-A21E-E8D88FAC9EDB}</Project>
-      <Name>XamlImageConverter.ItemWizard</Name>
-      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3b</IncludeOutputGroupsInVSIX>
-      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
-    </ProjectReference>
-    <ProjectReference Include="..\XamlImageConverter.Web\XamlImageConverter.Web.csproj">
-      <Project>{fcd85abb-b282-409f-beb8-64e4a979f18a}</Project>
-      <Name>XamlImageConverter.Web</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\XamlImageConverter\XamlImageConverter.csproj">
-      <Project>{C5DC3841-241B-4398-9BBD-73383E8497A2}</Project>
-      <Name>XamlImageConverter</Name>
-    </ProjectReference>
+	 <ProjectReference Include="..\XamlImageConverter.ItemWizard\XamlImageConverter.ItemWizard.csproj">
+		<Project>{853DB47F-710F-453D-A21E-E8D88FAC9EDB}</Project>
+		<Name>XamlImageConverter.ItemWizard</Name>
+		<IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3b</IncludeOutputGroupsInVSIX>
+		<IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
+	 </ProjectReference>
+	 <ProjectReference Include="..\XamlImageConverter.Web\XamlImageConverter.Web.csproj">
+		<Project>{fcd85abb-b282-409f-beb8-64e4a979f18a}</Project>
+		<Name>XamlImageConverter.Web</Name>
+	 </ProjectReference>
+	 <ProjectReference Include="..\XamlImageConverter\XamlImageConverter.csproj">
+		<Project>{C5DC3841-241B-4398-9BBD-73383E8497A2}</Project>
+		<Name>XamlImageConverter</Name>
+	 </ProjectReference>
   </ItemGroup>
   <!-- <ItemGroup>
 	 <ItemsSource Include="$(SolutionDir)XamlImageConverter\bin\$(Configuration)\**\*.*" />
 	 <ItemsSource Include="$(SolutionDir)XamlImageConverter.ItemWizard\bin\$(Configuration)\**\*.*" />
   </ItemGroup> -->
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Xml" />
+	 <Reference Include="System" />
+	 <Reference Include="System.Data" />
+	 <Reference Include="System.Data.DataSetExtensions" />
+	 <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ZipItem Include="Templates\ProjectItem\CreateImages.xic.xaml" />
-    <ZipItem Include="Templates\XamlImageConverter.vscontent" />
+	 <ZipItem Include="Templates\ProjectItem\CreateImages.xic.xaml" />
+	 <ZipItem Include="Templates\XamlImageConverter.vscontent" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Demo\Homepage.xaml">
-      <SubType>Designer</SubType>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Demo\Kaxaml.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Demo\CreateImages.xic.xaml">
-      <SubType>Designer</SubType>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
+	 <Content Include="Demo\Homepage.xaml">
+		<SubType>Designer</SubType>
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Demo\Kaxaml.xaml">
+		<Generator>MSBuild:Compile</Generator>
+		<SubType>Designer</SubType>
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
+	 <Content Include="Demo\CreateImages.xic.xaml">
+		<SubType>Designer</SubType>
+		<IncludeInVSIX>true</IncludeInVSIX>
+	 </Content>
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadata Include="Service References\" />
+	 <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>
-    <ZipItemCSharpPath>$(ProjectDir)ItemTemplates\CSharp\General\XamlImageConverterConfiguration.CSharp.zip</ZipItemCSharpPath>
-    <ZipItemVBPath>$(ProjectDir)ItemTemplates\VisualBasic\General\XamlImageConverterConfiguration.VB.zip</ZipItemVBPath>
+	 <ZipItemCSharpPath>$(ProjectDir)ItemTemplates\CSharp\General\XamlImageConverterConfiguration.CSharp.zip</ZipItemCSharpPath>
+	 <ZipItemVBPath>$(ProjectDir)ItemTemplates\VisualBasic\General\XamlImageConverterConfiguration.VB.zip</ZipItemVBPath>
   </PropertyGroup>
   <Target Name="ZipTemplates" DependsOnTargets="">
-    <Zip Files="@(ZipItem);@(ZipCS)" Flatten="true" ZipFileName="$(ZipItemCSharpPath)" />
-    <Zip Files="@(ZipItem);@(ZipVB)" Flatten="true" ZipFileName="$(ZipItemVBPath)" />
+	 <Zip Files="@(ZipItem);@(ZipCS)" Flatten="true" ZipFileName="$(ZipItemCSharpPath)" />
+	 <Zip Files="@(ZipItem);@(ZipVB)" Flatten="true" ZipFileName="$(ZipItemVBPath)" />
   </Target>
   <Target Name="Copy" DependsOnTargets="">
-    <CreateItem Include="$(SolutionDir)XamlImageConverter\bin\$(Configuration)\**\*.*">
-      <Output TaskParameter="Include" ItemName="ItemsSource" />
-    </CreateItem>
-    <CreateItem Include="$(SolutionDir)XamlImageConverter.ItemWizard\bin\$(Configuration)\**\*.*">
-      <Output TaskParameter="Include" ItemName="ItemsSource" />
-    </CreateItem>
-    <CreateItem Include="$(SolutionDir)XamlImageConverter.Exe\bin\$(Configuration)\**\xiconvert.exe">
-      <Output TaskParameter="Include" ItemName="ItemsSource" />
-    </CreateItem>
-    <CreateItem Include="$(SolutionDir)XamlImageConverter.Exe\bin\$(Configuration)\**\xiconvert.pdb">
-      <Output TaskParameter="Include" ItemName="ItemsSource" />
-    </CreateItem>
-    <CreateItem Include="$(SolutionDir)XamlImageConverter.Web\bin\$(Configuration)\**\*.*">
-      <Output TaskParameter="Include" ItemName="ItemsSource" />
-    </CreateItem>
-    <Copy SourceFiles="@(ItemsSource)" DestinationFiles="@(ItemsSource->'$(ProjectDir)%(RecursiveDir)%(Filename)%(Extension)')" />
-    <!-- <Copy SourceFiles="$(SolutionDir)XamlImageConverter.Exe\bin\$(Configuration)\convert.*" DestinationFolder="$(ProjectDir)Items" /> -->
+	 <CreateItem Include="$(SolutionDir)XamlImageConverter\bin\$(Configuration)\**\*.*">
+		<Output TaskParameter="Include" ItemName="ItemsSource" />
+	 </CreateItem>
+	 <CreateItem Include="$(SolutionDir)XamlImageConverter.ItemWizard\bin\$(Configuration)\**\*.*">
+		<Output TaskParameter="Include" ItemName="ItemsSource" />
+	 </CreateItem>
+	 <CreateItem Include="$(SolutionDir)XamlImageConverter.Exe\bin\$(Configuration)\**\xiconvert.exe">
+		<Output TaskParameter="Include" ItemName="ItemsSource" />
+	 </CreateItem>
+	 <CreateItem Include="$(SolutionDir)XamlImageConverter.Exe\bin\$(Configuration)\**\xiconvert.pdb">
+		<Output TaskParameter="Include" ItemName="ItemsSource" />
+	 </CreateItem>
+	 <CreateItem Include="$(SolutionDir)XamlImageConverter.Web\bin\$(Configuration)\**\*.*">
+		<Output TaskParameter="Include" ItemName="ItemsSource" />
+	 </CreateItem>
+	 <Copy SourceFiles="@(ItemsSource)" DestinationFiles="@(ItemsSource->'$(ProjectDir)%(RecursiveDir)%(Filename)%(Extension)')" />
+	 <!-- <Copy SourceFiles="$(SolutionDir)XamlImageConverter.Exe\bin\$(Configuration)\convert.*" DestinationFolder="$(ProjectDir)Items" /> -->
   </Target>
   <PropertyGroup>
-    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
-    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+	 <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+	 <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />

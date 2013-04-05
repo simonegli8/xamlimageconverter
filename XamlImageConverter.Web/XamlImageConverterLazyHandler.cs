@@ -412,7 +412,12 @@ namespace Silversite.Web {
 						handlerInfo.Load();
 						handler = handlerInfo.New<IHttpHandler>();
 #else
-						var a = Assembly.LoadFrom(context.Server.MapPath("~/Bin/Lazy/XamlImageConverter.dll"));
+						var assemblyfile = context.Server.MapPath("~/Bin.Lazy/XamlImageConverter.dll");
+						if (!File.Exists(assemblyfile)) assemblyfile = context.Server.MapPath("~/Bin/Lazy/XamlImageConverter.dll");
+						if (!File.Exists(assemblyfile)) assemblyfile = context.Server.MapPath("~/Silversite/Bin/XamlImageConverter.dll");
+						var aname = new AssemblyName("XamlImageConverter");
+						aname.CodeBase = new Uri(assemblyfile).ToString();
+						var a = Assembly.Load(aname);
 						var type = a.GetType("XamlImageConverter.XamlImageHandler");
 						handler = (System.Web.IHttpHandler)Activator.CreateInstance(type);
 #endif
