@@ -275,12 +275,15 @@ namespace XamlImageConverter {
 			var Silversite = File.Exists(Path.Combine(bin, "Silversite.Core.dll"));
 			string binlazy;
 			if (Silversite) binlazy = Path.Combine(dest, "Silversite\\Bin");
-			else binlazy = bin + "\\Bin.Lazy";
+			else binlazy = Path.Combine(dest, "Bin.Lazy");
 			if (IsWeb && !Directory.Exists(binlazy)) {
 				Directory.CreateDirectory(binlazy);
 				Files.Copy(Path.Combine(src, "XamlImageConverter.dll"), binlazy);
 				Files.Copy(Path.Combine(src, "XamlImageConverter.pdb"), binlazy);
-				Files.Copy(Path.Combine(src, "Lazy\\*"), binlazy);
+				Files.Copy(Path.Combine(src, "Lazy\\gxps"), binlazy);
+				Files.Copy(Path.Combine(src, "Lazy\\html2xaml"), binlazy);
+				Files.Copy(Path.Combine(src, "Lazy\\ImageMagick"), binlazy);
+				Files.Copy(Path.Combine(src, "Lazy\\psd2xaml"), binlazy);
 				//var cache = Path.Combine(dest, "Images\\Cache");
 				//if (!Directory.Exists(cache)) Directory.CreateDirectory(cache);
 			}

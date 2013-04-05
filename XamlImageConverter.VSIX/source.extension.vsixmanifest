@@ -20,7 +20,7 @@ Features:
 		<Tags>image conversion, asp.net, pdf generation, xaml, image converter, asp.net skinning, html image map, animated gif,</Tags>
 	</Metadata>
 	<Installation AllUsers="true">
-		<InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[10.0, 12.0)" />
+		<InstallationTarget Version="10.0" Id="Microsoft.VisualStudio.Pro"/>
 		<InstallationTarget Version="10.0" Id="Microsoft.VisualStudio.Premium" />
 		<InstallationTarget Version="10.0" Id="Microsoft.VisualStudio.Ultimate" />
 		<InstallationTarget Version="11.0" Id="Microsoft.VisualStudio.VSWinExpress" />
@@ -56,5 +56,7 @@ Features:
 		<Asset Type="File" d:Source="File" Path="Demo\Tux.svg" d:VsixSubPath="Demo" />
 		<Asset Type="File" d:Source="File" Path="Demo\Usa.Map.html" d:VsixSubPath="Demo" />
 		<Asset Type="File" d:Source="File" Path="Demo\Usa.Map.svg" d:VsixSubPath="Demo" />
+		<Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="File" Path="ItemTemplates" d:TargetPath="ItemTemplates\CSharp\General\XamlImageConverterConfiguration.CSharp.zip" />
+		<Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="File" Path="ItemTemplates" d:TargetPath="ItemTemplates\VisualBasic\General\XamlImageConverterConfiguration.VB.zip" />
 	</Assets>
 </PackageManifest>
