@@ -1,89 +1,60 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Vsix xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2010">
-	<Identifier Id="XamlImageConverter.2c5e9477-428f-4362-a5b5-d8c2d6ec2605">
-		<Name>Xaml Image Converter</Name>
-		<Author>David Egli</Author>
-		<Version>3.6</Version>
-		<AllUsers>true</AllUsers>
-		<Description xml:space="preserve">Renders images or pdf's from Xaml, SVG &amp; Photoshop files.
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+	<Metadata>
+		<Identity Id="XamlImageConverter.2c5e9477-428f-4362-a5b5-d8c2d6ec2605" Version="3.6" Language="en-US" Publisher="Simon Egli" />
+		<DisplayName>Xaml Image Converter</DisplayName>
+		<Description xml:space="preserve">Renders images or pdf's from Xaml, SVG &amp;amp; Photoshop files.
 
 Features:
-- Input Formats: Xaml, SVG &amp; PSD (Photoshop).
+- Input Formats: Xaml, SVG &amp;amp; PSD (Photoshop).
 - Output Formats: png, gif, jgp, bmp, tif, xps, pdf, xaml.
 - Images with localized text.
 - Dynamic modification of the xaml before rendering.
-- GIF &amp; CSS filmstrips from Storyboards.
+- GIF &amp;amp; CSS filmstrips from Storyboards.
 - HttpHandler for on the fly image creation.
-- Html image map creation from Xaml &amp; SVG Geometries.</Description>
-		<Locale>1033</Locale>
-		<MoreInfoUrl>http://xamlimageconverter.codeplex.com</MoreInfoUrl>
+- Html image map creation from Xaml &amp;amp; SVG Geometries.</Description>
+		<MoreInfo>http://xamlimageconverter.codeplex.com</MoreInfo>
 		<License>license.rtf</License>
 		<GettingStartedGuide>http://xamlimageconverter.codeplex.com/documentation</GettingStartedGuide>
 		<Icon>Icon.ico</Icon>
-		<SupportedProducts>
-			<VisualStudio Version="10.0">
-				<Edition>Ultimate</Edition>
-				<Edition>Premium</Edition>
-				<Edition>Pro</Edition>
-			</VisualStudio>
-			<VisualStudio Version="11.0">
-				<Edition>Ultimate</Edition>
-				<Edition>Premium</Edition>
-				<Edition>Pro</Edition>
-			</VisualStudio>
-		</SupportedProducts>
-		<SupportedFrameworkRuntimeEdition MinVersion="3.5" MaxVersion="4.5" />
-	</Identifier>
-	<References />
-	<Content>
-		<CustomExtension Type="Reference">XamlImageConverter.dll</CustomExtension>
-		<CustomExtension Type="Resource">XamlImageConverter.pdb</CustomExtension>
-		<CustomExtension Type="Reference">XamlImageConverter.Web.dll</CustomExtension>
-		<CustomExtension Type="Resource">XamlImageConverter.Web.pdb</CustomExtension>
-		<CustomExtension Type="Reference">xiconvert.exe</CustomExtension>
-		<CustomExtension Type="Resource">xiconvert.pdb</CustomExtension>
-		<CustomExtension Type="Reference">Lazy\psd2xaml\Endogine.Codecs.Flash.dll</CustomExtension>
-		<CustomExtension Type="Reference">Icon.ico</CustomExtension>
-		<CustomExtension Type="Reference">Lazy\psd2xaml\Endogine.Codecs.Photoshop.dll</CustomExtension>
-		<CustomExtension Type="Reference">Lazy\psd2xaml\Endogine.dll</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\gxps\gxps-9.05-win32.exe</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\gxps\gxps-9.07-win32.exe</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\ImageMagick\atl100.dll</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\ImageMagick\colors.xml</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\ImageMagick\configure.xml</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\ImageMagick\convert.exe</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\ImageMagick\delegates.xml</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\ImageMagick\english.xml</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\ImageMagick\locale.xml</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\ImageMagick\log.xml</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\ImageMagick\magic.xml</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\ImageMagick\mfc100.dll</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\ImageMagick\mime.xml</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\ImageMagick\msvcp100.dll</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\ImageMagick\msvcr100.dll</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\ImageMagick\policy.xml</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\ImageMagick\sRGB.icc</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\ImageMagick\type.xml</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\ImageMagick\type-ghostscript.xml</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\ImageMagick\vcomp100.dll</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\XamlImageConverter.pdb</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\XamlImageConverter.targets</CustomExtension>
-		<CustomExtension Type="Resource">Demo\blog-banner.jpg</CustomExtension>
-		<CustomExtension Type="Resource">Demo\CreateImages.xic.xaml</CustomExtension>
-		<CustomExtension Type="Resource">Demo\Default.aspx</CustomExtension>
-		<CustomExtension Type="Resource">Demo\generic-lines.png</CustomExtension>
-		<CustomExtension Type="Resource">Demo\Homepage.xaml</CustomExtension>
-		<CustomExtension Type="Resource">Demo\jquery.js</CustomExtension>
-		<CustomExtension Type="Resource">Demo\jquery.maphilight.min.js</CustomExtension>
-		<CustomExtension Type="Resource">Demo\Kaxaml.gif</CustomExtension>
-		<CustomExtension Type="Resource">Demo\Kaxaml.xaml</CustomExtension>
-		<CustomExtension Type="Resource">Demo\Planet.psd</CustomExtension>
-		<CustomExtension Type="Resource">Demo\Readme.apsx</CustomExtension>
-		<CustomExtension Type="Resource">Demo\SiteSpecification.xml</CustomExtension>
-		<CustomExtension Type="Resource">Demo\Tux.svg</CustomExtension>
-		<CustomExtension Type="Resource">Demo\Usa.Map.html</CustomExtension>
-		<CustomExtension Type="Resource">Demo\Usa.Map.svg</CustomExtension>
-		<Assembly AssemblyName="|XamlImageConverter.ItemWizard;AssemblyName|">|XamlImageConverter.ItemWizard|</Assembly>
-		<ItemTemplate>ItemTemplates</ItemTemplate>
-	</Content>
-</Vsix>
+		<Tags>image conversion, asp.net, pdf generation, xaml, image converter, asp.net skinning, html image map, animated gif,</Tags>
+	</Metadata>
+	<Installation AllUsers="true">
+		<InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[10.0, 12.0)" />
+		<InstallationTarget Version="10.0" Id="Microsoft.VisualStudio.Premium" />
+		<InstallationTarget Version="10.0" Id="Microsoft.VisualStudio.Ultimate" />
+		<InstallationTarget Version="11.0" Id="Microsoft.VisualStudio.VSWinExpress" />
+		<InstallationTarget Version="11.0" Id="Microsoft.VisualStudio.VPDExpress" />
+		<InstallationTarget Version="11.0" Id="Microsoft.VisualStudio.VWDExpress" />
+		<InstallationTarget Version="11.0" Id="Microsoft.VisualStudio.VSWinDesktopExpress" />
+	</Installation>
+	<Dependencies>
+		<Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="4.5" />
+	</Dependencies>
+	<Assets>
+		<Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="XamlImageConverter.ItemWizard" Path="|XamlImageConverter.ItemWizard|" AssemblyName="|XamlImageConverter.ItemWizard;AssemblyName|" />
+		<Asset Type="File" d:Source="File" Path="XamlImageConverter.Web.dll" d:VsixSubPath="" />
+		<Asset Type="File" d:Source="File" Path="XamlImageConverter.Web.pdb" d:VsixSubPath="" />
+		<Asset Type="File" d:Source="File" Path="XamlImageConverter.dll" d:VsixSubPath="" />
+		<Asset Type="File" d:Source="File" Path="XamlImageConverter.pdb" d:VsixSubPath="" />
+		<Asset Type="File" d:Source="File" Path="xiconvert.exe" d:VsixSubPath="" />
+		<Asset Type="File" d:Source="File" Path="xiconvert.pdb" d:VsixSubPath="" />
+		<Asset Type="File" d:Source="File" Path="XamlImageConverter.targets" d:VsixSubPath="" />
+		<Asset Type="File" d:Source="File" Path="Icon.ico" d:VsixSubPath="" />
+		<Asset Type="File" d:Source="File" Path="Demo\blog-banner.jpg" d:VsixSubPath="Demo" />
+		<Asset Type="File" d:Source="File" Path="Demo\CreateImages.xic.xaml" d:VsixSubPath="Demo" />
+		<Asset Type="File" d:Source="File" Path="Demo\Default.aspx" d:VsixSubPath="Demo" />
+		<Asset Type="File" d:Source="File"  Path="Demo\generic-lines.png" d:VsixSubPath="Demo" />
+		<Asset Type="File" d:Source="File" Path="Demo\Homepage.xaml" d:VsixSubPath="Demo" />
+		<Asset Type="File" d:Source="File" Path="Demo\jquery.js" d:VsixSubPath="Demo" />
+		<Asset Type="File" d:Source="File" Path="Demo\jquery.maphilight.min.js" d:VsixSubPath="Demo" />
+		<Asset Type="File" d:Source="File" Path="Demo\Kaxaml.gif" d:VsixSubPath="Demo" />
+		<Asset Type="File" d:Source="File" Path="Demo\Kaxaml.xaml" d:VsixSubPath="Demo" />
+		<Asset Type="File" d:Source="File" Path="Demo\Planet.psd" d:VsixSubPath="Demo" />
+		<Asset Type="File" d:Source="File" Path="Demo\Readme.apsx" d:VsixSubPath="Demo" />
+		<Asset Type="File" d:Source="File" Path="Demo\SiteSpecification.xml" d:VsixSubPath="Demo" />
+		<Asset Type="File" d:Source="File" Path="Demo\Tux.svg" d:VsixSubPath="Demo" />
+		<Asset Type="File" d:Source="File" Path="Demo\Usa.Map.html" d:VsixSubPath="Demo" />
+		<Asset Type="File" d:Source="File" Path="Demo\Usa.Map.svg" d:VsixSubPath="Demo" />
+	</Assets>
+</PackageManifest>
