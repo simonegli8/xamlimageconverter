@@ -12,7 +12,7 @@ using System.Configuration;
 #endif
 
 
-namespace Silversite.Web {
+namespace XamlImageConverter.Web {
 
 	public class XamlBuildCheck {
 

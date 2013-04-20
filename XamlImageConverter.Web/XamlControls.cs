@@ -10,8 +10,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.UI.HtmlControls;
 
-namespace Silversite.Web.UI {
-
+namespace XamlImageConverter.Web.UI {
 
 	[ToolboxData("<{0}:XamlImage runat=\"server\" />")]
 	[ParseChildren(ChildrenAsProperties = false)]
@@ -19,8 +18,8 @@ namespace Silversite.Web.UI {
 	public class XamlImage: Image {
 
 		static XNamespace xic = "http://schemas.johnshope.com/XamlImageConverter/2012";
-		static XNamespace xaml ="http://schemas.microsoft.com/winfx/2006/xaml/presentation";
-		static XNamespace xamlx="http://schemas.microsoft.com/winfx/2006/xaml";
+		static XNamespace xaml = "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
+		static XNamespace xamlx = "http://schemas.microsoft.com/winfx/2006/xaml";
 		const string SessionPrefix = "#XamlImageConverter.Xaml:";
 
 		protected override void OnInit(EventArgs e) {
@@ -53,20 +52,25 @@ namespace Silversite.Web.UI {
 			get { return element ?? (element = XElement.Parse(Content)); }
 			set {
 				using (var w = new StringWriter()) {
-					value.Save(w , SaveOptions.OmitDuplicateNamespaces);
+					value.Save(w, SaveOptions.OmitDuplicateNamespaces);
 					Content = w.ToString();
 				}
 			}
 		}
 
 		public string Content { get; set; }
+		public string Source { get; set; }
 
 		string Url {
 			get {
 				var sb = new StringBuilder();
-				sb.Append("xic.axd?Source="); sb.Append(HttpUtility.UrlEncode(SessionID));
+				if (string.IsNullOrEmpty(Source)) {
+					sb.Append("xic.axd?Source="); sb.Append(HttpUtility.UrlEncode(SessionID));
+				} else {
+					sb.Append(Source + "?");
+				}
 				var e = XElement;
-				if (e.Name != xic+"XamlImageConverter") {
+				if (e.Name != xic + "XamlImageConverter") {
 					if (!string.IsNullOrEmpty(Storyboard)) { sb.Append("&Storyboard="); sb.Append(HttpUtility.UrlEncode(Storyboard)); }
 					if (!string.IsNullOrEmpty(Theme)) { sb.Append("&Theme="); sb.Append(HttpUtility.UrlEncode(Theme)); }
 					if (!string.IsNullOrEmpty(Skin)) { sb.Append("&Skin="); sb.Append(HttpUtility.UrlEncode(Skin)); }
@@ -88,7 +92,6 @@ namespace Silversite.Web.UI {
 				} else {
 					Page.Session[SessionID] = Content.Trim();
 				}
-
 				Page.Response.Cache.SetCacheability(HttpCacheability.NoCache);
 
 				foreach (var par in (Parameters ?? "").Split(new char[] { '&' }, StringSplitOptions.RemoveEmptyEntries)) {
@@ -110,7 +113,7 @@ namespace Silversite.Web.UI {
 					hashsb.Append(Type ?? "");
 					hashsb.Append(Content ?? "");
 					var hash = Hash.Compute(hashsb.ToString());
-					hash += 10*(Quality ?? 90) + 1000*(Loops ?? 1) + (int)(10000*(Pause??0)) + 100000*(Dpi??96);
+					hash += 10 * (Quality ?? 90) + 1000 * (Loops ?? 1) + (int)(10000 * (Pause ?? 0)) + 100000 * (Dpi ?? 96);
 					sb.Append("&Image="); sb.Append(HttpUtility.UrlEncode(Path.ChangeExtension(ImageUrl, hash.ToString("X") + Path.GetExtension(ImageUrl))));
 				}
 				return sb.ToString();

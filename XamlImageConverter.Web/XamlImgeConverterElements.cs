@@ -7,7 +7,6 @@ using System.Windows.Markup;
 
 [assembly: System.Windows.Markup.XmlnsDefinition("http://schemas.johnshope.com/XamlImageConverter/2012", "XamlImageConverter.Elements")]
 
-
 namespace XamlImageConverter.Elements {
 
 	[ContentProperty("Children")]
