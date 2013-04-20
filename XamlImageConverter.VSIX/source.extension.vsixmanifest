@@ -5,7 +5,7 @@
 		<Author>David Egli</Author>
 		<Version>3.7</Version>
 		<AllUsers>true</AllUsers>
-		<Description xml:space="preserve">Renders images or pdf's from Xaml, SVG &amp; Photoshop files.
+		<Description xml:space="preserve">Renders images, animations, html image maps &amp; pdf's from Xaml, SVG &amp; Photoshop files.
 
 Features:
 - Input Formats: Xaml, SVG &amp; PSD (Photoshop).
