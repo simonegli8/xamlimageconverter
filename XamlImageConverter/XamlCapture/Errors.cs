@@ -10,7 +10,7 @@ using System.Diagnostics.Contracts;
 namespace XamlImageConverter {
 	
 	[Serializable]
-	public enum Severity { Message, Warning, Error, Note };
+	public enum Severity { Message, Warning, Error, Note, Status };
 
 	[Serializable]
 	public struct TextPos {
@@ -55,9 +55,10 @@ namespace XamlImageConverter {
 		
 		public virtual void Message(string path, string message, string errorCode, TextSpan span, Severity severity) {
 			switch (severity) {
-			case Severity.Error: Console.Write("  Error {0} ({1},{2}): ", errorCode, span.Start.Line, span.Start.Column); break;
-			case Severity.Warning: Console.Write("  Warning {0} ({1},{2}): ", errorCode, span.Start.Line, span.Start.Column); break;
-			default: break;
+				case Severity.Error: Console.Write("  Error {0} ({1},{2}): ", errorCode, span.Start.Line, span.Start.Column); break;
+				case Severity.Warning: Console.Write("  Warning {0} ({1},{2}): ", errorCode, span.Start.Line, span.Start.Column); break;
+				case Severity.Status: break;
+				default: Console.Write("   "); break;
 			}
 			Console.WriteLine(message);
 		}
@@ -75,10 +76,10 @@ namespace XamlImageConverter {
 				var text = texts[path];
 				switch (severity) {
 				case Severity.Error: text.Append(string.Format("  Error {0} ({1},{2}): ", errorCode, span.Start.Line, span.Start.Column)); break;
-				case Severity.Warning: text.Append(string.Format("  Warning {0} ({1},{2}): ", errorCode, span.Start.Line, span.Start.Column)); break;
-				default: break;
+				case Severity.Status: break;
+				default: text.Append("   "); break;
 				}
-				text.AppendLine("   " + message);
+				text.AppendLine(message);
 			}
 		}
 
@@ -104,7 +105,7 @@ namespace XamlImageConverter {
 		}
 
 		public void Dispose() {
-			foreach (var path in texts.Keys) Flush(path);
+			foreach (var path in texts.Keys.ToList()) Flush(path);
 		}
 	}
 
@@ -123,7 +124,12 @@ namespace XamlImageConverter {
 			if (path == null) return;
 			lock (this) {
 				if (!Paths.Contains(path)) Paths.Add(path);
-				foreach (var logger in Loggers) logger.Message(path, message, errorCode, span, severity);
+				foreach (var logger in Loggers) {
+					try {
+						logger.Message(path, message, errorCode, span, severity);
+					} catch {
+					}
+				}
 			}
 		}
 
@@ -141,6 +147,8 @@ namespace XamlImageConverter {
 		public void Warning(string message, string errorCode, TextSpan span) { Write(Path, message, errorCode, span, Severity.Warning); }
 		public void Error(string message, string errorCode, XObject xobj) { HasErrors = true; Write(Path, message, errorCode, new TextSpan(xobj), Severity.Error); }
 		public void Warning(string message, string errorCode, XObject xobj) { Write(Path, message, errorCode, new TextSpan(xobj), Severity.Warning); }
+		public void Status(string message) { Write(Path, message, string.Empty, new TextSpan(), Severity.Status); }
+		public void Status(string message, params object[] args) { Write(Path, string.Format(message, args), string.Empty, new TextSpan(), Severity.Status); }
 		public void Clear() {
 			foreach (var log in Loggers) log.Clear(Path);
 		}

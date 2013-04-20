@@ -22,7 +22,7 @@ namespace XamlImageConverter {
 			}
 
 			if (a.Count == 0 || new[] { "-h", "help", "-help", "?", "/?", "-?" }.Any(s => a.Any(at => s == at.Trim().ToLower()))) {
-				Console.WriteLine("XamlImageConverter 3.6 by Chris Cavanagh & Simon Egli");
+				Console.WriteLine("XamlImageConverter 3.7 by Chris Cavanagh & Simon Egli");
 				Console.WriteLine("Creates snapshots, gif animations or html image maps from XAML, SVG & PSD images\n\r");
 				Console.Error.WriteLine("XamlImageConverter [-x] [-w] [-1] [-s [running time]] [-r] [-v]");
 				Console.Error.WriteLine("   [-l librarypath] [-p projectpath] configFile { configFile }");
@@ -99,6 +99,7 @@ namespace XamlImageConverter {
 				i = a.IndexOf("-l");
 				libraryPath = a[i+1];
 				a.RemoveRange(i, 2);
+				libraryPath = new DirectoryInfo(libraryPath).FullName;
 			}
 
 			string projectPath = string.Empty;
@@ -106,6 +107,7 @@ namespace XamlImageConverter {
 				i = a.IndexOf("-p");
 				projectPath = a[i+1];
 				a.RemoveRange(i, 2);
+				projectPath = new DirectoryInfo(projectPath).FullName;
 			}
 
 			List<string> files = new List<string>();

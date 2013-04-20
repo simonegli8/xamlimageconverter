@@ -19,6 +19,8 @@ namespace XamlImageConverter {
 	public interface Step {
 		void Process();
 		bool NeedsBuilding { get; }
+		bool MustRunOnMainThread { get; }
+		bool MustRunSequential { get; }
 	}
 
 	public class Group: Canvas {
@@ -287,6 +289,7 @@ namespace XamlImageConverter {
 								Assembly assembly;
 								Type type = null;
 								if (typeName != null) {
+									Compiler.LoadDlls();
 									if (assemblyName != null) {
 										try {
 											var assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -385,9 +388,9 @@ namespace XamlImageConverter {
 			var brush = new VisualBrush(clone);
 			brush.AutoLayoutContent = true;
 			brush.Stretch = Stretch.None;
-			brush.AlignmentX = AlignmentX.Left;
-			brush.AlignmentY = AlignmentY.Top;
-			brush.Viewbox = new Rect(bounds.Left/Scene.Element.ActualWidth, bounds.Top/Scene.Element.ActualHeight, 1, 1);
+			brush.AlignmentX = AlignmentX.Center;
+			brush.AlignmentY = AlignmentY.Center;
+			brush.Viewbox = new Rect(bounds.Left/Scene.Window.Width, bounds.Top/Scene.Window.Height, 1, 1);
 
 			var img = new System.Windows.Shapes.Rectangle();
 			img.Width = bounds.Width;
@@ -430,7 +433,9 @@ namespace XamlImageConverter {
 						lock (lock2) {
 							locks = Locks.ToList();
 						}
+#pragma warning disable
 						foreach (var tlock in locks) lock (tlock) ;
+#pragma warning restore
 					}
 				}
 			}
@@ -765,6 +770,9 @@ namespace XamlImageConverter {
 		}
 
 		public virtual void Save() { }
+
+		public virtual bool MustRunOnMainThread { get { return false; } }
+		public virtual bool MustRunSequential { get { return false; } }
 
 		public void DirectoryCopy(string sourceDirName, string destDirName) {
 			DirectoryInfo dir = new DirectoryInfo(sourceDirName);

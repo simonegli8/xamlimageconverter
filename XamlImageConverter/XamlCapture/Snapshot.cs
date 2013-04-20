@@ -89,7 +89,10 @@ namespace XamlImageConverter {
 					return size;
 				}
 				switch (page) {
-
+				case "4a0": return new Size(96 * 66.2, 96 * 93.6);
+				case "4a0l": return new Size(96 * 93.6, 96 * 66.2);
+				case "2a0": return new Size(96 * 46.8, 96 * 66.2);
+				case "2a0l": return new Size(96 * 66.2, 96 * 46.8);
 				case "a0": return new Size(96 * 33.1, 96 * 46.8);
 				case "a0l": return new Size(96 * 46.8, 96 * 33.1);
 				case "a1": return new Size(96 * 23.4, 96 * 33.1);
@@ -142,11 +145,6 @@ namespace XamlImageConverter {
 			var pg = new FixedPage();
 			var canvas = new Canvas();
 
-
-			clone.MeasureAndArrange(new Size(clone.ActualWidth, clone.ActualHeight));
-			var width = clone.Width;
-			var height = clone.Height;
-
 			canvas.Children.Add(clone);
 			canvas.Width = size.Width;
 			canvas.Height = size.Height;
@@ -160,12 +158,17 @@ namespace XamlImageConverter {
 
 			((IAddChild)cont).AddChild(pg);
 
+			//clone.MeasureAndArrange(new Size(clone.Width, clone.Height));
+			var width = clone.Width;
+			var height = clone.Height;
+
 			double zoom = 1;
 			if (FitToPage) zoom = Math.Min(size.Width / width, size.Height / height);
 			if (zoom != 1) {
-				clone.RenderTransform = new MatrixTransform(zoom, 0, 0, zoom, 0, 0);
+				clone.LayoutTransform = new MatrixTransform(zoom, 0, 0, zoom, 0, 0);
 				width *= zoom;
 				height *= zoom;
+				clone.MeasureAndArrange(new Size(width, height));
 			}
 
 			Canvas.SetLeft(clone, (size.Width - width) / 2);
@@ -279,6 +282,14 @@ namespace XamlImageConverter {
 			return EncoderFactory.Create(filename, quality, dpi);
 		}
 
+		public override bool MustRunOnMainThread { get { return (Scene.Source ?? "").EndsWith(".psd"); } }
+		public override bool MustRunSequential {
+			get {
+				return Root.Flatten()
+					.OfType<Snapshot>()
+					.Any(sn => sn != this && sn.Filename == Filename);	
+			}
+		}
 		/// <summary>
 		/// Creates a film strip from a bitmap collection
 		/// </summary>

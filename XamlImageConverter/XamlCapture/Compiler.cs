@@ -75,7 +75,7 @@ namespace XamlImageConverter {
 		static int id = 0;
 		public List<Process> Processes { get; set; }
 		public System.Web.HttpContext Context { get; set; }  
-		public int? hash;
+		public int? hash { get; set; }
 		[NonSerialized]
 		public List<string> TempPaths = new List<string>();
 		[NonSerialized]
@@ -159,6 +159,7 @@ namespace XamlImageConverter {
 			SourceFiles = new List<string>();
 			Parameters = new Dictionary<string, string>();
 			Processes = new List<Process>();
+			hash = null;
 		}
 
 		public Compiler(string projectPath, string libraryPath): this() { ProjectPath = projectPath; LibraryPath = libraryPath; }
@@ -261,13 +262,13 @@ namespace XamlImageConverter {
 	/*	void Init() {
 			if (!init) {
 				init = true;
-				Errors.Message("XamlImageConverter 3.6 by Chris Cavanagh & David Egli");
+				Errors.Message("XamlImageConverter 3.7 by Chris Cavanagh & David Egli");
 				Cpus = Parallel ? Environment.ProcessorCount : 1;
 				Errors.Message("Using {0} CPU Cores.", Cpus);
 			}
 		} */
 
-		void LoadDlls() {
+		public void LoadDlls() {
 			lock (DllLock) {
 				var baseDir =  AppDomain.CurrentDomain.BaseDirectory;
 				var projDir = ProjectPath;
@@ -284,7 +285,9 @@ namespace XamlImageConverter {
 							Assembly assembly;
 							//if (File.Exists(pdb)) assembly = Assembly.Load(File.ReadAllBytes(file), File.ReadAllBytes(pdb));
 							//else
-							assembly = Assembly.LoadFrom(file);
+							var aname = new AssemblyName();
+							aname.CodeBase = new Uri(file).ToString();
+							assembly = Assembly.Load(aname);
 
 							if (assembly != null) Errors.Message("Assembly {0} loaded.", Path.GetFileNameWithoutExtension(file));
 						} catch { }
@@ -317,9 +320,9 @@ namespace XamlImageConverter {
 			root.Filename = filename;
 			root.Compiler = this;
 			if (!CheckBuilding) {
-				root.Errors.Message("XamlImageConverter 3.6 by Chris Cavanagh & David Egli");
-				root.Errors.Message("{0:G}, using {1} CPU cores.", DateTime.Now, Cpus);
-				root.Errors.Message(Path.GetFileName(filename) + ":");
+				root.Errors.Status("XamlImageConverter 3.7 by Chris Cavanagh & David Egli");
+				root.Errors.Status("{0:G}, using {1} CPU cores.", DateTime.Now, Cpus);
+				root.Errors.Status(Path.GetFileName(filename) + ":");
 			}
 
 			if (string.IsNullOrEmpty(ProjectPath)) ProjectPath = Path.GetDirectoryName(filename);
@@ -368,11 +371,11 @@ namespace XamlImageConverter {
 			public Group Root;
 			public XElement config;
 			public bool CheckBuilding;
-			public List<Group> scenes;
-			public Dictionary<int, List<Step>> steps = new Dictionary<int,List<Step>>();
-			public Dictionary<int, List<Step>> todo = new Dictionary<int, List<Step>>();
-			public Dictionary<int, Group> roots = new Dictionary<int, Group>();
-			public List<Group> total = new List<Group>();
+			public List<Group> scenes = new List<Group>();
+			public List<List<Step>> steps = new List<List<Step>>();
+			public List<Queue<Step>> todo = new List<Queue<Step>>();
+			public HashSet<int> done = new HashSet<int>();
+			public List<Group> roots = new List<Group>();
 			public DateTime version;
 			int running, icpu;
 			ManualResetEvent signal = new ManualResetEvent(false);
@@ -387,6 +390,12 @@ namespace XamlImageConverter {
 				this.scenes = scenes;
 				this.CheckBuilding = CheckBuilding;
 				icpu = Cpus <= 2 ? Cpus - 1 : (new Random().Next(Cpus - 2) + 1);
+				for (int i = 0; i < Cpus; i++) {
+					steps.Add(new List<Step>());
+					todo.Add(new Queue<Step>());
+					roots.Add(null);
+				}
+				roots.Add(null);
 				Contract.Assert(icpu < Cpus);
 			}
 
@@ -402,79 +411,58 @@ namespace XamlImageConverter {
 					roots[cpu] = root;
 					s = Compiler.ParseScenes(root, version, config).ToList<Group>();
 				}
-				//steps[cpu] = s.SelectMany(st => st.Steps()).ToList();
-				steps[cpu] = new List<Step>();
-				todo[cpu] = new List<Step>();
-				foreach (var scene in s) {
-					steps[cpu].AddRange(scene.Steps());
-				}
+				steps[cpu] = s.SelectMany(st => st.Steps()).ToList();
+				todo[cpu] = new Queue<Step>();
 
+				var mysteps = steps[cpu];
 				int n;
 				lock (this) n = ++initialized;
 				
-				if (cpu == icpu) {
+				if (cpu == icpu && cpu > 0) {
 					var root = new Group();
 					root.Master = Root;
+					roots[Cpus] = root;
 					s = Compiler.ParseScenes(root, version, config).OfType<Group>().ToList();
-					var seq = s.SelectMany(st => st.Steps()).ToList();
-					var mainthread = seq.OfType<Snapshot>()
-							.Where(sn => (sn.Scene.Source ?? "").EndsWith(".psd"))
-							.ToList<Step>();
-					var sequential = seq.OfType<Snapshot>()
-							.GroupBy(sn => sn.LocalFilename)
-							.Where(g => g.Count() > 1)
-							.SelectMany(g => g)
-							.ToList<Step>();
-					sequential.RemoveAll(sn => mainthread.Contains(sn)); 
-					var todosequential = new List<Step>();
-					
-					n = 0;
-					foreach (var st in seq) {
-						if (sequential.Contains(st)) todosequential.Add(st);
-						if (st is Snapshot) {
-							if (!sequential.Contains(st)) {
-								for (int c = 0; c < Cpus; c++) {
-									if (c == 0 || !mainthread.Contains(st)) todo[c].Add(steps[c][n]);
-								}
-							}
-						} else {
-							for (int c = 0; c < Cpus; c++) {
-								 if (c == 0 || !mainthread.Contains(st)) todo[c].Add(steps[c][n]);
-							}
-							if (st is Parameters) todosequential.Add(st); 
-						}
-						n++;
-					}
-				
-					n = 0;
-					foreach (var st in todosequential) todo[cpu].Insert(n++, st);
-					if (Cpus > 1) signal.Set();
-				} else {
-					signal.WaitOne();
+					mysteps = s.SelectMany(st => st.Steps()).ToList();
+					running++;
 				}
-				Contract.Assert(steps[cpu].Count == steps[0].Count);
+				var first = new Queue<Step>(); // steps that should be processed first
+				var later = new Queue<Step>(); // steps that should be processed second
+				var hasFirst = false;
+
+				for (int i = 0; i < mysteps.Count; i++) { // split steps into first & later queues
+					var st = mysteps[i];
+					var isSeq = st.MustRunSequential && Cpus > 1; // do not process sequential steps special with only 1 cpu
+					if (isSeq) hasFirst = true;
+					if (st is Parameters || isSeq) first.Enqueue(st);
+					if (!isSeq && (cpu == 0 || !st.MustRunOnMainThread)) later.Enqueue(steps[cpu][i]);
+				}
+
+				var ct = todo[cpu]; // merge first & later queues into todo[cpu]
+				if (hasFirst && cpu == icpu && Cpus > 1) {
+					while (first.Count > 0) ct.Enqueue(first.Dequeue());
+				}
+				while (later.Count > 0) ct.Enqueue(later.Dequeue());
 			}
 
-			public Group Next(int cpu) {
+			public Step Next(int cpu) {
 				lock (this) {
-					if (todo[cpu].Count == 0) return null;
-					var step = todo[cpu][0];
-					int n;
-					if (!(step is Parameters) && (n = steps[cpu].IndexOf(step)) >= 0) {
-						for (int c = 0; c < Cpus; c++) {
-							Contract.Assert(n >= 0 && steps[c].Count > n);
-							int ix = todo[c].IndexOf(steps[c][n]);
-							if (ix >= 0) todo[c].RemoveAt(ix);
-						}
-					} else {
-						todo[cpu].RemoveAt(0);
-					}
-					return (Group)step;
+					int n = -1;
+					Step step = null;
+					do {
+						if (todo[cpu].Count == 0) return null;
+						done.Add(n);
+						step = todo[cpu].Dequeue();
+						n = steps[cpu].IndexOf(step);
+					} while (!(step is Parameters) && n >= 0 && done.Contains(n));
+					done.Add(n);
+					return step;
 				}
 			}
 
 			public void Stop(int cpu) {
 				lock (this) {
+					if (cpu == icpu) Stop(Cpus);
 					roots[cpu].Finish();
 					if (cpu != 0) {
 						List<Process> active;
@@ -530,15 +518,21 @@ namespace XamlImageConverter {
 									try {
 										step.Process();
 										step = steps.Next(cpul);
+									} catch (CompilerException cex) {
+										root.Errors.Error(cex.Message, cex.ErrorCode.ToString(), cex.XObject);
 									} catch (Exception ex) {
 										root.Errors.Warning("An internal error occurred\n\n" + ex.Message + "\n" + ex.StackTrace, "2", null);
 									}
 								}
+							} catch (CompilerException cex) {
+								root.Errors.Error(cex.Message, cex.ErrorCode.ToString(), cex.XObject);
 							} catch (Exception ex) {
 								root.Errors.Warning("An internal error occurred\n\n" + ex.Message + "\n" + ex.StackTrace, "2", null);
 							} finally {
 								steps.Stop(cpul);
 							}
+						} catch (CompilerException cex) {
+							root.Errors.Error(cex.Message, cex.ErrorCode.ToString(), cex.XObject);
 						} catch (Exception ex) {
 							root.Errors.Warning("An internal error occurred\n\n" + ex.Message + "\n" + ex.StackTrace, "2", null);
 						} finally {

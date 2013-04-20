@@ -6,4 +6,7 @@
   <PropertyGroup>
     <ProjectView>ShowAllFiles</ProjectView>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <StartArguments>-p "C:\Code\Visitenkarte\Jakob Wampfler" -l "C:\Code\Visitenkarte\Jakob Wampfler\bin\Release" -w -f ~/CreateImages.xic.xaml</StartArguments>
+  </PropertyGroup>
 </Project>
