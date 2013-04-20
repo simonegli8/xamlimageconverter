@@ -14,8 +14,8 @@
     <ProjectGuid>{DBCE3A50-EEF6-471D-89C8-CCE2A1134E1D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>XamlImageConverter.VSIX</RootNamespace>
-    <AssemblyName>XamlImageConverter.VSIX</AssemblyName>
+    <RootNamespace>XamlImageConverter</RootNamespace>
+    <AssemblyName>XamlImageConverter37</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <GeneratePkgDefFile>false</GeneratePkgDefFile>
     <IncludeAssemblyInVSIXContainer>false</IncludeAssemblyInVSIXContainer>
@@ -62,6 +62,7 @@
     </Content>
     <Content Include="Demo\Readme.aspx">
       <IncludeInVSIX>true</IncludeInVSIX>
+      <SubType>ASPXCodeBehind</SubType>
     </Content>
     <Content Include="Demo\SiteSpecification.xml">
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -162,6 +163,7 @@
     <Content Include="license.rtf">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <None Include="source.extension.vsixmanifest" />
     <Content Include="XamlImageConverter.dll">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -194,7 +196,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <None Include="source.extension.vsixmanifest">
+    <None Include="source.extension.vsixmanifest.new">
       <SubType>Designer</SubType>
     </None>
     <Content Include="XamlImageConverter.targets">

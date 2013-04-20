@@ -334,11 +334,11 @@ namespace XamlImageConverter {
 			var handlers = server.Element("handlers");
 			if (handlers == null) server.Add(handlers = new XElement("handlers"));
 			handlers.Elements().Where(x => ((string)x.Attribute("type") ?? "").Contains("PublicKeyToken=60c2ec984bc1bb45")).Remove();
-			handlers.Add(XElement.Parse("<add name='XamlImageConverter.Xaml' verb='*' path='*.xaml' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.7.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-					XElement.Parse("<add name='XamlImageConverter.Svg' verb='*' path='*.svg' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.7.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-					XElement.Parse("<add name='XamlImageConverter.Svgz' verb='*' path='*.svgz' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.7.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-					XElement.Parse("<add name='XamlImageConverter.Psd' verb='*' path='*.psd' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.7.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-					XElement.Parse("<add name='XamlImageConverter.Dynamic' verb='*' path='xic.axd' preCondition='integratedMode' type='Silversite.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.7.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
+			handlers.Add(XElement.Parse("<add name='XamlImageConverter.Xaml' verb='*' path='*.xaml' preCondition='integratedMode' type='XamlImageConverter.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.7.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
+					XElement.Parse("<add name='XamlImageConverter.Svg' verb='*' path='*.svg' preCondition='integratedMode' type='XamlImageConverter.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.7.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
+					XElement.Parse("<add name='XamlImageConverter.Svgz' verb='*' path='*.svgz' preCondition='integratedMode' type='XamlImageConverter.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.7.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
+					XElement.Parse("<add name='XamlImageConverter.Psd' verb='*' path='*.psd' preCondition='integratedMode' type='XamlImageConverter.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.7.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
+					XElement.Parse("<add name='XamlImageConverter.Dynamic' verb='*' path='xic.axd' preCondition='integratedMode' type='XamlImageConverter.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.7.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
 
 			// system.web
 			var web = webconfig.Element("system.web");
@@ -358,14 +358,14 @@ namespace XamlImageConverter {
 			var controls = pages.Element("controls");
 			if (controls == null) pages.Add(controls = new XElement("controls"));
 			controls.Elements().Where(x => ((string)x.Attribute("assembly") ?? "").Contains("PublicKeyToken=60c2ec984bc1bb45")).Remove();
-			controls.Add(XElement.Parse("<add tagPrefix='xic' namespace='Silversite.Web.UI' assembly='XamlImageConverter.Web, Version=3.7.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
+			controls.Add(XElement.Parse("<add tagPrefix='xic' namespace='XamlImageConverter.Web.UI' assembly='XamlImageConverter.Web, Version=3.7.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
 
 			/*
 			// httpHandlers
 			var httpHandlers = web.Element("httpHandlers");
 			if (httpHandlers == null) web.Add(httpHandlers = new XElement("httpHandlers"));
 			httpHandlers.Elements().Where(x => ((string)x.Attribute("type") ?? "").Contains("PublicKeyToken=60c2ec984bc1bb45")).Remove();
-			httpHandlers.Add(new XComment("<add verb='*' path='*.xic.xaml;xic.axd;*.xaml.???;*.svg.???;*.psd.???;*.svgz.???;*.xaml.ps;*.svg.ps;*.psd.ps;*.svgz.ps' type='Silversite.Web.XamlImageConverter, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
+			httpHandlers.Add(new XComment("<add verb='*' path='*.xic.xaml;xic.axd;*.xaml.???;*.svg.???;*.psd.???;*.svgz.???;*.xaml.ps;*.svg.ps;*.psd.ps;*.svgz.ps' type='XamlImageConverter.Web.XamlImageConverter, XamlImageConverter.Web, Version=3.5.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
 			*/
 
 			File.Copy(conf, conf + ".backup");
