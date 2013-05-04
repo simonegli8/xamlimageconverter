@@ -3,7 +3,7 @@
 	<Identifier Id="XamlImageConverter.2c5e9477-428f-4362-a5b5-d8c2d6ec2605">
 		<Name>Xaml Image Converter</Name>
 		<Author>David Egli</Author>
-		<Version>3.7</Version>
+		<Version>3.8</Version>
 		<AllUsers>true</AllUsers>
 		<Description xml:space="preserve">Renders images, animations, html image maps &amp; pdf's from Xaml, SVG &amp; Photoshop files.
 

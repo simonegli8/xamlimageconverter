@@ -262,7 +262,7 @@ namespace XamlImageConverter {
 	/*	void Init() {
 			if (!init) {
 				init = true;
-				Errors.Message("XamlImageConverter 3.7 by Chris Cavanagh & David Egli");
+				Errors.Message("XamlImageConverter 3.8 by Chris Cavanagh & David Egli");
 				Cpus = Parallel ? Environment.ProcessorCount : 1;
 				Errors.Message("Using {0} CPU Cores.", Cpus);
 			}
@@ -309,9 +309,12 @@ namespace XamlImageConverter {
 
 			SkinPath = ProjectPath;
 			bool xaml = false;
+			string dxaml = null;
 			if (filename.Trim()[0] == '#') filename = (string)Context.Session[filename];
 			if (filename.Trim()[0] == '<') {
+				dxaml = filename;
 				var res = Parameters.TryGetValue("File", out filename) || Parameters.TryGetValue("Filename", out filename) || Parameters.TryGetValue("Image", out filename);
+				if (!res) filename = Path.Combine(SkinPath, "direct.xic.xaml");
 				xaml = true;
 			}
 			filename = MapPath(filename);
@@ -320,7 +323,7 @@ namespace XamlImageConverter {
 			root.Filename = filename;
 			root.Compiler = this;
 			if (!CheckBuilding) {
-				root.Errors.Status("XamlImageConverter 3.7 by Chris Cavanagh & David Egli");
+				root.Errors.Status("XamlImageConverter 3.8 by Chris Cavanagh & David Egli");
 				root.Errors.Status("{0:G}, using {1} CPU cores.", DateTime.Now, Cpus);
 				root.Errors.Status(Path.GetFileName(filename) + ":");
 			}
@@ -340,7 +343,7 @@ namespace XamlImageConverter {
 				var ext = Path.GetExtension(filename).ToLower();
 				if (xaml) {
 					Version = DateTime.MinValue;
-					using (var r = new StringReader(filename)) {
+					using (var r = new StringReader(dxaml)) {
 						var xdoc = XElement.Load(r, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo | LoadOptions.SetBaseUri);
 						if (xdoc.Name == xic+"XamlImageConverter" || xdoc.Name == sb+"SkinBuilder") config = xdoc;
 						else config = XamlScene.CreateDirect(this, null, xdoc, Parameters);
@@ -603,7 +606,7 @@ namespace XamlImageConverter {
 						var current = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
 						var setup = new AppDomainSetup();
 						setup.ApplicationBase = ProjectPath;
-						setup.PrivateBinPath = MapPath("~/bin") + ";" + MapPath("~/bin/Lazy") + ";" + MapPath("~/bin/Debug") + ";" + MapPath("~/bin/Release");
+						setup.PrivateBinPath = MapPath("~/bin") + ";" + MapPath("~/bin/Lazy") + ";" + MapPath("~/bin/Debug") + ";" + MapPath("~/bin/Release") + ";" + MapPath("~/");
 						setup.ShadowCopyDirectories = setup.PrivateBinPath + ";" + current;
 						setup.ShadowCopyFiles = "true";
 						var domain = AppDomain.CreateDomain("XamlImageConverter Compiler", null, setup);
@@ -617,8 +620,10 @@ namespace XamlImageConverter {
 						{
 
 							Compiler compiler = null;
-							if (source == null) compiler = (Compiler)domain.CreateInstanceFromAndUnwrap(aname.CodeBase, "XamlImageConverter.Compiler");
-							else compiler = (Compiler)domain.CreateInstanceAndUnwrap(aname.FullName, "XamlImageConverter.Compiler");
+							if (source == null)
+								compiler = (Compiler)domain.CreateInstanceFromAndUnwrap(aname.CodeBase, "XamlImageConverter.Compiler");
+							else
+								compiler = (Compiler)domain.CreateInstanceAndUnwrap(aname.FullName, "XamlImageConverter.Compiler");
 
 							compiler.InitDomain();
 							CopyTo(compiler);

@@ -69,6 +69,9 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="WindowsBase" />
+    <Reference Include="XamlImageConverter.Web">
+      <HintPath>..\..\homesell\homesell.ch\Bin\XamlImageConverter.Web.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Silversite\Files.cs" />

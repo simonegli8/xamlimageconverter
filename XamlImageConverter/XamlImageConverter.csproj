@@ -629,7 +629,7 @@
     <Compile Include="XamlCapture\ImageMap.cs" />
     <Compile Include="XamlCapture\Snapshot.cs" />
     <Compile Include="XamlCapture\ThemeHelper.cs" />
-    <Compile Include="XamlCapture\Web.cs" />
+    <Compile Include="XamlCapture\WebFiles.cs" />
     <Compile Include="XamlCapture\WPFExtensions.cs" />
     <Compile Include="XamlImageHandler.cs" />
     <Compile Include="Logger.cs" />

@@ -4,8 +4,6 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using Silversite;
-using Silversite.Web.UI;
 using XamlImageConverter.Web.UI;
 
 namespace XamlImageConverter.Web.UI {
@@ -41,22 +39,35 @@ namespace XamlImageConverter.Web.UI {
 			base.CreateChildControls();
 			var xaml = new XamlImage();
 
+			var cssclass = CssClass;
+			if (string.IsNullOrEmpty(cssclass)) cssclass = "";
+			else cssclass = " " + cssclass;
+
+			var source = Source;
+			if (!Source.StartsWith("~") && !Source.StartsWith("http")) {
+				var path = Page.AppRelativeVirtualPath;
+				var slash = path.LastIndexOf('/');
+				if (slash >= 0) path = path.Substring(0, slash+1);
+				Source = path + Source;
+			}
+
 			if (Mode == Modes.Select) {
 				var boxlist = new CheckBoxList();
 				int n = 0;
 				if (string.IsNullOrEmpty(IDs)) IDs = Regions;
 				
-				var ids = IDs.Tokens();
-				foreach (var region in Regions.Tokens()) {
+				var ids = IDs.Split(new char[] { ',',';' }, StringSplitOptions.RemoveEmptyEntries)
+					.Select(id => id.Trim())
+					.ToList();
+				foreach (var region in Regions.Split(new char[] { ',',';' }, StringSplitOptions.RemoveEmptyEntries).Select(reg => reg.Trim())) {
 					var listItem = new ListItem();
 					listItem.Attributes["id"] = "checkbox_" + IDs;
 					boxlist.Items.Add(new ListItem(region, n.ToString()));
 				}
-
-				var script = new Script();
-				script.Text = "var selected function(id) { var box = $('#checkbox_' + id); box.prop(\"checked\", !box.attr(\"checked\")); };";
-				var src = "<xic:XamlImageProvider xmlns=\"http://schemas.johnshope.com/XamlImageConverter/2012\"><xic:Scene Source=\"" + Source + "\"><xic:Snapshot Type=\"png\" >" +
-					"<xic:Map File=\"" + Source + ".ascx\" Scale=\"" + Scale + "\"><xic:Areas Elements=\"" + IDs + "\" onclick=\"selected(%ID%);\" href=\"#\" /></xic:Map>";
+			
+				Page.ClientScript.RegisterClientScriptBlock(typeof(Map), ClientID, "var xic_selected = function(id) { var box = $('#checkbox_' + id); box.prop(\"checked\", !box.attr(\"checked\")); };");
+				var src = "<XamlImageConverter xmlns=\"http://schemas.johnshope.com/XamlImageConverter/2012\"><Scene Source=\"" + Source + "\"><Snapshot Type=\"png\" />" +
+					"<Map File=\"" + Source + ".ascx\" Scale=\"" + Scale + "\" class=\"xic_map" + cssclass + "\"><Areas Elements=\"" + IDs + "\" onclick=\"xic_selected(%ID%);\" href=\"#\" /></Map></Scene></XamlImageConverter>";
 				Compiler.Compile(src);
 
 				var div = new Panel();
@@ -85,8 +96,8 @@ namespace XamlImageConverter.Web.UI {
 				var box = new Panel();
 
 				if (string.IsNullOrEmpty(ID)) ID = "map." + (no++).ToString();
-				var src = "<xic:XamlImageProvider xmlns=\"http://schemas.johnshope.com/XamlImageConverter/2012\"><xic:Scene Source=\"" + Source + "\"><xic:Snapshot Type=\"png\" >" +
-					"<xic:Map File=\"" + Source + ".ascx\" Scale=\"" + Scale + "\" ><xic:Areas Elements=\"" + IDs + "\" onclick=\"_doPostBack('" + box.ClientID + "','%ID%');\" /></xic:Map>";
+				var src = "<XamlImageConverter xmlns=\"http://schemas.johnshope.com/XamlImageConverter/2012\"><Scene Source=\"" + Source + "\"><Snapshot Type=\"png\" />" +
+					"<Map File=\"" + Source + ".ascx\" Scale=\"" + Scale + "\" class=\"xic_map" + cssclass + "\"><Areas Elements=\"" + IDs + "\" onclick=\"_doPostBack('" + box.ClientID + "','%ID%');\" /></Map></Scene></XamlImageConverter>";
 				Compiler.Compile(src);
 
 				var img = new Image();

@@ -9,18 +9,19 @@ namespace XamlImageConverter.Web.UI {
 
 	public class Compiler {
 
+		static object compiler = null;
+
 		public static void Compile(string xic) {
-			var checker = new XamlBuildCheck();
-			object compiler = null;
+			var checker = new XamlBuildCheck() { Context = System.Web.HttpContext.Current };
+			
 			if (checker.NeedsBuilding(xic)) {
 #if Silversite
 						var handlerInfo = Services.Lazy.Types.Info("XamlImageConverter.Compiler");
 						handlerInfo.Load();
-						compiler = handlerInfo.New();
+						Compiler = handlerInfo.New();
 #else
-				var assemblyfile = HostingEnvironment.MapPath("~/Bin.Lazy/XamlImageConverter.dll");
+				var assemblyfile = HostingEnvironment.MapPath("~/Bin/Lazy/XamlImageConverter.dll");
 				if (!System.IO.File.Exists(assemblyfile)) assemblyfile = HostingEnvironment.MapPath("~/Silversite/BinLazy/XamlImageConverter.dll");
-				if (!System.IO.File.Exists(assemblyfile)) assemblyfile = HostingEnvironment.MapPath("~/Bin/Lazy/XamlImageConverter.dll");
 				var aname = new System.Reflection.AssemblyName("XamlImageConverter");
 				aname.CodeBase = new Uri(assemblyfile).ToString();
 				var a = System.Reflection.Assembly.Load(aname);
@@ -36,7 +37,7 @@ namespace XamlImageConverter.Web.UI {
 				libraryPath.SetValue(compiler, HostingEnvironment.MapPath("~/bin"));
 				var sources = new List<string>() { xic };
 				sourceFiles.SetValue(compiler, sources);
-				var compile = ct.GetMethod("Compile");
+				var compile = ct.GetMethod("Compile", new Type[0]);
 				compile.Invoke(compiler, new object[0]);
 			}
 		}

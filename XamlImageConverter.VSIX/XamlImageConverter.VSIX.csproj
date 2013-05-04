@@ -62,7 +62,6 @@
     </Content>
     <Content Include="Demo\Readme.aspx">
       <IncludeInVSIX>true</IncludeInVSIX>
-      <SubType>ASPXCodeBehind</SubType>
     </Content>
     <Content Include="Demo\SiteSpecification.xml">
       <IncludeInVSIX>true</IncludeInVSIX>

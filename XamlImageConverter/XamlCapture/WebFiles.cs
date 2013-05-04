@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace XamlImageConverter {
 
-	public class Web {
+	public class WebFiles {
 
 		public static string Combine(string path1, string path2) {
 			string path = "";
