@@ -110,6 +110,10 @@ namespace XamlImageConverter.Web {
 
 		public bool NeedsBuilding() {
 			var file = HttpContext.Current.Request.AppRelativeCurrentExecutionFilePath;
+			return NeedsBuilding(file);
+		}
+
+		public bool NeedsBuilding(string file) {
 			var ext = Path.GetExtension(file).ToLower();
 
 			if (ext == ".axd") {
@@ -400,6 +404,10 @@ namespace XamlImageConverter.Web {
 
 		static System.Web.IHttpHandler handler = null;
 
+		public void Compile(string xic) {
+		
+		}
+
 		public void ProcessRequest(System.Web.HttpContext context) {
 			
 			var checker = new XamlBuildCheck() { Context = context };
@@ -413,8 +421,8 @@ namespace XamlImageConverter.Web {
 						handler = handlerInfo.New<IHttpHandler>();
 #else
 						var assemblyfile = context.Server.MapPath("~/Bin.Lazy/XamlImageConverter.dll");
+						if (!File.Exists(assemblyfile)) assemblyfile = context.Server.MapPath("~/Silversite/BinLazy/XamlImageConverter.dll");
 						if (!File.Exists(assemblyfile)) assemblyfile = context.Server.MapPath("~/Bin/Lazy/XamlImageConverter.dll");
-						if (!File.Exists(assemblyfile)) assemblyfile = context.Server.MapPath("~/Silversite/Bin/XamlImageConverter.dll");
 						var aname = new AssemblyName("XamlImageConverter");
 						aname.CodeBase = new Uri(assemblyfile).ToString();
 						var a = Assembly.Load(aname);
