@@ -33,10 +33,14 @@ namespace XamlImageConverter.Web.UI {
 				var projectPath = ct.GetProperty("ProjectPath");
 				var libraryPath = ct.GetProperty("LibraryPath");
 				var sourceFiles = ct.GetProperty("SourceFiles");
+				var separateAppDomain = ct.GetProperty("SeparateAppDomain");
+				var rebuildAll = ct.GetProperty("RebuildAll");
 				projectPath.SetValue(compiler, HostingEnvironment.MapPath("~"));
 				libraryPath.SetValue(compiler, HostingEnvironment.MapPath("~/bin"));
 				var sources = new List<string>() { xic };
 				sourceFiles.SetValue(compiler, sources);
+				separateAppDomain.SetValue(compiler, false);
+				rebuildAll.SetValue(compiler, xic.Contains('<'));
 				var compile = ct.GetMethod("Compile", new Type[0]);
 				compile.Invoke(compiler, new object[0]);
 			}

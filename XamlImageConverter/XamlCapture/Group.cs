@@ -163,6 +163,10 @@ namespace XamlImageConverter {
 			return a != null ? f(a) : default(T);
 		}
 
+		public class HtmlSource: FrameworkElement {
+			public string Source { get; set; }
+		}
+
 		FrameworkElement element = null;
 		public FrameworkElement Element {
 			get {
@@ -185,10 +189,15 @@ namespace XamlImageConverter {
 									session = Source;
 									directXaml = (string)Compiler.Context.Session[session];
 								} else {
-									info = new FileInfo(Compiler.MapPath(Source));
-									file = info.FullName;
-									using (FileLock(file)) {
-										version = info.LastWriteTimeUtc;
+									if (!(Source.StartsWith("http://") || Source.StartsWith("https://"))) {
+										info = new FileInfo(Compiler.MapPath(Source));
+										file = info.FullName;
+										using (FileLock(file)) {
+											version = info.LastWriteTimeUtc;
+										}
+									} else {
+										file = Source;
+										version = DateTime.MaxValue;
 									}
 								}
 
@@ -239,6 +248,8 @@ namespace XamlImageConverter {
 
 								if (session == null && Source.ToLower().EndsWith(".svg")) {
 									using (FileLock(file)) element = SvgConvert.ConvertUtility.LoadSvg(file);
+								} else if (session == null && (Source.ToLower().EndsWith(".html") || Source.ToLower().EndsWith(".htm") || Source.ToLower().StartsWith("http://") || Source.ToLower().StartsWith("https://"))) {
+									return new HtmlSource { Source = Source };
 								} else {
 									if (directXaml != null) {// file is direct xaml
 										try {
@@ -613,7 +624,9 @@ namespace XamlImageConverter {
 
 		public IEnumerable<Step> Steps() { return Flatten(); }
 
-		public void Cleanup() { }
+		public virtual void Cleanup() {
+			foreach (var child in Children.OfType<Group>()) child.Cleanup(); 
+		}
 
 		public void SaveXps() {
 			foreach (var key in XpsDocs.Keys.ToList()) {
@@ -678,7 +691,7 @@ namespace XamlImageConverter {
 			}
 		}
 
-		public void Finish() {
+		public virtual void Finish() {
 			SaveXps();
 			//ImageMagickEncoder.SaveAll(Processes, compiler.Errors);
 
@@ -787,7 +800,8 @@ namespace XamlImageConverter {
 				if (NeedsBuilding) Save();
 				else Errors.Note(string.Format("{0} is up to date.", Filename));
 			} catch (CompilerException cex) {
-				Errors.Error(cex.Message, cex.ErrorCode.ToString(), cex.XObject);
+				//Errors.Error(cex.Message, cex.ErrorCode.ToString(), cex.XObject);
+				Compiler.HandleException(cex, Errors);
 			} catch (Exception ex) {
 				Errors.Warning("An internal error occurred\n\n" + ex.Message + "\n" + ex.StackTrace, "2", XElement);
 			}

@@ -99,11 +99,11 @@
 		<xic:Snapshot File="usa.map.png" />
 		<xic:Snapshot File="usa.map.xaml" />
 
-		<xic:Map Image="usa.map.png" File="usa.map.html" ID="usa">
-			<Areas Elements="WA;OR;CA;AK;ID;NV;AZ;UT;MT;WY;CO;NM;TX;OK;KS;NE;SD;ND;MN;IA;MO;AR;LA;WI;IL;TN;MS;MI;IN;KY;AL;FL;GA;SC;NC;VA;WV;OH;PA;MD;NJ;NY;CT;MA;VT;NH;ME;RI;DE,HI" onclick="alert('State %ID% clicked...');" />
+		<xic:Map Image="usa.map.png" File="Usa.Map.html" ID="usa">
+			<xic:Areas Elements="WA;OR;CA;AK;ID;NV;AZ;UT;MT;WY;CO;NM;TX;OK;KS;NE;SD;ND;MN;IA;MO;AR;LA;WI;IL;TN;MS;MI;IN;KY;AL;FL;GA;SC;NC;VA;WV;OH;PA;MD;NJ;NY;CT;MA;VT;NH;ME;RI;DE,HI" onclick="alert('State %ID% clicked...');" />
 		</xic:Map>
 		<xic:ImageMap Image="usa.map.png" File="Readme.aspx" ID="usa">
-			<HotSpots Elements="WA;OR;CA;AK;ID;NV;AZ;UT;MT;WY;CO;NM;TX;OK;KS;NE;SD;ND;MN;IA;MO;AR;LA;WI;IL;TN;MS;MI;IN;KY;AL;FL;GA;SC;NC;VA;WV;OH;PA;MD;NJ;NY;CT;MA;VT;NH;ME;RI;DE,HI" PostBackValue="%ID%" />
+			<xic:HotSpots Elements="WA;OR;CA;AK;ID;NV;AZ;UT;MT;WY;CO;NM;TX;OK;KS;NE;SD;ND;MN;IA;MO;AR;LA;WI;IL;TN;MS;MI;IN;KY;AL;FL;GA;SC;NC;VA;WV;OH;PA;MD;NJ;NY;CT;MA;VT;NH;ME;RI;DE,HI" PostBackValue="%ID%" />
 		</xic:ImageMap>
 
 	</xic:Scene>
@@ -123,5 +123,9 @@
 		<xic:Snapshot File="button.scene.png" />
 		<xic:Snapshot Element="Button" File="button.png" />
 	</xic:Scene>
-	
+
+	<xic:Scene Source="http://www.msn.com">
+		<xic:Snapshot File="~/img/msn.pdf" Page="A4" />
+	</xic:Scene>
+
 </xic:XamlImageConverter>

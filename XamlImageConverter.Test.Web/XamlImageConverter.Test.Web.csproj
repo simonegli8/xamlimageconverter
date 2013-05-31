@@ -73,8 +73,6 @@
     <Content Include="XamlImageConverter.Demo\Kaxaml.gif" />
     <Content Include="XamlImageConverter.Demo\Readme.aspx" />
     <Content Include="XamlImageConverter.Demo\generic-lines.png" />
-    <Content Include="XamlImageConverter.Demo\jquery.js" />
-    <Content Include="XamlImageConverter.Demo\jquery.maphilight.min.js" />
     <Content Include="XamlImageConverter.Demo\SiteSpecification.xml" />
     <Content Include="XamlImageConverter.Demo\Tux.svg" />
     <Content Include="XamlImageConverter.Demo\Usa.Map.html" />

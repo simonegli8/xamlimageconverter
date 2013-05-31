@@ -170,7 +170,7 @@ namespace XamlImageConverter.Web {
 					var type = x.Attribute("Type");
 					if (type != null) file = source + "." + type.Value;
 				}
-				if (snapshot && OutFile(file)) return true;
+				if ((snapshot || map) && OutFile(file)) return true;
 				if (groupOrSnapshot) return x.Elements().Any(s => ParseSteps(s, source));
 				return false;
 			}

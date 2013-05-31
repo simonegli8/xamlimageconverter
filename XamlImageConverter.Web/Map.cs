@@ -22,6 +22,7 @@ namespace XamlImageConverter.Web.UI {
 		public int LegendTop { get; set; }
 		public int LegendLeft {get; set; }
 		public string CssClass { get; set; }
+		public int RepeatColumns { get; set; }
 		public event EventHandler Submit;
 		
 		static int no = 0;
@@ -33,7 +34,10 @@ namespace XamlImageConverter.Web.UI {
 			Legend = false;
 			Selected = "";
 			Scale = 1;
+			LegendLeft = 15;
 		}
+
+		Image img;
 
 		protected override void CreateChildControls() {
 			base.CreateChildControls();
@@ -65,21 +69,27 @@ namespace XamlImageConverter.Web.UI {
 					boxlist.Items.Add(new ListItem(region, n.ToString()));
 				}
 			
-				Page.ClientScript.RegisterClientScriptBlock(typeof(Map), ClientID, "var xic_selected = function(id) { var box = $('#checkbox_' + id); box.prop(\"checked\", !box.attr(\"checked\")); };");
-				var src = "<XamlImageConverter xmlns=\"http://schemas.johnshope.com/XamlImageConverter/2012\"><Scene Source=\"" + Source + "\"><Snapshot Type=\"png\" />" +
-					"<Map File=\"" + Source + ".ascx\" Scale=\"" + Scale + "\" class=\"xic_map" + cssclass + "\"><Areas Elements=\"" + IDs + "\" onclick=\"xic_selected(%ID%);\" href=\"#\" /></Map></Scene></XamlImageConverter>";
+				Page.ClientScript.RegisterClientScriptBlock(typeof(Map), ClientID, "<script language=\"javascript\">var xic_selected = function(id) { var box = $('#checkbox_' + id); box.prop(\"checked\", !box.attr(\"checked\")); };</script>");
+				var mapid = "xic_map_map_" + (no++).ToString();
+				var src = "<XamlImageConverter xmlns=\"http://schemas.johnshope.com/XamlImageConverter/2012\"><Scene Source=\"" + Source + "\"><Snapshot Type=\"png\" Scale=\"" + Scale + "\" />" +
+					"<Map ID=\"" + mapid + "\" File=\"" + Source + ".ascx\" Image=\"" + Source + ".png\" Scale=\"" + Scale + "\" class=\"xic_map" + cssclass + "\"><Areas Elements=\"" + IDs + "\" onclick=\"xic_selected(%ID%);\" href=\"#\" /></Map></Scene></XamlImageConverter>";
 				Compiler.Compile(src);
 
 				var div = new Panel();
-				div.Style[HtmlTextWriterStyle.Position] = "absolute";
+				div.Style[HtmlTextWriterStyle.Position] = "relative";
+				div.Style.Add("float", "left");
 				var div2 = new Panel();
-				div2.Style[HtmlTextWriterStyle.Position] = "relative; top=" + LegendTop.ToString() + "left=" + LegendLeft.ToString();
+				div2.Style[HtmlTextWriterStyle.Position] = "relative; top=" + LegendTop.ToString() + "; left=" + LegendLeft.ToString();
 
 				div.Controls.Add(div2);
 				div2.Controls.Add(boxlist);
+				boxlist.RepeatColumns = RepeatColumns == 0 ? 1 : RepeatColumns;
 
-				var img = new Image();
-				img.ImageUrl = Source + ".png";
+				img = new Image();
+				img.ImageUrl =  Page.ResolveClientUrl(Source + ".png");
+				img.Style.Add("float", "left");
+				img.CssClass = "xic_map" + cssclass;
+				img.Attributes["usemap"] = "#" + mapid;
 				var submit = new Button();
 				submit.Text = SubmitText;
 				submit.Click += (sender, args) => { if (Submit != null) Submit(sender, args); };
@@ -95,13 +105,16 @@ namespace XamlImageConverter.Web.UI {
 			} else {
 				var box = new Panel();
 
-				if (string.IsNullOrEmpty(ID)) ID = "map." + (no++).ToString();
-				var src = "<XamlImageConverter xmlns=\"http://schemas.johnshope.com/XamlImageConverter/2012\"><Scene Source=\"" + Source + "\"><Snapshot Type=\"png\" />" +
-					"<Map File=\"" + Source + ".ascx\" Scale=\"" + Scale + "\" class=\"xic_map" + cssclass + "\"><Areas Elements=\"" + IDs + "\" onclick=\"_doPostBack('" + box.ClientID + "','%ID%');\" /></Map></Scene></XamlImageConverter>";
+				var mapid = "xic_map_map_" + (no++).ToString();
+				var src = "<XamlImageConverter xmlns=\"http://schemas.johnshope.com/XamlImageConverter/2012\"><Scene Source=\"" + Source + "\"><Snapshot Type=\"png\" Scale=\"" + Scale + "\" />" +
+					"<Map ID=\"" + mapid + "\" File=\"" + Source + ".ascx\" Image=\"" + Source + ".png\" Scale=\"" + Scale + "\" class=\"xic_map" + cssclass + "\"><Areas Elements=\"" + IDs + "\" onclick=\"_doPostBack('" + box.ClientID + "','%ID%');\" /></Map></Scene></XamlImageConverter>";
 				Compiler.Compile(src);
 
 				var img = new Image();
-				img.ImageUrl  = Source + ".png";
+				img.ImageUrl = Page.ResolveClientUrl(Source + ".png");
+				img.Attributes["usemap"] = "#" + mapid;
+				img.CssClass = "xic_map" + cssclass;
+
 				var map = LoadControl(Source + ".ascx");
 
 				box.Controls.Add(img);
@@ -109,7 +122,6 @@ namespace XamlImageConverter.Web.UI {
 				
 				Controls.Add(box);
 			}
-
 		}
 	}
 

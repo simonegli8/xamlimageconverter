@@ -122,7 +122,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="img\ImageMaps\Readme.aspx">
-      <SubType>ASPXCodeBehind</SubType>
+      <SubType>
+      </SubType>
     </Content>
     <Content Include="img\ImageMaps\usa.map.html" />
     <Content Include="src\blog-banner.jpg" />

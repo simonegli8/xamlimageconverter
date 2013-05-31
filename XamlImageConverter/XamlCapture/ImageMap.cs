@@ -46,7 +46,6 @@ namespace XamlImageConverter {
 		public ImageMap() {
 			Flatness = 0.5;
 			FileType = FileTypes.UserControl;
-			Scale = 1;
 		}
 
 		public override bool ParseChildren { get { return false; } }

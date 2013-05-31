@@ -54,8 +54,8 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="XamlControls.cs" />
+    <Compile Include="XamlImageConverterElements.cs" />
     <Compile Include="XamlImageConverterLazyHandler.cs" />
-    <Compile Include="XamlImgeConverterElements.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="sgKey.snk" />

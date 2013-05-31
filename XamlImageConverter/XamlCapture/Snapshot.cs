@@ -40,6 +40,7 @@ namespace XamlImageConverter {
 		public double Pause { get; set; }
 		public string Type { get; set; }
 		public int? Hash { get; set; }
+		public double Scale { get; set; }
 
 		public IEnumerable<BitmapSource> Bitmaps;
 
@@ -197,9 +198,13 @@ namespace XamlImageConverter {
 			}
 
 			ext = ext.ToLower();
+			if (ext != ".pdf" && Scene.Element is HtmlSource) Errors.Error("Html sources can only be converted to PDF.", "60", XElement);
 			if (ext == ".eps" || ext == ".ps" || ext == ".pdf") {
-				TempFiles.Add(XpsTempFile);
-				SaveXpsPage(filename + "._temp.xps");
+				if (Scene.Element is HtmlSource) SaveHtml();
+				else {
+					TempFiles.Add(XpsTempFile);
+					SaveXpsPage(filename + "._temp.xps");
+				}
 			} else if (ext == ".xps") SaveXpsPage(filename);
 			else if (ext == ".xaml") {
 				using (FileLock(filename)) {
@@ -271,7 +276,31 @@ namespace XamlImageConverter {
 			return this;
 		}
 
+		private Html2PDFConverter Html2PDF = null;
+		
+		public interface Html2PDFConverter {
+			void SaveAsnc(Snapshot s);
+			void AwaitSave();
+		}
 
+		public void SaveHtml() {
+
+			if (Html2PDF == null) {
+				var apath = Compiler.BinPath("Lazy\\Awesomium\\");
+				var aname = new System.Reflection.AssemblyName("XamlImageConverter.Awesomium, Version=3.9.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45");
+				aname.CodeBase = apath + "XamlImageConverter.Awesomium.dll";
+				var a = System.Reflection.Assembly.Load(aname);
+				var Html2PDFType = a.GetType("XamlImageConverter.Html2PDF");
+				Html2PDF = (Html2PDFConverter)Activator.CreateInstance(Html2PDFType);
+			}
+			Html2PDF.SaveAsnc(this);
+		}
+
+		public override void Cleanup() {
+			base.Cleanup();
+			if (Html2PDF != null) 
+				Html2PDF.AwaitSave();
+		}
 
 		/// <summary>
 		/// Create a <see cref="BitmapEncoder"/> based on the target file extension

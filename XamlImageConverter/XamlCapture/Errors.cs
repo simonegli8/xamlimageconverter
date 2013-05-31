@@ -145,10 +145,11 @@ namespace XamlImageConverter {
 		public void Note(string message, params object[] args) { Write(Path, string.Format(message, args), string.Empty, new TextSpan(), Severity.Note); }
 		public void Error(string message, string errorCode, TextSpan span) { Write(Path, message, errorCode, span, Severity.Error); }
 		public void Warning(string message, string errorCode, TextSpan span) { Write(Path, message, errorCode, span, Severity.Warning); }
-		public void Error(string message, string errorCode, XObject xobj) { HasErrors = true; Write(Path, message, errorCode, new TextSpan(xobj), Severity.Error); }
+		public void Error(string message, string errorCode, XObject xobj = null) { HasErrors = true; Write(Path, message, errorCode, new TextSpan(xobj), Severity.Error); }
 		public void Warning(string message, string errorCode, XObject xobj) { Write(Path, message, errorCode, new TextSpan(xobj), Severity.Warning); }
 		public void Status(string message) { Write(Path, message, string.Empty, new TextSpan(), Severity.Status); }
 		public void Status(string message, params object[] args) { Write(Path, string.Format(message, args), string.Empty, new TextSpan(), Severity.Status); }
+		public void Error(string message, string errorCode, Snapshot s) { HasErrors = true; Write(Path, System.IO.Path.GetFileName(s.Filename) + ": " +  message, errorCode, new TextSpan(s.XElement), Severity.Error); }
 		public void Clear() {
 			foreach (var log in Loggers) log.Clear(Path);
 		}

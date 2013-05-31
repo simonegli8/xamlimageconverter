@@ -75,7 +75,7 @@ namespace XamlImageConverter {
 				var window = snapshot.Window;
 
 				var element = scene.Element;
-				var dpi = snapshot.Dpi ?? defaultDpi;
+				var dpi = (snapshot.Dpi ?? defaultDpi) * snapshot.Scale;
 
 				var bitmap = new RenderTargetBitmap(
 						(int)Math.Round(window.ActualWidth * dpi / defaultDpi),

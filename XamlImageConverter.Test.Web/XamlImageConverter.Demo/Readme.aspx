@@ -18,12 +18,12 @@
 <body>
 	 <form id="form1" runat="server">
 	 <div>
-		
+	
 		<h3>A direct conversion of xaml =&gt; png</h3> 
 		<pre><code>&lt;img src="Homepage.xaml?png" runat="server" /&gt;</code></pre>
 		<img src="Homepage.xaml?png" runat="server" />
 		<hr />
-
+		 	
 		 <h3>A PDF of the above xaml</h3>
 		<pre><code>&lt;a href="Homepage.xaml?pdf"&gt;Homepage PDF&lt;/a&gt;</code></pre>
 		<a href="Homepage.xaml?pdf">Homepage PDF</a>
@@ -171,20 +171,20 @@
 		 </script>
 		
 	</div>
-
-		 <%--<h3>Map Element for a selectable map:</h3>
+			
+		<h3>Map Element for a selectable map:</h3>
 		 
-		 <pre><code>
-			&lt;xic:Map runat="server" Source="Usa.Map.svg" Scale="0.5" Mode="Select" CssClass="map" Legend="true" SubmitText="Submit" 
-				IDs="WA,OR,CA,AK,ID,NV,AZ,UT,MT,WY,CO,NM,TX,OK,KS,NE,SD,ND,MN,IA,MO,AR,LA,WI,IL,TN,MS,MI,IN,KY,AL,FL,GA,SC,NC,VA,WV,OH,PA,MD,NJ,NY,CT,MA,VT,NH,ME,RI,DE,HI"
-				Regions="Washington,Oregon,California,Arkansas,Utah,Montana,Wyoming,Colorado,New Mexico,Texas,Oklahoma,Kansas,Nebraska,South Dakota,North Dakota,Minnesota,Iowa,Mississippi,Michigan,Indiana,Kentucky,Alabama,Florida,Georgia,South Carolina,North Carolina,Virginia,West Virginia,Ohio,Pennsylvania,Maryland,New Jersey,New York,Connecticut,Massachusetts,Vermont,New Hampshire,Maine,Rhode Island, Delaware,Hawaii" /&gt;
+		<pre><code>
+		&lt;xic:Map runat="server" Source="Usa.Map.svg" Scale="0.5" Mode="Select" CssClass="map" Legend="true" RepeatColumns="2" SubmitText="Submit" 
+			IDs="WA,OR,CA,AK,ID,NV,AZ,UT,MT,WY,CO,NM,TX,OK,KS,NE,SD,ND,MN,IA,MO,AR,LA,WI,IL,TN,MS,MI,IN,KY,AL,FL,GA,SC,NC,VA,WV,OH,PA,MD,NJ,NY,CT,MA,VT,NH,ME,RI,DE,HI"
+			Regions="Washington,Oregon,California,Arkansas,Utah,Montana,Wyoming,Colorado,New Mexico,Texas,Oklahoma,Kansas,Nebraska,South Dakota,North Dakota,Minnesota,Iowa,Mississippi,Michigan,Indiana,Kentucky,Alabama,Florida,Georgia,South Carolina,North Carolina,Virginia,West Virginia,Ohio,Pennsylvania,Maryland,New Jersey,New York,Connecticut,Massachusetts,Vermont,New Hampshire,Maine,Rhode Island, Delaware,Hawaii" /&gt;
 		
-		 </code></pre>
+		</code></pre>
 
-		 <xic:Map runat="server" Source="Usa.Map.svg" Scale="0.5" Mode="Select" CssClass="map" Legend="true" SubmitText="Submit" 
-			 IDs="WA,OR,CA,AK,ID,NV,AZ,UT,MT,WY,CO,NM,TX,OK,KS,NE,SD,ND,MN,IA,MO,AR,LA,WI,IL,TN,MS,MI,IN,KY,AL,FL,GA,SC,NC,VA,WV,OH,PA,MD,NJ,NY,CT,MA,VT,NH,ME,RI,DE,HI"
-			 Regions="Washington,Oregon,California,Arkansas,Utah,Montana,Wyoming,Colorado,New Mexico,Texas,Oklahoma,Kansas,Nebraska,South Dakota,North Dakota,Minnesota,Iowa,Mississippi,Michigan,Indiana,Kentucky,Alabama,Florida,Georgia,South Carolina,North Carolina,Virginia,West Virginia,Ohio,Pennsylvania,Maryland,New Jersey,New York,Connecticut,Massachusetts,Vermont,New Hampshire,Maine,Rhode Island, Delaware,Hawaii" />
-			 --%>
+		<xic:Map runat="server" Source="Usa.Map.svg" Scale="0.5" Mode="Select" CssClass="map" Legend="true" RepeatColumns="2" SubmitText="Submit" 
+			IDs="WA,OR,CA,AK,ID,NV,AZ,UT,MT,WY,CO,NM,TX,OK,KS,NE,SD,ND,MN,IA,MO,AR,LA,WI,IL,TN,MS,MI,IN,KY,AL,FL,GA,SC,NC,VA,WV,OH,PA,MD,NJ,NY,CT,MA,VT,NH,ME,RI,DE,HI"
+			Regions="Washington,Oregon,California,Arkansas,Utah,Montana,Wyoming,Colorado,New Mexico,Texas,Oklahoma,Kansas,Nebraska,South Dakota,North Dakota,Minnesota,Iowa,Mississippi,Michigan,Indiana,Kentucky,Alabama,Florida,Georgia,South Carolina,North Carolina,Virginia,West Virginia,Ohio,Pennsylvania,Maryland,New Jersey,New York,Connecticut,Massachusetts,Vermont,New Hampshire,Maine,Rhode Island, Delaware,Hawaii" />
+			
 	</form>
 </body>
 </html>

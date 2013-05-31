@@ -74,12 +74,12 @@ namespace XamlImageConverter {
 						} catch (CompilerInnerException ex) {
 							Root.Errors.Error(ex.Message + "\n" + ex.InnerException.Message + "\n" + ex.InnerException.StackTrace, ex.ErrorCode.ToString(), ex.XObject);
 						} catch (CompilerException ex) {
-							Root.Errors.Error(ex.Message, ex.ErrorCode.ToString(), ex.XObject);
+							//Root.Errors.Error(ex.Message, ex.ErrorCode.ToString(), ex.XObject);
+							Compiler.HandleException(ex, Root.Errors);
 						} catch (Exception ex) {
 							Root.Errors.Warning("An internal parsing error occurred\n\n" + ex.Message + "\n" + ex.StackTrace, "2", x);
 						}
 						if (scene != null) {
-							Root.Children.Add(scene);
 							yield return scene;
 						}
 					} else {
@@ -98,6 +98,7 @@ namespace XamlImageConverter {
 		/// <returns>Returns a list of <see cref="Snapshot"/>s</returns>
 		public Group ParseScene(Group Root, DateTime Version, XElement x) {
 			var scene = new Group() { Compiler = Compiler, XElement = x, IsScene = true };
+			Root.Children.Add(scene);
 
 			var xaml = x.Elements(ns+"Xaml").SingleOrDefault();
 			xaml = x.Elements(ns+"Source").SingleOrDefault() ?? xaml;
@@ -122,10 +123,12 @@ namespace XamlImageConverter {
 			FileInfo info;
 
 			if (src != null) {
-				info = new FileInfo(Compiler.MapPath(src));
-				if (!info.Exists) throw new CompilerException("Source file " + info.FullName + " not found.", 11, xaml);
+				if (!(src.StartsWith("http://") || src.StartsWith("https://"))) {
+					info = new FileInfo(Compiler.MapPath(src));
+					if (!info.Exists) throw new CompilerException("Source file " + info.FullName + " not found.", 11, xaml);
 
-				XamlVersion = info.LastWriteTimeUtc;
+					XamlVersion = info.LastWriteTimeUtc;
+				}
 				if (XamlVersion > Version) Version = XamlVersion;
 			} else {
 				string assemblyName = (string)xaml.Attribute("Assembly");
@@ -159,7 +162,7 @@ namespace XamlImageConverter {
 				scene.Children.Add(p);
 			}
 
-			// parse oridnary elements
+			// parse ordinary elements
 			var names = new XName[] { ns+"Xaml", ns+"Depends" };
 			foreach (var child in x.Elements().Where(child => !names.Contains(child.Name))) {
 				Parse(child, scene);
@@ -240,10 +243,11 @@ namespace XamlImageConverter {
 					Pause = (double?)x.Attribute("Pause") ?? 0,
 					Type = (string)x.Attribute("Type"),
 					Hash = (int?)x.Attribute("Hash"),
-					Layer = (int?)x.Attribute("Layer")
+					Layer = (int?)x.Attribute("Layer"),
+					Scale = (double?)x.Attribute("Scale") ?? 1
 				};
 				ValidAttributes(x, container, "Element", "Storyboard", "Frames", "Filmstrip", "Dpi", "Quality", "Filename", "Left", "Top", "Right", "Bottom", "Width", "Height", "Cultures", "Page", "FitToPage", 
-					"File", "Loop", "Pause", "Skin", "Theme", "TextMode", "Type", "Image", "Culture", "Hash", "Layer");
+					"File", "Loop", "Pause", "Skin", "Theme", "TextMode", "Type", "Image", "Culture", "Hash", "Layer", "Scale");
 				break;
 			case "ImageMap":
 			case "Map":

@@ -153,6 +153,22 @@ namespace XamlImageConverter {
 			};
 		}
 
+		public void HandleException(CompilerException ex, Errors errors) {
+			var msg = new StringBuilder();
+			msg.AppendLine("Internal error occurred:");
+			msg.AppendLine(ex.Message);
+			msg.AppendLine(ex.StackTrace);
+			var iex = ex.InnerException;
+			while (iex != null) {
+				msg.AppendLine();
+				msg.AppendLine("Inner Exception:");
+				msg.Append(iex.Message);
+				msg.Append(iex.StackTrace);
+				iex = iex.InnerException;
+			}
+			errors.Error(msg.ToString(), ex.ErrorCode.ToString(), ex.XObject);
+		}
+
 		public Compiler() {
 			NeedsBuilding = true; CheckBuilding = false; SeparateAppDomain = true; NeedsBuildingChecked = false; ChildAppDomain = false; Cores = null; Parallel = true;
 			RebuildAll = false; UseService = false;
@@ -176,8 +192,7 @@ namespace XamlImageConverter {
 			dest.Initialized = this.Initialized;
 			dest.Parallel = this.Parallel;
 			dest.GCLevel = this.GCLevel;
-			dest.Serve = this.Serve;
-			this.Serve = null;
+			dest.Serve = null;
 			dest.Cores = this.Cores;
 		}
 
@@ -195,6 +210,7 @@ namespace XamlImageConverter {
 		}
 
 		public string MapPath(string path) {
+			if (path.StartsWith("http://") || path.StartsWith("https://")) return path;
 			if (path == null) path = "";
 			path = path.Replace('/', Path.DirectorySeparatorChar);
 			if (path.StartsWith("~" + Path.DirectorySeparatorChar) && ProjectPath != null) {
@@ -262,7 +278,7 @@ namespace XamlImageConverter {
 	/*	void Init() {
 			if (!init) {
 				init = true;
-				Errors.Message("XamlImageConverter 3.8 by Chris Cavanagh & David Egli");
+				Errors.Message("XamlImageConverter 3.9 by Chris Cavanagh & David Egli");
 				Cpus = Parallel ? Environment.ProcessorCount : 1;
 				Errors.Message("Using {0} CPU Cores.", Cpus);
 			}
@@ -323,7 +339,7 @@ namespace XamlImageConverter {
 			root.Filename = filename;
 			root.Compiler = this;
 			if (!CheckBuilding) {
-				root.Errors.Status("XamlImageConverter 3.8 by Chris Cavanagh & David Egli");
+				root.Errors.Status("XamlImageConverter 3.9 by Chris Cavanagh & David Egli");
 				root.Errors.Status("{0:G}, using {1} CPU cores.", DateTime.Now, Cpus);
 				root.Errors.Status(Path.GetFileName(filename) + ":");
 			}
@@ -334,7 +350,7 @@ namespace XamlImageConverter {
 			List<string> directExtensions = new List<string> { ".xaml", ".psd", ".svg", ".svgz", ".html" };
 
 			XElement config = null;
-			DateTime Version = DateTime.Now.ToUniversalTime();
+			DateTime Version = DateTime.MaxValue;
 			try {
 				if (!RebuildAll) {
 					FileInfo info = new FileInfo(filename);
@@ -358,10 +374,10 @@ namespace XamlImageConverter {
 					}
 				}
 			} catch (FileNotFoundException) {
-				root.Errors.Error("Unable to read the configuration file", "1", null);
+				root.Errors.Error("Unable to read the configuration file", "1");
 				return;
 			} catch (Exception ex) {
-				root.Errors.Error(ex.Message, "21", null);
+				root.Errors.Error(ex.Message, "21");
 				return;
 			}
 			if (config != null) Compile(root, Version, config);
@@ -465,7 +481,7 @@ namespace XamlImageConverter {
 
 			public void Stop(int cpu) {
 				lock (this) {
-					if (cpu == icpu) Stop(Cpus);
+					if (cpu == icpu && Cpus > 1) Stop(Cpus);
 					roots[cpu].Finish();
 					if (cpu != 0) {
 						List<Process> active;
@@ -522,20 +538,23 @@ namespace XamlImageConverter {
 										step.Process();
 										step = steps.Next(cpul);
 									} catch (CompilerException cex) {
-										root.Errors.Error(cex.Message, cex.ErrorCode.ToString(), cex.XObject);
+										//root.Errors.Error(cex.Message, cex.ErrorCode.ToString(), cex.XObject);
+										HandleException(cex, root.Errors);
 									} catch (Exception ex) {
 										root.Errors.Warning("An internal error occurred\n\n" + ex.Message + "\n" + ex.StackTrace, "2", null);
 									}
 								}
 							} catch (CompilerException cex) {
-								root.Errors.Error(cex.Message, cex.ErrorCode.ToString(), cex.XObject);
+								//root.Errors.Error(cex.Message, cex.ErrorCode.ToString(), cex.XObject);
+								HandleException(cex, root.Errors);
 							} catch (Exception ex) {
 								root.Errors.Warning("An internal error occurred\n\n" + ex.Message + "\n" + ex.StackTrace, "2", null);
 							} finally {
 								steps.Stop(cpul);
 							}
 						} catch (CompilerException cex) {
-							root.Errors.Error(cex.Message, cex.ErrorCode.ToString(), cex.XObject);
+							//root.Errors.Error(cex.Message, cex.ErrorCode.ToString(), cex.XObject);
+							HandleException(cex, root.Errors);
 						} catch (Exception ex) {
 							root.Errors.Warning("An internal error occurred\n\n" + ex.Message + "\n" + ex.StackTrace, "2", null);
 						} finally {
@@ -553,7 +572,8 @@ namespace XamlImageConverter {
 					}
 				}
 			} catch (CompilerException cex) {
-				root.Errors.Error(cex.Message, cex.ErrorCode.ToString(), cex.XObject);
+				//root.Errors.Error(cex.Message, cex.ErrorCode.ToString(), cex.XObject);
+				HandleException(cex, root.Errors);
 			} catch (Exception ex) {
 				root.Errors.Warning("An internal error occurred\n\n" + ex.Message + "\n" + ex.StackTrace, "2", null);
 			} finally {
@@ -620,11 +640,13 @@ namespace XamlImageConverter {
 						{
 
 							Compiler compiler = null;
+							object proxy;
 							if (source == null)
-								compiler = (Compiler)domain.CreateInstanceFromAndUnwrap(aname.CodeBase, "XamlImageConverter.Compiler");
+								proxy = domain.CreateInstanceFromAndUnwrap(aname.CodeBase, "XamlImageConverter.Compiler");
 							else
-								compiler = (Compiler)domain.CreateInstanceAndUnwrap(aname.FullName, "XamlImageConverter.Compiler");
-
+								proxy = domain.CreateInstanceAndUnwrap(aname.FullName, "XamlImageConverter.Compiler");
+							compiler = (Compiler)proxy;
+							
 							compiler.InitDomain();
 							CopyTo(compiler);
 							compiler.SeparateAppDomain = false;
@@ -633,7 +655,7 @@ namespace XamlImageConverter {
 							compiler.Compile();
 							hash = compiler.hash;
 						} catch (Exception ex2) {
-							Errors.Error("Internal Error, unable to create child AppDomain", "33", null);
+							Errors.Error("Internal Error, unable to create child AppDomain", "33");
 
 						} finally {
 							AppDomain.Unload(domain);
