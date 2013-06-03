@@ -167,7 +167,7 @@ namespace XamlImageConverter {
 				}
 
 				ApplyTransform(group.Transform, g);
-				ApplyTransform(Transform, g);
+				//ApplyTransform(Transform, g);
 
 				Geometries.Add(g);
 			}
@@ -330,11 +330,13 @@ namespace XamlImageConverter {
 					var tg = new TransformGroup();
 					tg.Children.Add((Transform)ta);
 					tg.Children.Add(Snapshot.Transform);
+					tg.Children.Add(Transform);
 					VisualTransform = tg;
 				} else {
 					var tg = new GeneralTransformGroup();
 					tg.Children.Add(ta);
 					tg.Children.Add(Snapshot.Transform);
+					tg.Children.Add(Transform);
 					VisualTransform = tg;
 				}
 
@@ -403,6 +405,9 @@ namespace XamlImageConverter {
 				}
 				if (g is PathGeometry) { // path geometry
 					var path = (PathGeometry)g;
+					var tg = (TransformGroup)t;
+					//tg.Children.Remove((Transform)renderer.VisualTransform);
+					tg.Children.Remove(g.Transform);
 					path = path.GetFlattenedPathGeometry(Flatness, ToleranceType.Relative);
 					foreach (var figure in path.Figures) { // process all figures & segments
 						var points = new PointCollection();
@@ -410,6 +415,7 @@ namespace XamlImageConverter {
 							if (segment is LineSegment) { // segment is a LineSegment
 								var ls = (LineSegment)segment;
 								points.Add(t.Transform(ls.Point)); // add point to points
+								//points.Add(ls.Point);
 							} else if (segment is PolyLineSegment) { // segment is a PolyLineSegment
 								var pls = (PolyLineSegment)segment;
 								foreach (var point in pls.Points) points.Add(t.Transform(point)); // add point to points 

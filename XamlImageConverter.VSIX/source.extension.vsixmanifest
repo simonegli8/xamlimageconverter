@@ -3,18 +3,19 @@
 	<Identifier Id="XamlImageConverter.2c5e9477-428f-4362-a5b5-d8c2d6ec2605">
 		<Name>Xaml Image Converter</Name>
 		<Author>David Egli</Author>
-		<Version>3.9</Version>
+		<Version>3.10</Version>
 		<AllUsers>true</AllUsers>
 		<Description xml:space="preserve">Renders images, animations, html image maps &amp; pdf's from Xaml, SVG &amp; Photoshop files.
 
 Features:
-- Input Formats: Xaml, SVG &amp; PSD (Photoshop).
+- Input Formats: Xaml, SVG &amp; PSD (Photoshop), HTML.
 - Output Formats: png, gif, jgp, bmp, tif, xps, pdf, xaml.
 - Images with localized text.
 - Dynamic modification of the xaml before rendering.
 - GIF &amp; CSS filmstrips from Storyboards.
 - HttpHandler for on the fly image creation.
-- Html image map creation from Xaml &amp; SVG Geometries.</Description>
+- Html image map creation from Xaml &amp; SVG Geometries.
+- Conversion of HTML to PDF.</Description>
 		<Locale>1033</Locale>
 		<MoreInfoUrl>http://xamlimageconverter.codeplex.com</MoreInfoUrl>
 		<License>license.rtf</License>

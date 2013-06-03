@@ -70,6 +70,8 @@
       <SubType>ASPXCodeBehind</SubType>
     </Content>
     <Content Include="XamlImageConverter.Demo\blog-banner.jpg" />
+    <Content Include="XamlImageConverter.Demo\jquery.js" />
+    <Content Include="XamlImageConverter.Demo\jquery.maphilight.min.js" />
     <Content Include="XamlImageConverter.Demo\Kaxaml.gif" />
     <Content Include="XamlImageConverter.Demo\Readme.aspx" />
     <Content Include="XamlImageConverter.Demo\generic-lines.png" />

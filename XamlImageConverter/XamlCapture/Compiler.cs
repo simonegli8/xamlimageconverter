@@ -278,7 +278,7 @@ namespace XamlImageConverter {
 	/*	void Init() {
 			if (!init) {
 				init = true;
-				Errors.Message("XamlImageConverter 3.9 by Chris Cavanagh & David Egli");
+				Errors.Message("XamlImageConverter 3.10 by Chris Cavanagh & David Egli");
 				Cpus = Parallel ? Environment.ProcessorCount : 1;
 				Errors.Message("Using {0} CPU Cores.", Cpus);
 			}
@@ -339,7 +339,7 @@ namespace XamlImageConverter {
 			root.Filename = filename;
 			root.Compiler = this;
 			if (!CheckBuilding) {
-				root.Errors.Status("XamlImageConverter 3.9 by Chris Cavanagh & David Egli");
+				root.Errors.Status("XamlImageConverter 3.10 by Chris Cavanagh & David Egli");
 				root.Errors.Status("{0:G}, using {1} CPU cores.", DateTime.Now, Cpus);
 				root.Errors.Status(Path.GetFileName(filename) + ":");
 			}

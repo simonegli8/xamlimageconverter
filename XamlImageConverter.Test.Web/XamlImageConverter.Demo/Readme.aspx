@@ -41,7 +41,7 @@
 		 and in CreateImages.xic.xaml:
 		<pre><code>&lt;xic:Snapshot Image="Usa.Map.png" &gt;
 &lt;xic:ImageMap ID="usamap" Image="Usa.Map.png" File="Readme.aspx" &gt;
-  &lt;HotSpots Elements="WA,OR,CA,AK,ID,NV,AZ,UT,MT,WY,CO,NM,TX,OK,KS,NE,SD,ND,MN,IA,MO,AR,LA,WI,IL,TN,MS,MI,IN,KY,AL,FL,GA,SC,NC,VA,WV,OH,PA,MD,NJ,NY,CT,MA,VT,NH,ME,RI,DE,HI" HotSpotMode="PostBack" PostBackValue="%ID%"/&gt;
+  &lt;xic:HotSpots Elements="WA,OR,CA,AK,ID,NV,AZ,UT,MT,WY,CO,NM,TX,OK,KS,NE,SD,ND,MN,IA,MO,AR,LA,WI,IL,TN,MS,MI,IN,KY,AL,FL,GA,SC,NC,VA,WV,OH,PA,MD,NJ,NY,CT,MA,VT,NH,ME,RI,DE,HI" HotSpotMode="PostBack" PostBackValue="%ID%"/&gt;
 &lt;/xic:ImageMap&gt
 			  </code></pre>
 
@@ -175,13 +175,13 @@
 		<h3>Map Element for a selectable map:</h3>
 		 
 		<pre><code>
-		&lt;xic:Map runat="server" Source="Usa.Map.svg" Scale="0.5" Mode="Select" CssClass="map" Legend="true" RepeatColumns="2" SubmitText="Submit" 
+		&lt;xic:Map runat="server" Source="Usa.Map.svg" Scale="0.5" Mode="Select" CssClass="map" Legend="true" RepeatColumns="3" SubmitText="Submit" 
 			IDs="WA,OR,CA,AK,ID,NV,AZ,UT,MT,WY,CO,NM,TX,OK,KS,NE,SD,ND,MN,IA,MO,AR,LA,WI,IL,TN,MS,MI,IN,KY,AL,FL,GA,SC,NC,VA,WV,OH,PA,MD,NJ,NY,CT,MA,VT,NH,ME,RI,DE,HI"
 			Regions="Washington,Oregon,California,Arkansas,Utah,Montana,Wyoming,Colorado,New Mexico,Texas,Oklahoma,Kansas,Nebraska,South Dakota,North Dakota,Minnesota,Iowa,Mississippi,Michigan,Indiana,Kentucky,Alabama,Florida,Georgia,South Carolina,North Carolina,Virginia,West Virginia,Ohio,Pennsylvania,Maryland,New Jersey,New York,Connecticut,Massachusetts,Vermont,New Hampshire,Maine,Rhode Island, Delaware,Hawaii" /&gt;
 		
 		</code></pre>
 
-		<xic:Map runat="server" Source="Usa.Map.svg" Scale="0.5" Mode="Select" CssClass="map" Legend="true" RepeatColumns="2" SubmitText="Submit" 
+		<xic:Map runat="server" Source="Usa.Map.svg" Scale="0.5" Mode="Select" CssClass="map" Legend="true" RepeatColumns="3" SubmitText="Submit" 
 			IDs="WA,OR,CA,AK,ID,NV,AZ,UT,MT,WY,CO,NM,TX,OK,KS,NE,SD,ND,MN,IA,MO,AR,LA,WI,IL,TN,MS,MI,IN,KY,AL,FL,GA,SC,NC,VA,WV,OH,PA,MD,NJ,NY,CT,MA,VT,NH,ME,RI,DE,HI"
 			Regions="Washington,Oregon,California,Arkansas,Utah,Montana,Wyoming,Colorado,New Mexico,Texas,Oklahoma,Kansas,Nebraska,South Dakota,North Dakota,Minnesota,Iowa,Mississippi,Michigan,Indiana,Kentucky,Alabama,Florida,Georgia,South Carolina,North Carolina,Virginia,West Virginia,Ohio,Pennsylvania,Maryland,New Jersey,New York,Connecticut,Massachusetts,Vermont,New Hampshire,Maine,Rhode Island, Delaware,Hawaii" />
 			

@@ -287,7 +287,7 @@ namespace XamlImageConverter {
 
 			if (Html2PDF == null) {
 				var apath = Compiler.BinPath("Lazy\\Awesomium\\");
-				var aname = new System.Reflection.AssemblyName("XamlImageConverter.Awesomium, Version=3.9.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45");
+				var aname = new System.Reflection.AssemblyName("XamlImageConverter.Awesomium, Version=3.10.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45");
 				aname.CodeBase = apath + "XamlImageConverter.Awesomium.dll";
 				var a = System.Reflection.Assembly.Load(aname);
 				var Html2PDFType = a.GetType("XamlImageConverter.Html2PDF");
