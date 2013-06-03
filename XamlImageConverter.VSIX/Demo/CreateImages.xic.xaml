@@ -86,4 +86,8 @@
 		<xic:Snapshot File="button.png" />
 	</xic:Scene>
 	
+	<xic:Scene Source="http://www.msn.com">
+		<xic:Snapshot File="msn.pdf" Page="A4" />
+	</xic:Scene>
+
 </xic:XamlImageConverter>

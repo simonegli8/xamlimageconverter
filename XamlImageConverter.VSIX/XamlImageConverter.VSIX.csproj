@@ -91,6 +91,59 @@
     <Content Include="Icon.ico">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="Lazy\Awesomium\avcodec-53.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\avformat-53.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\avutil-51.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Core.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Core.XML">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\awesomium.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Windows.Controls.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Windows.Controls.XML">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Windows.Forms.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Windows.Forms.XML">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\icudt.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\libEGL.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\libGLESv2.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\Packed\Awesomium.Core.dll" />
+    <Content Include="Lazy\Awesomium\Packed\README.txt" />
+    <Content Include="Lazy\Awesomium\README.txt">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\XamlImageConverter.Awesomium.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\XamlImageConverter.Awesomium.pdb">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\xinput9_1_0.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="Lazy\gxps\gxps-9.05-win32.exe">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -161,6 +214,12 @@
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="license.rtf">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\awesomium_process">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\inspector.pak">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <None Include="source.extension.vsixmanifest" />
