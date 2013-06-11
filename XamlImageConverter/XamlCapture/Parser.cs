@@ -107,7 +107,7 @@ namespace XamlImageConverter {
 			if (srcAttr != null) scene.Source = srcAttr.Value;
 			var src = scene.Source;
 
-			if (xaml == null) throw new CompilerException("Scene must contain source file specification.", 10, x);
+			if (xaml == null) throw new CompilerException("Scene must contain source file specification.", 10, x, null);
 			scene.XamlElement = xaml;
 
 			var width = (double?)xaml.Attribute("Width") ?? double.PositiveInfinity;
@@ -125,7 +125,7 @@ namespace XamlImageConverter {
 			if (src != null) {
 				if (!(src.StartsWith("http://") || src.StartsWith("https://"))) {
 					info = new FileInfo(Compiler.MapPath(src));
-					if (!info.Exists) throw new CompilerException("Source file " + info.FullName + " not found.", 11, xaml);
+					if (!info.Exists) throw new CompilerException("Source file " + info.FullName + " not found.", 11, xaml, null);
 
 					XamlVersion = info.LastWriteTimeUtc;
 				}
@@ -139,7 +139,7 @@ namespace XamlImageConverter {
 
 				if (typename == null) {
 					scene.InnerXaml = xaml.Elements().SingleOrDefault();
-					if (scene.InnerXaml == null) throw new CompilerException("Scene must contain a single XAML root element", 16, xaml);
+					if (scene.InnerXaml == null) throw new CompilerException("Scene must contain a single XAML root element", 16, xaml, null);
 				}
 			}
 

@@ -262,7 +262,7 @@ namespace XamlImageConverter {
 												element = XamlReader.Load(r) as FrameworkElement;
 											}
 										} catch (Exception ex) {
-											throw new CompilerException("Error loading xaml: " + ex.Message, 34, XElement);
+											throw new CompilerException("Error loading xaml: " + ex.Message, 34, XElement, ex);
 										}
 									} else {
 										Scene.XamlFile = file;
@@ -284,12 +284,12 @@ namespace XamlImageConverter {
 													//else context = new ParserContext { BaseUri = new Uri(XamlElement.BaseUri) };
 													element = XamlReader.Load(r) as FrameworkElement;
 												} else {
-													throw new CompilerException("Input format not supported.", 20, XElement);
+													throw new CompilerException("Input format not supported.", 20, XElement, null);
 												}
 											}
 										} catch (Exception ex) {
 											if (ex is CompilerException) throw ex;
-											else throw new CompilerException("Error loading xaml: " + ex.Message, 34, XElement);
+											else throw new CompilerException("Error loading xaml: " + ex.Message, 34, XElement, ex);
 										}
 									}
 								}
@@ -316,8 +316,8 @@ namespace XamlImageConverter {
 												if (i > -1) typeName = typeName.Substring(0, i);
 												type = assembly.GetType(typeName);
 											}
-										} catch {
-											throw new CompilerException(string.Format("Error loading assembly {0}.", assemblyName), 12, XamlElement);
+										} catch (Exception ex) {
+											throw new CompilerException(string.Format("Error loading assembly {0}.", assemblyName), 12, XamlElement, ex);
 										}
 									} else {
 										try {
@@ -326,8 +326,8 @@ namespace XamlImageConverter {
 												var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 												type = assemblies.Reverse().SelectMany(a => a.GetTypes()).FirstOrDefault(t => t.FullName == typeName);
 											}
-										} catch {
-											throw new CompilerException(string.Format("Invalid type name {0}.", typeName), 13, XamlElement);
+										} catch (Exception ex) {
+											throw new CompilerException(string.Format("Invalid type name {0}.", typeName), 13, XamlElement, ex);
 										}
 									}
 									if (type != null) {
@@ -337,7 +337,7 @@ namespace XamlImageConverter {
 											throw new CompilerInnerException(string.Format("Error creating type {0}.", typeName), 14, XamlElement, ex);
 										}
 									} else {
-										throw new CompilerException(string.Format("Type {0} not found.", typeName), 15, XamlElement);
+										throw new CompilerException(string.Format("Type {0} not found.", typeName), 15, XamlElement, null);
 									}
 								} else if (InnerXaml != null) {
 									element = XamlReader.Load(InnerXaml.CreateReader()) as FrameworkElement;

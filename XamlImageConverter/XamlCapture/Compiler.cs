@@ -29,7 +29,7 @@ namespace XamlImageConverter {
 	public class CompilerException: Exception {
 		public int ErrorCode;
 		public XObject XObject;
-		public CompilerException(string msg, int code, XObject xobj) : base(msg) { ErrorCode = code; XObject = xobj; }
+		public CompilerException(string msg, int code, XObject xobj, Exception inner) : base(msg, inner) { ErrorCode = code; XObject = xobj; }
 	}
 
 	public interface ICompiler {
@@ -127,7 +127,9 @@ namespace XamlImageConverter {
 
 		public void Cleanup() {
 			foreach (var file in TempFiles) {
-				System.IO.File.Delete(file);
+				try {
+					System.IO.File.Delete(file);
+				} catch { }
 			}
 			TempFiles.Clear();
 
@@ -377,7 +379,7 @@ namespace XamlImageConverter {
 				root.Errors.Error("Unable to read the configuration file", "1");
 				return;
 			} catch (Exception ex) {
-				root.Errors.Error(ex.Message, "21");
+				root.Errors.Error(ex.Message, "21", null, ex);
 				return;
 			}
 			if (config != null) Compile(root, Version, config);
@@ -655,7 +657,7 @@ namespace XamlImageConverter {
 							compiler.Compile();
 							hash = compiler.hash;
 						} catch (Exception ex2) {
-							Errors.Error("Internal Error, unable to create child AppDomain", "33");
+							Errors.Error("Internal Error, unable to create child AppDomain", "33", null, ex2);
 
 						} finally {
 							AppDomain.Unload(domain);

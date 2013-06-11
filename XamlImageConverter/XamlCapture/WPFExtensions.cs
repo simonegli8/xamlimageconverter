@@ -102,7 +102,7 @@ namespace XamlImageConverter {
 				.FirstOrDefault(child => child != null);
 			if (res != null) return res;
 
-			if (level == 0) throw new CompilerException(string.Format("The specified element '{0}' does not exist", name), 19, null);
+			if (level == 0) throw new CompilerException(string.Format("The specified element '{0}' does not exist", name), 19, null, null);
 			return null;
 		}
 
