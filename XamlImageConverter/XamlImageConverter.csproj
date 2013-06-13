@@ -632,6 +632,7 @@
     <None Include="XamlCapture\FastBuildCheck.cs" />
     <Compile Include="XamlCapture\Hash.cs" />
     <Compile Include="XamlCapture\ImageMap.cs" />
+    <Compile Include="XamlCapture\PngHelper.cs" />
     <Compile Include="XamlCapture\Snapshot.cs" />
     <Compile Include="XamlCapture\ThemeHelper.cs" />
     <Compile Include="XamlCapture\WebFiles.cs" />

@@ -20,7 +20,7 @@ namespace XamlImageConverter {
 		public int Instances = 0;
 		public IDisposable FileLock = null;
 
-		public void SaveAsnc(Snapshot s) {
+		public void SaveAsync(Snapshot s) {
 			string path;
 			var source = ((Group.HtmlSource)s.Element).Source;
 			string html = null;

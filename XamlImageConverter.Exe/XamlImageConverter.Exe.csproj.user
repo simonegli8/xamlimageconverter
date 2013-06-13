@@ -4,9 +4,9 @@
     <StartArguments>-w -v -l C:\Code\XamlImageConverter\XamlImageConverter.Exe -p C:\Code\XamlImageConverter\XamlImageConverter.Exe  ~/src/MakeImages.xic.xaml</StartArguments>
   </PropertyGroup>
   <PropertyGroup>
-    <ProjectView>ProjectFiles</ProjectView>
+    <ProjectView>ShowAllFiles</ProjectView>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <StartArguments>-p "C:\Code\Visitenkarte\Kleber" -l "C:\Code\Visitenkarte\Kleber\bin\Debug" -w -f ~/CreateImages.xic.xaml -1</StartArguments>
+    <StartArguments>-p "C:\Code\Visitenkarte\Kleber" -l "C:\Code\Visitenkarte\Kleber\bin\Debug" -w -f ~/CreateImages.xic.xaml</StartArguments>
   </PropertyGroup>
 </Project>

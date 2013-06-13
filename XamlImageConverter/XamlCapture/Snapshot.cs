@@ -245,8 +245,20 @@ namespace XamlImageConverter {
 				if (Filmstrip) encoder.Frames.Add(BitmapFrame.Create(MakeFilmstrip(Bitmaps, Dpi)));
 				else foreach (var b in Bitmaps) encoder.Frames.Add(BitmapFrame.Create(b));
 
-				using (FileLock(filename)) encoder.Save(filename);
-
+				using (FileLock(filename)) {
+					encoder.Save(filename);
+					if (encoder is PngBitmapEncoder) { // strip gamma
+						using (var src = new MemoryStream()) {
+							using (var srcf = new FileStream(filename, FileMode.Open, FileAccess.Read)) {
+								srcf.CopyTo(src);
+								src.Seek(0, SeekOrigin.Begin);
+							}
+							using (var dest = new FileStream(filename, FileMode.Create, FileAccess.Write)) {
+								PngHelper.StripGAMA(src, dest);
+							}
+						}
+					}
+				}
 				if (Loop != 1 && ext == ".gif") {
 					string file = Path.GetFileName(filename);
 					var exe = Compiler.BinPath("ImageMagick\\convert.exe");
@@ -279,7 +291,7 @@ namespace XamlImageConverter {
 		private Html2PDFConverter Html2PDF = null;
 		
 		public interface Html2PDFConverter {
-			void SaveAsnc(Snapshot s);
+			void SaveAsync(Snapshot s);
 			void AwaitSave();
 		}
 
@@ -293,7 +305,7 @@ namespace XamlImageConverter {
 				var Html2PDFType = a.GetType("XamlImageConverter.Html2PDF");
 				Html2PDF = (Html2PDFConverter)Activator.CreateInstance(Html2PDFType);
 			}
-			Html2PDF.SaveAsnc(this);
+			Html2PDF.SaveAsync(this);
 		}
 
 		public override void Cleanup() {

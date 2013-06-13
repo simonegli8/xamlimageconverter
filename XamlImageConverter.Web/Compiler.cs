@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Hosting;
 
-namespace XamlImageConverter.Web.UI {
+namespace XamlImageConverter.Web {
 
 	public class Compiler {
 
