@@ -63,6 +63,7 @@ namespace XamlImageConverter {
 		public bool NeedsBuildingChecked { get; set; }
 		public bool SeparateAppDomain { get; set; }
 		public bool ChildAppDomain { get; set; }
+		public bool HttpHandler { get; set; }
 		public bool RebuildAll { get; set; }
 		public bool UseService { get; set; }
 		public bool Parallel { get; set; }
@@ -173,7 +174,7 @@ namespace XamlImageConverter {
 
 		public Compiler() {
 			NeedsBuilding = true; CheckBuilding = false; SeparateAppDomain = true; NeedsBuildingChecked = false; ChildAppDomain = false; Cores = null; Parallel = true;
-			RebuildAll = false; UseService = false;
+			RebuildAll = false; UseService = false; HttpHandler = false;
 			SourceFiles = new List<string>();
 			Parameters = new Dictionary<string, string>();
 			Processes = new List<Process>();
@@ -293,19 +294,19 @@ namespace XamlImageConverter {
 				if (baseDir.EndsWith("\\")) baseDir = baseDir.Substring(0, baseDir.Length-1);
 				if (projDir.EndsWith("\\")) projDir = projDir.Substring(0, projDir.Length-1);
 				if (dllsLoaded || string.IsNullOrEmpty(LibraryPath) ||
-					(projDir == baseDir && AppDomain.CurrentDomain.RelativeSearchPath.Split(';').Contains(LibraryPath))) return;
+					(HttpHandler && SeparateAppDomain && projDir == baseDir && AppDomain.CurrentDomain.RelativeSearchPath.Split(';').Contains(LibraryPath))) return;
 				var path = Path.Combine(ProjectPath, LibraryPath);
 				if (!string.IsNullOrEmpty(path)) {
 					var files = Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories);
 					foreach (var file in files) {
 						try {
-							var pdb = Path.ChangeExtension(file, "pdb");
-							Assembly assembly;
+							//var pdb = Path.ChangeExtension(file, "pdb");
+							//Assembly assembly;
 							//if (File.Exists(pdb)) assembly = Assembly.Load(File.ReadAllBytes(file), File.ReadAllBytes(pdb));
 							//else
 							var aname = new AssemblyName();
 							aname.CodeBase = new Uri(file).ToString();
-							assembly = Assembly.Load(aname);
+							var assembly = Assembly.Load(aname);
 
 							if (assembly != null) Errors.Message("Assembly {0} loaded.", Path.GetFileNameWithoutExtension(file));
 						} catch { }
@@ -358,6 +359,7 @@ namespace XamlImageConverter {
 					FileInfo info = new FileInfo(filename);
 					if (info.Exists) Version = info.LastWriteTimeUtc;
 				}
+				Errors.Path = filename;
 				var ext = Path.GetExtension(filename).ToLower();
 				if (xaml) {
 					Version = DateTime.MinValue;

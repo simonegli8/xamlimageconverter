@@ -69,6 +69,8 @@ namespace XamlImageConverter {
 			if (source.Name == xic+"XamlImageConverter" || source.Name == sb+"SkinBuilder") {
 				foreach (var key in validAttributes) parameters.Remove(key);
 				return source;
+			} else if (source.Name.LocalName == "XamlImageConverter" || source.Name.LocalName == "SkinBuilder") {
+				compiler.Errors.Error("Invalid xml namespace", "70", source);
 			}
 			XElement snapshot, scene;
 			var res = new XElement(xic + "XamlImageConverter",

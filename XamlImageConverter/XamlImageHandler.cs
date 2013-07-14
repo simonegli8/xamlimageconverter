@@ -154,6 +154,7 @@ namespace XamlImageConverter {
 					compiler.Parallel = Parallel;
 					compiler.Cores = Cores; 
 					compiler.GCLevel = GCLevel;
+					compiler.HttpHandler = true;
 					if (Log) compiler.Loggers.Add(new FileLogger());
 					if (!string.IsNullOrEmpty(cultureid)) { compiler.Culture = CultureInfo.GetCultureInfo(cultureid); }
 
