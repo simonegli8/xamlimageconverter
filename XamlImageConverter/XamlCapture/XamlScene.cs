@@ -11,7 +11,7 @@ namespace XamlImageConverter {
 
 		static XNamespace xic = Parser.xic;
 		static XNamespace sb = Parser.sb;
-		static string[] validAttributes = new string[] { "Element", "Storyboard", "Frames", "Filmstrip", "Dpi", "RenderDpi", "Quality", "Filename", "Left", "Top", "Right", "Bottom", "Width", "Height", "Cultures", "RenderTimeout", "Page", "FitToPage", "File", "Loop", "Pause", "Skin", "Theme", "Type", "Image" };
+		static string[] validAttributes = new string[] { "Element", "Storyboard", "Frames", "Filmstrip", "Dpi", "RenderDpi", "Quality", "Filename", "Left", "Top", "Right", "Bottom", "Width", "Height", "Cultures", "RenderTimeout", "Page", "FitToPage", "File", "Loop", "Pause", "Skin", "Theme", "Type", "Image", "Verbose", "Parallel", "Ghost", "RenderMode" };
 
 		public static void ApplyParameters(Compiler compiler, XElement e, string filename, Dictionary<string, string> parameters) {
 			var type = "png";
@@ -38,6 +38,10 @@ namespace XamlImageConverter {
 				e.SetAttributeValue("Hash", hash);
 			}
 			if (!nohash && filename != null) {
+				if (filename.StartsWith("http://") || filename.StartsWith("https://")) {
+					if (filename.Contains('?')) filename = filename.Substring(0, filename.IndexOf('?'));
+					filename = filename.Substring(filename.LastIndexOf('/') + 1);
+				}
 				e.SetAttributeValue("File", filename + "." + type);
 			}
 		}
@@ -60,23 +64,25 @@ namespace XamlImageConverter {
 			}
 		}
 
-		public static XElement CreateDirect(Compiler compiler, string filename, Dictionary<string, string> parameters) {
-			XElement source;
-			var file = compiler.MapPath(filename);
-			using (compiler.FileLock(file)) {
-				source = XElement.Load(file, LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo);
-			}
-			if (source.Name == xic+"XamlImageConverter" || source.Name == sb+"SkinBuilder") {
-				foreach (var key in validAttributes) parameters.Remove(key);
-				return source;
-			} else if (source.Name.LocalName == "XamlImageConverter" || source.Name.LocalName == "SkinBuilder") {
-				compiler.Errors.Error("Invalid xml namespace", "70", source);
+		public static XElement CreateDirect(Compiler compiler, string filename, Dictionary<string, string> parameters, string outputPath = null) {
+			XElement source = null;
+			if (!filename.StartsWith("http://") && !filename.StartsWith("https://")) {
+				var file = compiler.MapPath(filename);
+				using (compiler.FileLock(file)) {
+					source = XElement.Load(file, LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo);
+				}
+				if (source.Name == xic + "XamlImageConverter" || source.Name == sb + "SkinBuilder") {
+					foreach (var key in validAttributes) parameters.Remove(key);
+					return source;
+				} else if (source.Name.LocalName == "XamlImageConverter" || source.Name.LocalName == "SkinBuilder") {
+					compiler.Errors.Error("Invalid xml namespace", "70", source);
+				}
 			}
 			XElement snapshot, scene;
 			var res = new XElement(xic + "XamlImageConverter",
 					new XAttribute(XNamespace.Xmlns+"xic", xic.NamespaceName),
 					scene = new XElement(xic+"Scene",
-						new XAttribute("OutputPath", Path.GetDirectoryName(filename.Replace("/", "\\")).Replace("\\", "/")),
+						new XAttribute("OutputPath", outputPath ?? Path.GetDirectoryName(filename.Replace("/", "\\")).Replace("\\", "/")),
 						new XAttribute("Source", filename)
 					)
 				);
@@ -86,11 +92,11 @@ namespace XamlImageConverter {
 					ApplyParameters(compiler, snapshot, null, parameters);
 				} else parameters.Remove("xic");
 			}
-			ParseXaml(compiler, source, scene);
+			if (source != null) ParseXaml(compiler, source, scene);
 			return res;
 		}
 		
-		public static XElement CreateDirect(Compiler compiler, string filename, XElement e, Dictionary<string, string> parameters) {
+		public static XElement CreateDirect(Compiler compiler, string filename, XElement e, Dictionary<string, string> parameters, string outputPath = null) {
 			XElement scene;
 			if (e.Name != xic + "XamlImageConverter") {
 				XNamespace mc = "http://schemas.openxmlformats.org/markup-compatibility/2006";
@@ -103,12 +109,13 @@ namespace XamlImageConverter {
 						new XAttribute(mc+"Ignorable", "d"), 
 						scene = new XElement(xic+"Scene", new XElement(xic+"Xaml", e))
 					);
-					if (e.Name.NamespaceName == "") {
-						e.Name = Parser.xamlns + e.Name.LocalName;
-						foreach (var child in e.Descendants()) {
-							if (child.Name.NamespaceName == "") child.Name = Parser.xamlns + child.Name.LocalName;
-						}
+				if (outputPath != null) scene.Add(new XAttribute("OutputPath", outputPath));
+				if (e.Name.NamespaceName == "") {
+					e.Name = Parser.xamlns + e.Name.LocalName;
+					foreach (var child in e.Descendants()) {
+						if (child.Name.NamespaceName == "") child.Name = Parser.xamlns + child.Name.LocalName;
 					}
+				}
 				if (parameters.ContainsKey("Image") || parameters.ContainsKey("File") || parameters.ContainsKey("Filename") || parameters.ContainsKey("Type")) {
 					var snapshot = new XElement(xic + "Snapshot");
 					ApplyParameters(compiler, snapshot, filename, parameters);
@@ -121,15 +128,16 @@ namespace XamlImageConverter {
 			}
 		}
 
-		public static XElement CreateAxd(Compiler compiler, Dictionary<string, string> par) {
+		public static XElement CreateAxd(Compiler compiler, string filename, Dictionary<string, string> par) {
 			var src = par["Source"];
 			if (string.IsNullOrEmpty(src)) {
 				compiler.Errors.Error("Source cannot be empty.", "32", new TextSpan());
 				return null;
 			}
 			if (src.Trim()[0] == '#') src = (string)compiler.Context.Session[src];
-			if (!src.Trim().StartsWith("<")) return CreateDirect(compiler, src, par);
-			return CreateDirect(compiler, "xic.axd" , XElement.Parse(src, LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo), par);
+			var outputPath = Path.GetDirectoryName(filename);
+			if (!src.Trim().StartsWith("<")) return CreateDirect(compiler, src, par, outputPath);
+			return CreateDirect(compiler, "xic.axd" , XElement.Parse(src, LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo), par, outputPath);
 		}
 	}
 }

@@ -81,6 +81,11 @@
             Triggers the <see cref="E:Awesomium.Windows.Forms.WebControl.SelectionChanged"/> event.
             </summary>
         </member>
+        <member name="M:Awesomium.Windows.Forms.WebControl.OnSelectionComplete(Awesomium.Core.WebSelectionEventArgs)">
+            <summary>
+            Triggers the <see cref="E:Awesomium.Windows.Forms.WebControl.SelectionComplete"/> event.
+            </summary>
+        </member>
         <member name="M:Awesomium.Windows.Forms.WebControl.OnProcessCreated(Awesomium.Core.WebViewEventArgs)">
             <summary>
             Triggers the <see cref="E:Awesomium.Windows.Forms.WebControl.ProcessCreated"/> event.
@@ -359,7 +364,8 @@
             <summary>
             Reloads the current page.
             </summary><param name="ignoreCache">
-            Indicates if cached resources should be reloaded as well.
+            Indicates if cached resources should be ignored when reloading.
+            When this is <c>true</c>, all resources will be reloaded from the server.
             </param><returns>
             <c>true</c> if the command was successfully sent. <c>false</c> otherwise.
             </returns>
@@ -369,18 +375,14 @@
             Gets if we can go back in history.
             </summary><returns>
             <c>true</c> if the view can go back in history. <c>false</c> otherwise.
-            </returns><exception cref="T:System.InvalidOperationException">
-            The member is called on an invalid view. (See: <see cref="P:Awesomium.Core.IWebView.IsLive"/>)
-            </exception>
+            </returns>
         </member>
         <member name="M:Awesomium.Windows.Forms.WebControl.CanGoForward">
             <summary>
             Gets if we can go forward in history.
             </summary><returns>
             <c>true</c> if the view can go forward in history. <c>false</c> otherwise.
-            </returns><exception cref="T:System.InvalidOperationException">
-            The member is called on an invalid view. (See: <see cref="P:Awesomium.Core.IWebView.IsLive"/>)
-            </exception>
+            </returns>
         </member>
         <member name="M:Awesomium.Windows.Forms.WebControl.GetLastError">
             <summary>
@@ -437,7 +439,7 @@
             </list>
             <p/>
             Global Objects will retain any custom methods that are registered
-            (see <see cref="M:Awesomium.Core.JSObject.SetCustomMethod(System.String,System.Boolean)"/>).
+            (see <see cref="M:Awesomium.Core.JSObject.Bind(System.String,System.Boolean,Awesomium.Core.JavascriptMethodEventHandler)"/>).
             <note>
             To create a child global-object, you should specify the full name with dot-notation for example:
             <c>parentObject.childObject</c>.
@@ -594,6 +596,36 @@
             The member is called on an invalid view. (See: <see cref="P:Awesomium.Core.IWebView.IsLive"/>)
             </exception>
         </member>
+        <member name="M:Awesomium.Windows.Forms.WebControl.SaveImageAt(System.Int32,System.Int32)">
+            <summary>
+            Attempt to download an image at the specified coordinates in the page.
+            This is meant to be used with <see cref="E:Awesomium.Core.IWebView.ShowContextMenu"/>.
+            </summary><param name="x">
+            An x-coordinate within an image in the page.
+            </param><param name="y">
+            A y-coordinate within an image in the page.
+            </param><remarks>
+            All coordinates should be localized to the view. All values are in
+            pixels, the origin (0,0) begins at the top-left corner of the view,
+            positive <paramref name="y"/> values are "down" and positive <paramref name="x"/> 
+            values are "right".
+            <p/>
+            This method will attempt to download the image at the specified coordinates,
+            directly from the server. In technology-specific WebControls, a <i>Save As</i>
+            dialog will be shown in response to the download request.
+            <p/>
+            If you are using the <i>headless</i> <see cref="T:Awesomium.Core.WebView"/> component, you will have to 
+            handle <see cref="E:Awesomium.Core.WebCore.Download"/> to either display a dialog or silently save
+            the resource. More appropriately in this case, you should assign your implementation
+            of <see cref="T:Awesomium.Core.IWebViewPresenter"/> to <see cref="P:Awesomium.Core.WebView.Presenter"/>, to handle 
+            UI related events including <see cref="M:Awesomium.Core.IWebViewPresenter.ShowDownloadDialog(Awesomium.Core.DownloadEventArgs)"/>.
+            </remarks><returns>
+            <c>true</c> if a download operation for an image at the specified coordinates,
+            was successfully triggered; <c>false</c> otherwise.
+            </returns><exception cref="T:System.InvalidOperationException">
+            The member is called on an invalid view. (See: <see cref="P:Awesomium.Core.IWebView.IsLive"/>)
+            </exception><seealso cref="E:Awesomium.Core.WebCore.Download"/><seealso cref="M:Awesomium.Core.IWebViewPresenter.ShowDownloadDialog(Awesomium.Core.DownloadEventArgs)"/><seealso cref="M:Awesomium.Core.IWebView.CopyImageAt(System.Int32,System.Int32)"/>
+        </member>
         <member name="M:Awesomium.Windows.Forms.WebControl.Paste">
             <summary>
             Performs a 'paste' operation using the system clipboard.
@@ -699,7 +731,18 @@
             Issues a request for the currently loaded page's security
             info. Information will be retrieved through the 
             <see cref="E:Awesomium.Core.IWebView.ShowPageInfo"/> event.
-            </summary>
+            </summary><exception cref="T:System.InvalidOperationException">
+            The member is called on an invalid view. (See: <see cref="P:Awesomium.Core.IWebView.IsLive"/>)
+            </exception>
+        </member>
+        <member name="M:Awesomium.Windows.Forms.WebControl.ReduceMemoryUsage">
+            <summary>
+            Forces V8 to release as much memory as possible (collects garbage, dumps
+            cached structures, etc) and also clears WebKit cache. This helps to
+            reduce memory accumulated within the process associated with this view.
+            </summary><exception cref="T:System.InvalidOperationException">
+            The member is called on an invalid view. (See: <see cref="P:Awesomium.Core.IWebView.IsLive"/>)
+            </exception><seealso cref="P:Awesomium.Core.WebConfig.ReduceMemoryUsageOnNavigation"/>
         </member>
         <member name="M:Awesomium.Windows.Forms.WebControl.#ctor">
             <summary>
@@ -767,7 +810,13 @@
         <member name="M:Awesomium.Windows.Forms.WebControl.ProcessDialogKey(System.Windows.Forms.Keys)">
             <inheritdoc />
         </member>
-        <member name="M:Awesomium.Windows.Forms.WebControl.WndProc(System.Windows.Forms.Message@)">
+        <member name="M:Awesomium.Windows.Forms.WebControl.OnKeyPress(System.Windows.Forms.KeyPressEventArgs)">
+            <inheritdoc />
+        </member>
+        <member name="M:Awesomium.Windows.Forms.WebControl.OnKeyDown(System.Windows.Forms.KeyEventArgs)">
+            <inheritdoc />
+        </member>
+        <member name="M:Awesomium.Windows.Forms.WebControl.OnKeyUp(System.Windows.Forms.KeyEventArgs)">
             <inheritdoc />
         </member>
         <member name="M:Awesomium.Windows.Forms.WebControl.OnMouseDown(System.Windows.Forms.MouseEventArgs)">
@@ -990,6 +1039,11 @@
         <member name="E:Awesomium.Windows.Forms.WebControl.SelectionChanged">
             <summary>
             Occurs when the selection in the current page, changes.
+            </summary>
+        </member>
+        <member name="E:Awesomium.Windows.Forms.WebControl.SelectionComplete">
+            <summary>
+            Occurs when selecting content in the current page, completes.
             </summary>
         </member>
         <member name="E:Awesomium.Windows.Forms.WebControl.ProcessCreated">
@@ -1224,13 +1278,12 @@
             with <c>target="_blank"</c>). 
             <p/>
             It is your responsibility to wrap and display this new view in your application.
-            <note type="caution">
-            The <see cref="E:Awesomium.Core.IWebView.ShowCreatedWebView"/> event must always be handled in your application. Views created by
-            Awesomium in response to users clicking a link or JavaScript <c>window.open</c> calls, will remain alive
-            and eventually cause a memory leak if this event is not handled.
-            <h3>Handling Notes</h3>
-            In the simplest scenario, you should at least handle the event and set <see cref="P:System.ComponentModel.CancelEventArgs.Cancel"/> to <c>true</c>
-            to tell the core to destroy the unused web-view instance.
+            <p/>
+            <note>
+            The <see cref="E:Awesomium.Core.IWebView.ShowCreatedWebView"/> event must always be handled in your application to wrap views created by
+            Awesomium in response to users clicking a link or JavaScript <c>window.open</c> calls.
+            <p/>
+            If you don't handle this event, the unused web-view instance will be immediately destroyed.
             </note>
             There are a number of facts you need to take into consideration, before taking the appropriate actions in response 
             to a <see cref="E:Awesomium.Core.IWebView.ShowCreatedWebView"/> event. The following list presents these facts and some general suggestions:
@@ -1501,7 +1554,7 @@
             ]]>
             </code>
             This is the code-behind of the <b>ChildWindow</b>:
-            <code>
+            <code lang="C#">
             <![CDATA[
             using System;
             using System.Linq;
@@ -1587,7 +1640,7 @@
             
                         ' In this example, ShowCreatedWebView of all WebControls, 
                         ' is handled by a common handler.
-                        AddHandler webControl.ShowCreatedWebView AddressOf App.OnShowNewView
+                        AddHandler webControl.ShowCreatedWebView, AddressOf App.OnShowNewView
                     End Sub
             
                     Protected Overrides Sub OnClosed(ByVal e As EventArgs)
@@ -1636,7 +1689,7 @@
             </code>
             Below is the common <see cref="E:Awesomium.Core.IWebView.ShowCreatedWebView"/> handler, defined in our <see cref="T:System.Windows.Application"/> object
             code-behind:
-            <code>
+            <code lang="C#">
             <![CDATA[
             using System;
             using System.Linq;
@@ -2391,14 +2444,16 @@
             Gets the identifier for the corresponding child-process hosting this
             <see cref="T:Awesomium.Core.IWebView"/> instance.
             </summary><remarks>
+            May return <c>0</c> if the <see cref="T:Awesomium.Core.IWebView"/> instance has crashed 
+            or there is no rendering process currently associated (see <see cref="P:Awesomium.Core.IWebView.IsLive"/>).
             <note>
             This is not a unique identifier for the <see cref="T:Awesomium.Core.IWebView"/> instance.
             A child, rendering process can host more than one views
             (see <see cref="E:Awesomium.Core.IWebView.ShowCreatedWebView"/>).
             </note>
             <note>
-            May return <c>0</c> if the <see cref="T:Awesomium.Core.IWebView"/> instance has crashed 
-            or there is no process active (see <see cref="P:Awesomium.Core.IWebView.IsLive"/>).
+            This does not correspond to the system-wide id of the associated
+            <see cref="P:Awesomium.Core.IWebView.RenderProcess"/> (PID). It's an Awesomium-specific identifier.
             </note>
             </remarks>
         </member>
@@ -2411,7 +2466,7 @@
             instances maintained by the <see cref="T:Awesomium.Core.WebCore"/>.
             <note>
             May return <c>0</c> if the <see cref="T:Awesomium.Core.IWebView"/> instance has crashed 
-            or there is no process active (see <see cref="P:Awesomium.Core.IWebView.IsLive"/>).
+            or there is no rendering process currently associated (see <see cref="P:Awesomium.Core.IWebView.IsLive"/>).
             </note>
             </remarks>
         </member>
@@ -2424,6 +2479,34 @@
             view is actually created (when we receive the first IPC message
             from the child-process).
             </remarks>
+        </member>
+        <member name="P:Awesomium.Windows.Forms.WebControl.RenderProcess">
+            <summary>
+            Gets the rendering process associated with this <see cref="T:Awesomium.Core.IWebView"/> instance.
+            This represents the executing <i><c>awesomium_process</c></i> or the one specified through 
+            <see cref="P:Awesomium.Core.WebConfig.ChildProcessPath"/> at <see cref="T:Awesomium.Core.WebCore"/> initialization.
+            </summary><remarks>
+            This may not be initialized until some time after the view is actually created 
+            (when we receive the first IPC message from the child-process). It may also return
+            <c>null</c> (<c>Nothing</c> in Visual Basic), is there is no rendering process
+            associated yet (see <see cref="P:Awesomium.Core.IWebView.IsLive"/>) or the process has crashed (see <see cref="P:Awesomium.Core.IWebView.IsCrashed"/>).
+            <p/>
+            The associated <see cref="P:Awesomium.Core.IWebView.RenderProcess"/> will be terminated when this <see cref="T:Awesomium.Core.IWebView"/>
+            instance is disposed and destroyed.
+            <p/>
+            The default priority of the <see cref="P:Awesomium.Core.IWebView.RenderProcess"/>, is <see cref="F:System.Diagnostics.ProcessPriorityClass.Normal"/>.
+            This may be automatically lowered to <see cref="F:System.Diagnostics.ProcessPriorityClass.BelowNormal"/> when
+            <see cref="P:Awesomium.Core.IWebView.IsRendering"/> is <c>false</c>.
+            <note>
+            In a technology-specific <c>WebControl</c>, <see cref="P:Awesomium.Core.IWebView.IsRendering"/> and the priority of
+            the <see cref="P:Awesomium.Core.IWebView.RenderProcess"/>, are associated to the control's <i>enabled</i> status.
+            </note>
+            <note type="caution">
+            Actions that may corrupt the execution state of the rendering process, will directly affect
+            view's web content rendering. Manually killing this process, will mark the view as crashed 
+            (see <see cref="P:Awesomium.Core.IWebView.IsCrashed"/>).
+            </note>
+            </remarks><seealso cref="P:Awesomium.Core.IWebView.ProcessHandle"/><seealso cref="E:Awesomium.Core.IWebView.ProcessCreated"/>
         </member>
         <member name="P:Awesomium.Windows.Forms.WebControl.IsJavascriptEnabled">
             <summary>
@@ -2530,6 +2613,17 @@
             certificate error.
             </summary><seealso cref="P:Awesomium.Core.IWebView.CurrentCertificateError"/><seealso cref="E:Awesomium.Core.IWebView.CertificateError"/>
         </member>
+        <member name="P:Awesomium.Windows.Forms.WebControl.HTML">
+            <summary>
+            Gets the HTML code of the currently loaded document.
+            </summary><remarks>
+            This property is updated after the <see cref="E:Awesomium.Core.IWebView.DocumentReady"/> event is fired.
+            <note type="caution">
+            This property returns <c>null</c> (<c>Nothing</c> in Visual Basic), if JavaScript
+            is disabled in this view (see: <see cref="P:Awesomium.Core.IWebView.IsJavascriptEnabled"/>).
+            </note>
+            </remarks><seealso cref="P:Awesomium.Core.IWebView.Source"/><seealso cref="M:Awesomium.Core.IWebView.LoadHTML(System.String)"/><seealso cref="E:Awesomium.Core.IWebView.DocumentReady"/><seealso cref="P:Awesomium.Core.IWebView.IsJavascriptEnabled"/>
+        </member>
         <member name="P:Awesomium.Windows.Forms.WebControl.Surface">
             <summary>
             Gets or sets the <see cref="T:Awesomium.Core.ISurface"/> instance currently
@@ -2635,7 +2729,7 @@
             function.
             <note>
             This property is implemented as a read-write property on technology specific <c>WebControls</c>.
-            You can use the setter to specify your <see cref="P:Awesomium.Core.IWebView.WebSession"/>, right after instantiating
+            You can use the setter to specify your <see cref="T:Awesomium.Core.WebSession"/>, right after instantiating
             the <c>WebControl</c> or at design time. You cannot change this setting after the control
             has been fully loaded and its underlying web-view, has been created.
             </note>
@@ -2732,7 +2826,7 @@
             All rendering is actually done asynchronously in a separate process
             and so the page is usually continuously rendering internally.
             You should set this to <c>false</c> when your surface is not rendering
-            the view's pixel buffer (for ex, when a technology specific <c>WebControl</c>
+            the view's pixel buffer (e.g., when a technology specific <c>WebControl</c>
             is not visible) to save some CPU cycles.
             <note>
             Technology specific <c>WebControls</c> usually monitor the control's visibility
@@ -2740,12 +2834,17 @@
             additional steps before you are able to set this property manually. For more
             details, refer to the documentation of each <c>WebControl</c>.
             </note>
+            <note>
+            When this is <c>false</c>, the associated process's (see <see cref="P:Awesomium.Core.IWebView.RenderProcess"/>)
+            priority, is also automatically lowered.
+            </note>
             </remarks>
         </member>
         <member name="P:Awesomium.Windows.Forms.WebControl.ViewType">
             <summary>
             Gets or sets the type of the underlying <see cref="T:Awesomium.Core.IWebView"/> instance, this control wraps.
-            The default value for the Windows Forms <see cref="T:Awesomium.Windows.Forms.WebControl"/>, is <see cref="F:Awesomium.Core.WebViewType.Window"/>.
+            The default value for the Windows Forms <c>WebControl</c> and the MonoMac <c>OSMWebView</c>, 
+            is <see cref="F:Awesomium.Core.WebViewType.Window"/>.
             </summary>
             <remarks>
             For details about the various types of a <see cref="T:Awesomium.Core.IWebView"/> instance,
@@ -2788,12 +2887,6 @@
         </member>
         <member name="E:Awesomium.Windows.Forms.WebControl.CausesValidationChanged">
             <exclude />
-        </member>
-        <member name="P:Awesomium.Windows.Forms.WebControl.CanRecreateView">
-            <summary>
-            Gets if this control wraps a previously crashed
-            view that can be recreated.
-            </summary>
         </member>
         <member name="P:Awesomium.Windows.Forms.WebControl.IsLive">
             <summary>
@@ -2841,7 +2934,7 @@
             </note>
             </remarks>
             <example>
-            <code>
+            <code lang="C#">
             private void toolStripButton2_Click( object sender, EventArgs e )
             {
                 if ( !webControl.IsLive )
@@ -2858,6 +2951,17 @@
             End Sub
             </code>
             </example>
+        </member>
+        <member name="P:Awesomium.Windows.Forms.WebControl.ProcessInput">
+            <summary>
+            Gets or sets the user input that should be processed by a technology specific <c>WebControl</c>.
+            The default is <see cref="F:Awesomium.Core.ViewInput.All"/>.
+            </summary><remarks>
+            <note>
+            This property can only be set on technology-specific controls that wrap an <i>offscreen</i> 
+            view (see <see cref="P:Awesomium.Core.IWebView.ViewType"/>). <i>Windowed</i> views process all input by default at native level.
+            </note>
+            </remarks>
         </member>
         <member name="P:Awesomium.Windows.Forms.WebControl.NativeView">
             <summary>
@@ -2885,12 +2989,87 @@
             Raised when the value of a property of this class, has changed.
             </summary>
         </member>
+        <member name="T:Awesomium.Windows.Forms.WebPopupMenu">
+            <summary>
+            Predefined drop-down (popup) menu used by the <see cref="T:Awesomium.Windows.Forms.WebControl"/> in response
+            to <see cref="E:Awesomium.Core.IWebView.ShowPopupMenu"/>.
+            </summary>
+            <remarks>
+            To override or block the default drop-down (popup) menu of a <see cref="T:Awesomium.Windows.Forms.WebControl"/>,
+            handle the <see cref="E:Awesomium.Windows.Forms.WebControl.ShowPopupMenu"/> event and set the 
+            <see cref="P:Awesomium.Core.PopupMenuEventArgs.Handled"/> property to <c>true</c>.
+            This will block the default drop-down (popup) menu from displaying. 
+            You can then manually display your own drop-down (popup) menu.
+            </remarks>
+            <seealso cref="T:Awesomium.Core.WebPopupMenuInfo"/>
+            <seealso cref="P:Awesomium.Core.PopupMenuEventArgs.Handled"/>
+        </member>
+        <member name="M:Awesomium.Windows.Forms.WebPopupMenu.Dispose(System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:Awesomium.Windows.Forms.WebPopupMenu.Show(Awesomium.Core.IWebView,System.Windows.Forms.Control,Awesomium.Core.WebPopupMenuInfo)">
+            <summary>
+            Positions and shows a <see cref="T:Awesomium.Windows.Forms.WebPopupMenu"/>, 
+            relative to the specified <paramref name="control"/>.
+            </summary>
+            <param name="view">
+            The <see cref="T:Awesomium.Core.IWebView"/> to associate this menu with.
+            </param>
+            <param name="control">
+            The <see cref="T:System.Windows.Forms.Control"/> instance this <see cref="T:Awesomium.Windows.Forms.WebPopupMenu"/>
+            will be positioned relative to.
+            </param>
+            <param name="info">
+            A <see cref="T:Awesomium.Core.WebPopupMenuInfo"/> specifying current popup menu data.
+            </param>
+            <remarks>
+            <note>
+            When used with a <see cref="T:Awesomium.Windows.Forms.WebControl"/>, you should pass the <see cref="T:Awesomium.Windows.Forms.WebControl"/>
+            reference to both <paramref name="view"/> and <paramref name="control"/>
+            </note>
+            </remarks>
+            <exception cref="T:System.ArgumentNullException">
+            A <c>null</c> reference specified for <paramref name="view"/>.
+            </exception>
+            <exception cref="T:System.ArgumentNullException">
+            A <c>null</c> reference specified for <paramref name="control"/>.
+            </exception>
+        </member>
+        <member name="M:Awesomium.Windows.Forms.WebPopupMenu.Hide">
+            <summary>
+            Sends the currently selected item and closes the drop-down (popup) menu.
+            </summary>
+        </member>
+        <member name="M:Awesomium.Windows.Forms.WebPopupMenu.Hide(System.Boolean)">
+            <summary>
+            Sends the currently selected item, or cancels and closes the drop-down (popup) menu.
+            </summary>
+            <param name="cancel">
+            <c>true</c> to abort the menu and prevent it from sending the currently selected item;
+            <c>false</c> otherwise.
+            </param>
+        </member>
+        <member name="M:Awesomium.Windows.Forms.WebPopupMenu.OnClosed(System.Windows.Forms.ToolStripDropDownClosedEventArgs)">
+            <inheritdoc />
+        </member>
+        <member name="P:Awesomium.Windows.Forms.WebPopupMenu.MenuInfo">
+            <summary>
+            Gets the <see cref="T:Awesomium.Core.WebPopupMenuInfo"/> instance used to provide data 
+            to the drop-down (popup) menu.
+            </summary>
+        </member>
         <member name="T:Awesomium.Windows.Forms.WebSessionProvider">
             <summary>
             Represents a Windows Forms <see cref="T:Awesomium.Core.WebSession"/> provider, that you can use to assign a WebSession to
             a <see cref="T:Awesomium.Windows.Forms.WebControl"/>, at design-time.
             </summary>
             <remarks>
+            The <see cref="T:Awesomium.Windows.Forms.WebSessionProvider"/> is a design-time component that should be
+            used in the Windows Forms designer. If you are creating a <see cref="T:Awesomium.Windows.Forms.WebControl"/>
+            programmatically, you should set <see cref="P:Awesomium.Windows.Forms.WebControl.WebSession"/> manually
+            right after creating your <see cref="T:Awesomium.Windows.Forms.WebControl"/> and before it goes <i>live</i>
+            (see: <see cref="P:Awesomium.Windows.Forms.WebControl.IsLive"/>)
+            <p/>
             <b>For examples, please read: 
             <a href="http://wiki.awesomium.net/general-use/using-web-sessions.html">Using Web-Sessions</a></b>
             </remarks>
@@ -3113,12 +3292,6 @@
         <member name="M:Awesomium.Windows.Forms.AddressBox.OnMouseLeave(System.EventArgs)">
             <inheritdoc />
         </member>
-        <member name="M:Awesomium.Windows.Forms.AddressBox.OnEnter(System.EventArgs)">
-            <inheritdoc />
-        </member>
-        <member name="M:Awesomium.Windows.Forms.AddressBox.OnLeave(System.EventArgs)">
-            <inheritdoc />
-        </member>
         <member name="M:Awesomium.Windows.Forms.AddressBox.OnMouseUp(System.Windows.Forms.MouseEventArgs)">
             <inheritdoc />
         </member>
@@ -3141,8 +3314,8 @@
             to the <see cref="P:Awesomium.Windows.Forms.AddressBox.WebControl"/> property,
             you allow the two controls to interact. The <see cref="T:Awesomium.Windows.Forms.AddressBox"/> will
             transfer navigation requests to the <see cref="T:Awesomium.Windows.Forms.WebControl"/>
-            and update its <see cref="P:Awesomium.Windows.Forms.AddressBox.Text"/> based on the URL
-            currently loaded to the assigned <see cref="T:Awesomium.Windows.Forms.WebControl"/>.
+            and update the <see cref="P:Awesomium.Windows.Forms.AddressBox.URL"/> property based on the URL currently 
+            loaded to the assigned <see cref="T:Awesomium.Windows.Forms.WebControl"/>.
             <p/>
             <note>
             You do not need to handle this event, if you assign
@@ -3241,6 +3414,9 @@
             and update the <see cref="P:Awesomium.Windows.Forms.ToolStripAddressBox.URL"/> property based on the URL
             currently loaded to the assigned <see cref="T:Awesomium.Windows.Forms.WebControl"/>.
             </remarks>
+        </member>
+        <member name="M:Awesomium.Windows.Forms.ToolStripAddressBox.Dispose(System.Boolean)">
+            <inheritdoc />
         </member>
         <member name="M:Awesomium.Windows.Forms.ToolStripAddressBox.OnBorderStyleChanged(System.EventArgs)">
             <!-- Failed to insert some or all of included XML --><include file="doc\WinBarTextBox.uex" path="docs/doc[@for=&quot;ToolStripTextBox.OnBorderStyleChanged&quot;]/*"/>
@@ -3505,6 +3681,9 @@
             </note>
             </remarks>
         </member>
+        <member name="M:Awesomium.Windows.Forms.WebControlContextMenu.Dispose(System.Boolean)">
+            <inheritdoc />
+        </member>
         <member name="M:Awesomium.Windows.Forms.WebControlContextMenu.Show(System.Windows.Forms.Control)">
             <summary>
             Positions and shows the <see cref="T:Awesomium.Windows.Forms.WebControlContextMenu"/>.
@@ -3555,7 +3734,7 @@
             </summary>
             <remarks>
             <note>
-            <see cref="N:Awesomium.Windows.Forms"/> includes providers for all the <b>Awesomium.NET</b>
+            <see cref="N:Awesomium.Windows.Forms"/> includes providers for all the <b>Awesomium.NET</b> 
             <see cref="T:Awesomium.Core.Data.DataSource"/> types, available through <see cref="N:Awesomium.Core.Data"/>.
             </note>
             </remarks>

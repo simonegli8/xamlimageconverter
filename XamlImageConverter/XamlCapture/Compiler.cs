@@ -20,16 +20,11 @@ using System.Threading.Tasks;
 namespace XamlImageConverter {
 	//TODO: ImageMaps
 
-	public class CompilerInnerException: Exception {
-		public int ErrorCode;
-		public XObject XObject;
-		public CompilerInnerException(string msg, int code, XObject xobj, Exception innerException) : base(msg, innerException) { ErrorCode = code; XObject = xobj; }
-	}
-
 	public class CompilerException: Exception {
 		public int ErrorCode;
 		public XObject XObject;
-		public CompilerException(string msg, int code, XObject xobj, Exception inner) : base(msg, inner) { ErrorCode = code; XObject = xobj; }
+		public Group Group;
+		public CompilerException(string msg, int code, XObject xobj, Group group, Exception inner) : base(msg, inner) { ErrorCode = code; XObject = xobj; Group = group; }
 	}
 
 	public interface ICompiler {
@@ -107,7 +102,7 @@ namespace XamlImageConverter {
 
 		public class FileLocks: IDisposable {
 			static Dictionary<string, object> Locks = new Dictionary<string, object>();
-			string path;
+			string path = null;
 
 			public FileLocks(string path) {
 				this.path = path;
@@ -118,7 +113,13 @@ namespace XamlImageConverter {
 			}
 
 			public void Dispose() {
-				Monitor.Exit(Locks[path]);
+				try {
+					if (path != null) {
+						Monitor.Exit(Locks[path]);
+						path = null;
+					}
+				} catch (Exception ex) {
+				}
 			}
 		}
 
@@ -156,9 +157,7 @@ namespace XamlImageConverter {
 			};
 		}
 
-		public void HandleException(CompilerException ex, Errors errors) {
-			var msg = new StringBuilder();
-			msg.AppendLine("Internal error occurred:");
+	public void HandleException(Exception ex, StringBuilder msg) {
 			msg.AppendLine(ex.Message);
 			msg.AppendLine(ex.StackTrace);
 			var iex = ex.InnerException;
@@ -167,8 +166,29 @@ namespace XamlImageConverter {
 				msg.AppendLine("Inner Exception:");
 				msg.Append(iex.Message);
 				msg.Append(iex.StackTrace);
+				//if (iex is System.Xaml.XamlParseException) HandleException(((System.Xaml.XamlParseException)iex).
 				iex = iex.InnerException;
 			}
+		}
+
+		public void HandleException(CompilerException ex, Errors errors) {
+			var msg = new StringBuilder();
+			if (ex.Group != null && ex.Group is Snapshot) {
+				msg.Append(((Snapshot)ex.Group).Filename); msg.Append("> ");
+				if (ex.Group.Verbose) {
+					var settings = new System.Xml.XmlWriterSettings() { CheckCharacters = true, CloseOutput = true, Encoding = Encoding.UTF8, Indent = true, IndentChars = "  " };
+					using (var w = System.Xml.XmlWriter.Create(msg, settings)) {
+						try {
+							System.Windows.Markup.XamlWriter.Save(ex.Group.Element, w);
+						} catch { }
+					}
+				}
+			} else if (!string.IsNullOrEmpty(ex.Group.Source)) {
+				msg.Append(ex.Group.Source); msg.Append("> ");
+			}
+
+			msg.AppendLine("Internal error occurred:");
+			HandleException(ex, msg);
 			errors.Error(msg.ToString(), ex.ErrorCode.ToString(), ex.XObject);
 		}
 
@@ -281,7 +301,7 @@ namespace XamlImageConverter {
 	/*	void Init() {
 			if (!init) {
 				init = true;
-				Errors.Message("XamlImageConverter 3.10 by Chris Cavanagh & David Egli");
+				Errors.Message("XamlImageConverter 3.11 by Chris Cavanagh & David Egli");
 				Cpus = Parallel ? Environment.ProcessorCount : 1;
 				Errors.Message("Using {0} CPU Cores.", Cpus);
 			}
@@ -298,7 +318,7 @@ namespace XamlImageConverter {
 				var path = Path.Combine(ProjectPath, LibraryPath);
 				if (!string.IsNullOrEmpty(path)) {
 					var files = Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories);
-					foreach (var file in files) {
+					foreach (var file in files.Where(f => f.IndexOf("\\bin\\lazy\\", StringComparison.OrdinalIgnoreCase) == -1)) {
 						try {
 							//var pdb = Path.ChangeExtension(file, "pdb");
 							//Assembly assembly;
@@ -338,54 +358,61 @@ namespace XamlImageConverter {
 			}
 			filename = MapPath(filename);
 
-			var root = new Group();
-			root.Filename = filename;
-			root.Compiler = this;
-			if (!CheckBuilding) {
-				root.Errors.Status("XamlImageConverter 3.10 by Chris Cavanagh & David Egli");
-				root.Errors.Status("{0:G}, using {1} CPU cores.", DateTime.Now, Cpus);
-				root.Errors.Status(Path.GetFileName(filename) + ":");
-			}
+			var sourceLock = FileLock(filename);
 
-			if (string.IsNullOrEmpty(ProjectPath)) ProjectPath = Path.GetDirectoryName(filename);
-			SkinPath = Path.GetDirectoryName(filename);
-
-			List<string> directExtensions = new List<string> { ".xaml", ".psd", ".svg", ".svgz", ".html" };
-
-			XElement config = null;
-			DateTime Version = DateTime.MaxValue;
 			try {
-				if (!RebuildAll) {
-					FileInfo info = new FileInfo(filename);
-					if (info.Exists) Version = info.LastWriteTimeUtc;
+				var root = new Group();
+				root.Filename = filename;
+				root.Compiler = this;
+				if (!CheckBuilding) {
+					root.Errors.Status("XamlImageConverter 3.11 by Chris Cavanagh & David Egli");
+					root.Errors.Status("{0:G}, using {1} CPU cores.", DateTime.Now, Cpus);
+					root.Errors.Status(Path.GetFileName(filename) + ":");
 				}
-				Errors.Path = filename;
-				var ext = Path.GetExtension(filename).ToLower();
-				if (xaml) {
-					Version = DateTime.MinValue;
-					using (var r = new StringReader(dxaml)) {
-						var xdoc = XElement.Load(r, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo | LoadOptions.SetBaseUri);
-						if (xdoc.Name == xic+"XamlImageConverter" || xdoc.Name == sb+"SkinBuilder") config = xdoc;
-						else config = XamlScene.CreateDirect(this, null, xdoc, Parameters);
+
+				if (string.IsNullOrEmpty(ProjectPath)) ProjectPath = Path.GetDirectoryName(filename);
+				SkinPath = Path.GetDirectoryName(filename);
+
+				List<string> directExtensions = new List<string> { ".xaml", ".psd", ".svg", ".svgz", ".html" };
+
+				XElement config = null;
+				DateTime Version = DateTime.MaxValue;
+				try {
+					if (!RebuildAll) {
+						FileInfo info = new FileInfo(filename);
+						if (info.Exists) Version = info.LastWriteTimeUtc;
 					}
-				} else if (directExtensions.Any(x => ext == x)) {
-					config = XamlScene.CreateDirect(this, filename, Parameters);
-				} else if (filename == "xic.axd" || filename.EndsWith("\\xic.axd")) {
-					config = XamlScene.CreateAxd(this, Parameters);
-				} else {
-					using (FileLock(filename)) {
-						config = XElement.Load(filename, LoadOptions.SetBaseUri | LoadOptions.SetLineInfo | LoadOptions.PreserveWhitespace);
+					Errors.Path = filename;
+					var ext = Path.GetExtension(filename).ToLower();
+					if (xaml) {
+						Version = DateTime.MinValue;
+						using (var r = new StringReader(dxaml)) {
+							var xdoc = XElement.Load(r, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo | LoadOptions.SetBaseUri);
+							if (xdoc.Name == xic + "XamlImageConverter" || xdoc.Name == sb + "SkinBuilder") config = xdoc;
+							else config = XamlScene.CreateDirect(this, null, xdoc, Parameters);
+						}
+					} else if (directExtensions.Any(x => ext == x)) {
+						config = XamlScene.CreateDirect(this, filename, Parameters);
+					} else if (filename == "xic.axd" || filename.EndsWith("\\xic.axd")) {
+						config = XamlScene.CreateAxd(this, filename, Parameters);
+					} else {
+						using (FileLock(filename)) {
+							config = XElement.Load(filename, LoadOptions.SetBaseUri | LoadOptions.SetLineInfo | LoadOptions.PreserveWhitespace);
+						}
 					}
+				} catch (FileNotFoundException) {
+					root.Errors.Error("Unable to read the configuration file", "1");
+					return;
+				} catch (Exception ex) {
+					root.Errors.Error(ex.Message, "21", null, ex);
+					return;
 				}
-			} catch (FileNotFoundException) {
-				root.Errors.Error("Unable to read the configuration file", "1");
-				return;
-			} catch (Exception ex) {
-				root.Errors.Error(ex.Message, "21", null, ex);
-				return;
+				if (config != null) Compile(root, Version, config);
+				//if (!CheckBuilding) root.ExitProcess(null);
+			} catch {
+			} finally {
+				sourceLock.Dispose();
 			}
-			if (config != null) Compile(root, Version, config);
-			//if (!CheckBuilding) root.ExitProcess(null);
 		}
 
 		public class StepQueue {
@@ -502,6 +529,11 @@ namespace XamlImageConverter {
 
 		void Compile(Group root, DateTime Version, XElement config) {
 
+			int cpus = Cpus;
+
+			//var parallel = config.Attribute("Parallel");
+			//if (parallel != null && string.Equals(parallel.Value ?? "", "false", StringComparison.OrdinalIgnoreCase)) cpus = 1;
+
 			if (RebuildAll) Version = DateTime.Now.ToUniversalTime();
 			try {
 				var scenes = ParseScenes(root, Version, config).ToList();
@@ -528,9 +560,9 @@ namespace XamlImageConverter {
 
 				LoadDlls();
 	
-				var steps = new StepQueue(root, Version, config, this, scenes, CheckBuilding); 
+				var steps = new StepQueue(root, Version, config, this, scenes, CheckBuilding);
 
-				for (int cpu = Cpus-1; cpu >= 0; cpu--) {
+				for (int cpu = cpus-1; cpu >= 0; cpu--) {
 					var cpul = cpu;
 					ParameterizedThreadStart task = (state) => { // iterate over all steps
 						try {

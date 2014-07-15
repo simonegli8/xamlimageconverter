@@ -45,6 +45,7 @@ namespace XamlImageConverter {
 
 		public ImageMap() {
 			Flatness = 0.5;
+			Dpi = 96.0;
 			FileType = FileTypes.UserControl;
 		}
 
@@ -329,13 +330,13 @@ namespace XamlImageConverter {
 				if (ta is Transform) {
 					var tg = new TransformGroup();
 					tg.Children.Add((Transform)ta);
-					tg.Children.Add(Snapshot.Transform);
+					if (Snapshot != null) tg.Children.Add(Snapshot.Transform);
 					tg.Children.Add(Transform);
 					VisualTransform = tg;
 				} else {
 					var tg = new GeneralTransformGroup();
 					tg.Children.Add(ta);
-					tg.Children.Add(Snapshot.Transform);
+					if (Snapshot != null) tg.Children.Add(Snapshot.Transform);
 					tg.Children.Add(Transform);
 					VisualTransform = tg;
 				}
@@ -550,12 +551,12 @@ namespace XamlImageConverter {
 				var s = Snapshot;
 				//if (s == null) throw new CompilerException("ImageMap has no related Snapshot", 27, this.XElement);
 				if (s != null) {
-					Dpi = s.Dpi ?? 96.0;
-					scale = scale ?? Dpi / 96.0;
+					Dpi = s.Dpi ?? Dpi;
+					scale = scale ?? s.Scale * Dpi / 96.0;
 					xoffset = xoffset ?? s.Offset.X;
 					yoffset = yoffset ?? s.Offset.Y;
-					angle = angle ?? 0;
 				}
+				angle = angle ?? 0;
 
 				scale = scale ?? 1;
 				xscale = xscale ?? scale;
@@ -570,8 +571,8 @@ namespace XamlImageConverter {
 
 
 				FrameworkElement e = null;
-				if (string.IsNullOrEmpty(s.ElementName)) e = s.Scene.Element;
-				else e = s.Element;
+				if (s != null && string.IsNullOrEmpty(s.ElementName)) e = s.Scene.Element;
+				else e = s != null ? s.Element : Element;
 
 				var areatags = new string[] { "area", "areas", "hotspot", "hotspots" };
 

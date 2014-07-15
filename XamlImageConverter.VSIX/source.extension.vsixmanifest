@@ -3,7 +3,7 @@
 	<Identifier Id="XamlImageConverter.2c5e9477-428f-4362-a5b5-d8c2d6ec2605">
 		<Name>Xaml Image Converter</Name>
 		<Author>David Egli</Author>
-		<Version>3.10</Version>
+		<Version>3.11</Version>
 		<AllUsers>true</AllUsers>
 		<Description xml:space="preserve">Renders images, animations, html image maps &amp; pdf's from Xaml, HTML, SVG &amp; Photoshop files.
 
@@ -50,6 +50,7 @@ Features:
 		<CustomExtension Type="Reference">Lazy\psd2xaml\Endogine.dll</CustomExtension>
 		<CustomExtension Type="Resource">Lazy\gxps\gxps-9.05-win32.exe</CustomExtension>
 		<CustomExtension Type="Resource">Lazy\gxps\gxps-9.07-win32.exe</CustomExtension>
+		<CustomExtension Type="Resource">Lazy\gxps\gxps-9.14-win32.exe</CustomExtension>
 		<CustomExtension Type="Resource">Lazy\ImageMagick\atl100.dll</CustomExtension>
 		<CustomExtension Type="Resource">Lazy\ImageMagick\colors.xml</CustomExtension>
 		<CustomExtension Type="Resource">Lazy\ImageMagick\configure.xml</CustomExtension>

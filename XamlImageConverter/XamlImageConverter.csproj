@@ -79,7 +79,40 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompilerTask.cs" />
+    <Content Include="Lazy\Awesomium\Awesomium.Mono.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Mono.XML">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Windows.Controls.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Windows.Controls.XML">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Windows.Forms.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Windows.Forms.XML">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Lazy\Awesomium\awesomium_process">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Design\Awesomium.Windows.Controls.Design.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Design\Awesomium.Windows.Forms.Design.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Design\README.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\html2pdf.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\html2pdf.pdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Lazy\Awesomium\inspector.pak">
@@ -631,6 +664,7 @@
     <Compile Include="XamlCapture\Elements.cs" />
     <None Include="XamlCapture\FastBuildCheck.cs" />
     <Compile Include="XamlCapture\Hash.cs" />
+    <Compile Include="XamlCapture\Html2PDF.cs" />
     <Compile Include="XamlCapture\ImageMap.cs" />
     <Compile Include="XamlCapture\PngHelper.cs" />
     <Compile Include="XamlCapture\Snapshot.cs" />
@@ -682,10 +716,13 @@
     <Content Include="Lazy\Awesomium\libGLESv2.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Lazy\Awesomium\XamlImageConverter.Awesomium.dll">
+    <Content Include="Lazy\Awesomium\Packed\Awesomium.Core.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Lazy\Awesomium\XamlImageConverter.Awesomium.pdb">
+    <Content Include="Lazy\Awesomium\Packed\README.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\README.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Lazy\Awesomium\xinput9_1_0.dll">

@@ -20,6 +20,10 @@ namespace XamlImageConverter.Elements {
 		public string Skin { get; set; }
 		public string TextMode { get; set; }
 		public string OutputPath { get; set; }
+		public bool Parallel { get; set; }
+		public bool Ghost { get; set; }
+		public bool Verbose { get; set; }
+		public string RenderMode { get; set; }
 	}
 
 	[ContentProperty("Children")]
@@ -38,6 +42,11 @@ namespace XamlImageConverter.Elements {
 		public string Theme { get; set; }
 		public string Skin { get; set; }
 		public string TextMode { get; set; }
+		public bool Parallel { get; set; }
+		public bool Ghost { get; set; }
+		public bool Verbose { get; set; }
+		public string RenderMode { get; set; }
+
 	}
 
 	public interface ISceneElement { }
@@ -61,6 +70,11 @@ namespace XamlImageConverter.Elements {
 		public string Theme { get; set; }
 		public string Skin { get; set; }
 		public string TextMode { get; set; }
+		public bool Parallel { get; set; }
+		public bool Ghost { get; set; }
+		public bool Verbose { get; set; }
+		public string RenderMode { get; set; }
+
 	}
 
 	[ContentProperty("Content")]
@@ -94,6 +108,11 @@ namespace XamlImageConverter.Elements {
 		public string Skin { get; set; }
 		public string TextMode { get; set; }
 		public int? Layer { get; set; }
+		public bool Parallel { get; set; }
+		public bool Ghost { get; set; }
+		public bool Verbose { get; set; }
+		public string RenderMode { get; set; }
+
 	}
 
 	public interface IArea { }

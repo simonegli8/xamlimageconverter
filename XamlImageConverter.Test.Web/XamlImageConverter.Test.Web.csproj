@@ -69,6 +69,150 @@
     <Content Include="Default.aspx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
+    <Content Include="Lazy\Awesomium\avcodec-53.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\avformat-53.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\avutil-51.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Core.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Core.XML">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\awesomium.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Mono.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Mono.XML">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Windows.Controls.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Windows.Controls.XML">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Windows.Forms.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Windows.Forms.XML">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Design\Awesomium.Windows.Controls.Design.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Design\Awesomium.Windows.Forms.Design.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Design\README.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\html2pdf.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\html2pdf.pdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\icudt.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\libEGL.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\libGLESv2.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Packed\Awesomium.Core.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\Packed\README.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\README.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\xinput9_1_0.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\gxps\gxps-9.05-win32.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\gxps\gxps-9.07-win32.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\ImageMagick\atl100.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\ImageMagick\colors.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\ImageMagick\configure.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\ImageMagick\convert.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\ImageMagick\delegates.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\ImageMagick\english.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\ImageMagick\locale.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\ImageMagick\log.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\ImageMagick\magic.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\ImageMagick\mfc100.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\ImageMagick\mime.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\ImageMagick\msvcp100.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\ImageMagick\msvcr100.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\ImageMagick\policy.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\ImageMagick\type-ghostscript.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\ImageMagick\type.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\ImageMagick\vcomp100.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\psd2xaml\Endogine.Codecs.Flash.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\psd2xaml\Endogine.Codecs.Photoshop.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\psd2xaml\Endogine.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\XamlImageConverter.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\XamlImageConverter.pdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="XamlImageConverter.Demo\blog-banner.jpg" />
     <Content Include="XamlImageConverter.Demo\jquery.js" />
     <Content Include="XamlImageConverter.Demo\jquery.maphilight.min.js" />
@@ -90,6 +234,13 @@
     </Compile>
     <Compile Include="iisuser.aspx.designer.cs">
       <DependentUpon>iisuser.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Lazy\XamlImageConverter.Designer.cs" />
+    <Compile Include="Lazy\XamlImageConverter1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>XamlImageConverter.xsd</DependentUpon>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -114,13 +265,36 @@
       <Project>{fcd85abb-b282-409f-beb8-64e4a979f18a}</Project>
       <Name>XamlImageConverter.Web</Name>
     </ProjectReference>
-    <ProjectReference Include="..\XamlImageConverter\XamlImageConverter.csproj">
-      <Project>{c5dc3841-241b-4398-9bbd-73383e8497a2}</Project>
-      <Name>XamlImageConverter</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="XamlImageConverter.Demo\Planet.psd" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Lazy\Awesomium\awesomium_process">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\Awesomium\inspector.pak">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\XamlImageConverter.xsc">
+      <DependentUpon>XamlImageConverter.xsd</DependentUpon>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\XamlImageConverter.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>XamlImageConverter1.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\XamlImageConverter.xss">
+      <DependentUpon>XamlImageConverter.xsd</DependentUpon>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Lazy\XamlImageConverter.targets">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -133,11 +307,13 @@
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets. -->
   <Target Name="AfterBuild">
-    <CreateItem Include="$(ProjectDir)bin\XamlImageConverter.dll;$(ProjectDir)bin\XamlImageConverter.pdb">
-      <Output TaskParameter="Include" ItemName="ItemsSource1" />
+    <CreateItem Include="$(SolutionDir)XamlImageConverter\Lazy\**\*.*">
+      <Output TaskParameter="Include" ItemName="LazySource" />
     </CreateItem>
-    <Copy SourceFiles="@(ItemsSource1)" DestinationFolder="$(ProjectDir)bin\Lazy\" OverwriteReadOnlyFiles="true" />
-    <Delete Files="@(ItemsSource1)" />
+    <CreateItem Include="$(SolutionDir)XamlImageConverter\bin\$(Configuration)\XamlImageConverter.*">
+      <Output TaskParameter="Include" ItemName="LazySource" />
+    </CreateItem>
+    <Copy SourceFiles="@(LazySource)" DestinationFiles="@(LazySource->'$(ProjectDir)Lazy\%(RecursiveDir)%(Filename)%(Extension)')" OverwriteReadOnlyFiles="true" />
   </Target>
   <!--  <Target Name="AfterBuild">
   </Target>

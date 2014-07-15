@@ -41,6 +41,9 @@ namespace XamlImageConverter {
 			group.Skin = (string)e.Attribute("Skin");
 			if (group.Theme == "") group.Theme = null;
 			if (group.Skin == "") group.Skin = null;
+			System.Windows.Interop.RenderMode renderMode;
+			group.renderMode = null;
+			if (Enum.TryParse<System.Windows.Interop.RenderMode>((string)e.Attribute("RenderMode") ?? "", out renderMode)) group.RenderMode = renderMode;
 			if (e.Attribute("TextMode") != null) {
 				var modes = ((string)e.Attribute("TextMode")).Split('.', ',', ';').Select(m => m.Trim());
 				foreach (var mode in modes) {
@@ -50,6 +53,12 @@ namespace XamlImageConverter {
 					if (Enum.TryParse<TextRenderingMode>(mode, out rendering)) group.TextRenderingMode = rendering;
 				}
 			}
+			var parallel = (string)e.Attribute("Parallel");
+			group.Parallel = parallel != null && parallel.Equals("false", StringComparison.OrdinalIgnoreCase) ? false : true;
+			var ghost = (string)e.Attribute("Ghost");
+			group.ghost = ghost == null ? (bool?)null : ghost.Equals("true", StringComparison.OrdinalIgnoreCase);
+			var verbose = (string)e.Attribute("Verbose");
+			group.verbose = verbose == null ? (bool?)null : verbose.Equals("true", StringComparison.OrdinalIgnoreCase);
 		}
 
 		/// <summary>
@@ -71,8 +80,6 @@ namespace XamlImageConverter {
 						Group scene = null;
 						try {
 							scene = ParseScene(Root, Version, x);
-						} catch (CompilerInnerException ex) {
-							Root.Errors.Error(ex.Message + "\n" + ex.InnerException.Message + "\n" + ex.InnerException.StackTrace, ex.ErrorCode.ToString(), ex.XObject);
 						} catch (CompilerException ex) {
 							//Root.Errors.Error(ex.Message, ex.ErrorCode.ToString(), ex.XObject);
 							Compiler.HandleException(ex, Root.Errors);
@@ -107,7 +114,7 @@ namespace XamlImageConverter {
 			if (srcAttr != null) scene.Source = srcAttr.Value;
 			var src = scene.Source;
 
-			if (xaml == null) throw new CompilerException("Scene must contain source file specification.", 10, x, null);
+			if (xaml == null) throw new CompilerException("Scene must contain source file specification.", 10, x, scene, null);
 			scene.XamlElement = xaml;
 
 			var width = (double?)xaml.Attribute("Width") ?? double.PositiveInfinity;
@@ -125,7 +132,7 @@ namespace XamlImageConverter {
 			if (src != null) {
 				if (!(src.StartsWith("http://") || src.StartsWith("https://"))) {
 					info = new FileInfo(Compiler.MapPath(src));
-					if (!info.Exists) throw new CompilerException("Source file " + info.FullName + " not found.", 11, xaml, null);
+					if (!info.Exists) throw new CompilerException("Source file " + info.FullName + " not found.", 11, xaml, scene, null);
 
 					XamlVersion = info.LastWriteTimeUtc;
 				}
@@ -139,7 +146,7 @@ namespace XamlImageConverter {
 
 				if (typename == null) {
 					scene.InnerXaml = xaml.Elements().SingleOrDefault();
-					if (scene.InnerXaml == null) throw new CompilerException("Scene must contain a single XAML root element", 16, xaml, null);
+					if (scene.InnerXaml == null) throw new CompilerException("Scene must contain a single XAML root element", 16, xaml, scene, null);
 				}
 			}
 

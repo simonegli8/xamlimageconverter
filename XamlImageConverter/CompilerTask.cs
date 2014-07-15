@@ -53,6 +53,8 @@ namespace XamlImageConverter.MSBuild {
 
 		public string LibraryPath { get; set; }
 
+		private bool parallel = true;
+		public bool Parallel { get { return parallel; } set { parallel = value; } }
 		/// <summary>
 		/// Main entry point for the task
 		/// </summary>
@@ -73,7 +75,7 @@ namespace XamlImageConverter.MSBuild {
 			compiler.Loggers.Add(new Logger(Log));
 			compiler.Loggers.Add(new FileLogger());
 			compiler.SeparateAppDomain = true;
-			compiler.Parallel = true;
+			compiler.Parallel = Parallel;
 			compiler.Compile();
 
 			return !Log.HasLoggedErrors;

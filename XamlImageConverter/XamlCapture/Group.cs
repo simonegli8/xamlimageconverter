@@ -75,8 +75,16 @@ namespace XamlImageConverter {
 		public Errors Errors { get { return Master.errors ?? (Master.errors = Compiler.Errors.Clone(Master.Filename)); } set { Master.errors = value; } }
 		Dictionary<string, FixedDocument> xpsDocs;
 		public Dictionary<string, FixedDocument> XpsDocs { get { return Root.xpsDocs ?? (Root.xpsDocs = new Dictionary<string,FixedDocument>()); } set { Root.xpsDocs = value; } }
-
+		public bool parallel = false;
+		public bool Parallel { get { return Master.parallel; } set { Master.parallel = value; } }
+		public System.Windows.Interop.RenderMode? renderMode = null;
+		public System.Windows.Interop.RenderMode RenderMode { get { return (System.Windows.Interop.RenderMode)(renderMode ?? Parent.renderMode ?? System.Windows.Interop.RenderMode.Default); } set { renderMode = value; } }
 		public IDisposable FileLock(string path) { return Compiler.FileLock(path); }
+		public bool? ghost = null;
+		public bool Ghost { get { return ghost ?? (Parent != null ? Parent.Ghost : false); } set { ghost = value; } }
+		public bool? verbose = null;
+		public bool Verbose { get { return verbose ?? (Parent != null ? Parent.Verbose : false); } set { verbose = value; } }
+
 
 		public void ImageCreated() {
 			lock (Master) Master.CreatedImages++;
@@ -91,7 +99,8 @@ namespace XamlImageConverter {
 					workingdir = workingdir ?? Path.GetDirectoryName(exe);
 					var pinfo = p.StartInfo;
 					pinfo.FileName = exe;
-					pinfo.CreateNoWindow = true;
+					//pinfo.CreateNoWindow = true;
+					pinfo.CreateNoWindow = false;
 					pinfo.Arguments = args;
 					pinfo.UseShellExecute = false;
 					pinfo.RedirectStandardOutput = true;
@@ -262,7 +271,7 @@ namespace XamlImageConverter {
 												element = XamlReader.Load(r) as FrameworkElement;
 											}
 										} catch (Exception ex) {
-											throw new CompilerException("Error loading xaml: " + ex.Message, 34, XElement, ex);
+											throw new CompilerException("Error loading xaml: " + ex.Message, 34, XElement, this, ex);
 										}
 									} else {
 										Scene.XamlFile = file;
@@ -284,12 +293,12 @@ namespace XamlImageConverter {
 													//else context = new ParserContext { BaseUri = new Uri(XamlElement.BaseUri) };
 													element = XamlReader.Load(r) as FrameworkElement;
 												} else {
-													throw new CompilerException("Input format not supported.", 20, XElement, null);
+													throw new CompilerException("Input format not supported.", 20, XElement, this, null);
 												}
 											}
 										} catch (Exception ex) {
 											if (ex is CompilerException) throw ex;
-											else throw new CompilerException("Error loading xaml: " + ex.Message, 34, XElement, ex);
+											else throw new CompilerException("Error loading xaml: " + ex.Message, 34, XElement, this, ex);
 										}
 									}
 								}
@@ -317,7 +326,7 @@ namespace XamlImageConverter {
 												type = assembly.GetType(typeName);
 											}
 										} catch (Exception ex) {
-											throw new CompilerException(string.Format("Error loading assembly {0}.", assemblyName), 12, XamlElement, ex);
+											throw new CompilerException(string.Format("Error loading assembly {0}.", assemblyName), 12, XamlElement, this, ex);
 										}
 									} else {
 										try {
@@ -327,17 +336,19 @@ namespace XamlImageConverter {
 												type = assemblies.Reverse().SelectMany(a => a.GetTypes()).FirstOrDefault(t => t.FullName == typeName);
 											}
 										} catch (Exception ex) {
-											throw new CompilerException(string.Format("Invalid type name {0}.", typeName), 13, XamlElement, ex);
+											throw new CompilerException(string.Format("Invalid type name {0}.", typeName), 13, XamlElement, this, ex);
 										}
 									}
 									if (type != null) {
 										try {
-											element = Activator.CreateInstance(type) as FrameworkElement;
+											lock (Compiler) {
+												element = Activator.CreateInstance(type) as FrameworkElement;
+											}
 										} catch (Exception ex) {
-											throw new CompilerInnerException(string.Format("Error creating type {0}.", typeName), 14, XamlElement, ex);
+											throw new CompilerException(string.Format("Error creating type {0}.", typeName), 14, XamlElement, Root, ex);
 										}
 									} else {
-										throw new CompilerException(string.Format("Type {0} not found.", typeName), 15, XamlElement, null);
+										throw new CompilerException(string.Format("Type {0} not found.", typeName), 15, XamlElement, this, null);
 									}
 								} else if (InnerXaml != null) {
 									element = XamlReader.Load(InnerXaml.CreateReader()) as FrameworkElement;
@@ -532,6 +543,7 @@ namespace XamlImageConverter {
 				if (rendering.HasValue) TextOptions.SetTextRenderingMode(Element, rendering.Value);
 				var formatting = Setting(g => g.TextFormattingMode);
 				if (formatting.HasValue) TextOptions.SetTextFormattingMode(Element, formatting.Value);
+				RenderOptions.ProcessRenderMode = RenderMode;
 			}
 		}
 
@@ -594,7 +606,7 @@ namespace XamlImageConverter {
 
 		public Point RelativeOffset { get { return new Point(Canvas.GetLeft(Window), Canvas.GetTop(Window)); } }
 		public Point TopLeft { get { return RelativeOffset; } }
-		public Point Offset { get { return Window.Bounds(Scene.Window).TopLeft; } }
+		public Point Offset { get { return (Window == null || Scene == null || Scene.Window == null) ? new Point() : Window.Bounds(Scene.Window).TopLeft; } }
 
 #if DEBUG
 		public IEnumerable<Point> Offsets { get { return Ancestors.SkipLast(1).Select(a => a.RelativeOffset); } }
@@ -657,12 +669,31 @@ namespace XamlImageConverter {
 
 					//TODO ps2write doesn't work!? Use ghostscript to convert pdf to ps.
 
-					if (ext == ".pdf") {
-						device = "pdfwrite";
-						exe = "gxps-9.05-win32.exe";
-					} else {
-						device = "ps2write";
-						exe = "gxps-9.07-win32.exe";
+					switch (ext) {
+						case ".pdf":
+						default:
+							device = "pdfwrite";
+							exe = "gxps-9.05-win32.exe";
+							break;
+						case ".ps":
+						case ".eps":
+							device = "ps2write";
+							exe = "gxps-9.07-win32.exe";
+							break;
+						case ".jpg":
+						case ".jpeg":
+							exe = "gxps-9.05-win32.exe";
+							device = "jpeg";
+							break;
+						case ".png":
+							exe = "gxps-9.05-win32.exe";
+							device = "png16m";
+							break;
+						case ".tif":
+						case ".tiff":
+							exe = "gxps-9.05-win32.exe";
+							device = "tiffg32d";
+							break;
 					}
 					exe = Compiler.BinPath("Lazy\\gxps\\" + exe);
 					//if (!File.Exists(exe)) exe = Path.Combine(path, @"\gxps.exe");
@@ -742,18 +773,20 @@ namespace XamlImageConverter {
 		public DateTime OutputVersion {
 			get {
 				if (LocalFilename.Contains(',') || LocalFilename.Contains(';')) {
-					var locks = LocalFilename.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-						.Select(file => FileLock(file));
-
-					Version = new DateTime(LocalFilename.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-						.Max(file => {
-							FileInfo info = new FileInfo(file);
-							if (info.Exists) return info.LastWriteTimeUtc.Ticks;
-							else return DateTime.MinValue.Ticks;
-						}));
-
-					foreach (var file in locks) file.Dispose();
-
+					var locks = new List<IDisposable>();
+					try {
+						var files = LocalFilename.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+						foreach (var file in files) locks.Add(FileLock(file));
+						Version = new DateTime(LocalFilename.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+							.Max(file => {
+								FileInfo info = new FileInfo(file);
+								if (info.Exists) return info.LastWriteTimeUtc.Ticks;
+								else return DateTime.MinValue.Ticks;
+							}));
+					} catch {
+					} finally {
+						foreach (var file in locks) file.Dispose();
+					}
 					return Version;
 				} else {
 					FileInfo info = new FileInfo(LocalFilename);

@@ -46,7 +46,12 @@ namespace XamlImageConverter {
 
 		public override string Filename {
 			get {
-				var name = base.Filename ?? Scene.Source + "." + Type ?? "png";
+				var src = Scene.Source ?? "auto" + Guid.NewGuid().ToString();
+				if (src.StartsWith("http://") || src.StartsWith("https://")) {
+					if (src.Contains('?')) src = src.Substring(0, src.IndexOf('?'));
+					src = src.Substring(src.LastIndexOf('/') + 1);
+				}
+				var name = base.Filename ?? src + "." + Type ?? "png";
 				if (Hash.HasValue) name = Path.ChangeExtension(name, Hash.Value.ToString("X") + Path.GetExtension(name));
 				return name;
 			}
@@ -128,7 +133,12 @@ namespace XamlImageConverter {
 					return Element.DesiredSize;
 				}
 			}
-			return size;
+			if ((!(double.IsNaN(element.Width) && element.Width == 0) && (double.IsNaN(element.ActualWidth) || element.ActualWidth == 0)) ||
+				(!(double.IsNaN(element.Height) && element.Height == 0) && (double.IsNaN(element.ActualHeight) || element.ActualHeight == 0))) {
+				element.MeasureAndArrange(new Size(element.Width, element.Height));
+			}
+			if ((double.IsNaN(element.ActualWidth) || element.ActualWidth == 0) || (double.IsNaN(element.ActualHeight) || element.ActualHeight == 0)) return size;
+			return new Size(element.ActualWidth, element.ActualHeight);
 		}
 
 		private void SaveXpsPage(string filename) {
@@ -198,12 +208,18 @@ namespace XamlImageConverter {
 			}
 
 			ext = ext.ToLower();
+			var sext = Path.GetExtension(Source);
+			if (ext == sext && Scale == 1 && GetValue(WidthProperty) == null && GetValue(HeightProperty) == null && GetValue(TopProperty) == null && GetValue(BottomProperty) == null &&
+				GetValue(RightProperty) == null && GetValue(LeftProperty) == null) {
+				if (Source != filename)	File.Copy(Source, filename);
+				return this;
+			}
 			if (ext != ".pdf" && Scene.Element is HtmlSource) Errors.Error("Html sources can only be converted to PDF.", "60", XElement);
-			if (ext == ".eps" || ext == ".ps" || ext == ".pdf") {
+			if (Ghost || ext == ".eps" || ext == ".ps" || ext == ".pdf") {
 				if (Scene.Element is HtmlSource) SaveHtml();
 				else {
 					TempFiles.Add(XpsTempFile);
-					SaveXpsPage(filename + "._temp.xps");
+					SaveXpsPage(XpsTempFile);
 				}
 			} else if (ext == ".xps") SaveXpsPage(filename);
 			else if (ext == ".xaml") {
@@ -223,12 +239,7 @@ namespace XamlImageConverter {
 						xamlsave = true;
 					}
 					if (xamlsave) {
-						var settings = new System.Xml.XmlWriterSettings();
-						settings.CheckCharacters = true;
-						settings.CloseOutput = true;
-						settings.Encoding = Encoding.UTF8;
-						settings.Indent = true;
-						settings.IndentChars = "  ";
+						var settings = new System.Xml.XmlWriterSettings() { CheckCharacters = true, CloseOutput = true, Encoding = Encoding.UTF8, Indent = true, IndentChars = "  " };
 						using (var w = System.Xml.XmlWriter.Create(filename, settings)) {
 							try {
 								XamlWriter.Save(Element, w);
@@ -298,12 +309,13 @@ namespace XamlImageConverter {
 		public void SaveHtml() {
 
 			if (Html2PDF == null) {
-				var apath = Compiler.BinPath("Lazy\\Awesomium\\");
-				var aname = new System.Reflection.AssemblyName("XamlImageConverter.Awesomium, Version=3.10.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45");
+				/*var apath = Compiler.BinPath("Lazy\\Awesomium\\");
+				var aname = new System.Reflection.AssemblyName("XamlImageConverter.Awesomium, Version=3.11.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45");
 				aname.CodeBase = apath + "XamlImageConverter.Awesomium.dll";
 				var a = System.Reflection.Assembly.Load(aname);
 				var Html2PDFType = a.GetType("XamlImageConverter.Html2PDF");
-				Html2PDF = (Html2PDFConverter)Activator.CreateInstance(Html2PDFType);
+				Html2PDF = (Html2PDFConverter)Activator.CreateInstance(Html2PDFType); */
+				Html2PDF = new Html2PDF();
 			}
 			Html2PDF.SaveAsync(this);
 		}
@@ -323,7 +335,7 @@ namespace XamlImageConverter {
 			return EncoderFactory.Create(filename, quality, dpi);
 		}
 
-		public override bool MustRunOnMainThread { get { return (Scene.Source ?? "").EndsWith(".psd"); } }
+		public override bool MustRunOnMainThread { get { return (Scene.Source ?? "").EndsWith(".psd") || Parallel == false; } }
 		public override bool MustRunSequential {
 			get {
 				return Root.Flatten()

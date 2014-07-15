@@ -45,7 +45,23 @@ namespace XamlImageConverter.Web.UI {
 		public Guid Guid { get { return (Guid)(ViewState["Guid"] ?? (Guid = System.Guid.NewGuid())); } set { ViewState["Guid"] = value; } }
 		public string Type { get { return (string)ViewState["Type"]; } set { ViewState["Type"] = value; } }
 		public string Image { get { return ImageUrl; } set { ImageUrl = value; } }
-		string SessionID { get { return SessionPrefix + Guid.ToString(); } }
+		public double? Scale { get { return (double?)ViewState["Scale"]; } set { ViewState["Scale"] = value; } }
+		protected string SessionID { get { return SessionPrefix + Guid.ToString(); } }
+		protected string Output {
+			get {
+				var hashsb = new StringBuilder();
+				hashsb.Append(Storyboard ?? "");
+				hashsb.Append(Theme ?? "");
+				hashsb.Append(Skin ?? "");
+				hashsb.Append(Cultures ?? "");
+				hashsb.Append(Type ?? "");
+				hashsb.Append(Scale ?? 1);
+				hashsb.Append(Content ?? "");
+				var hash = Hash.Compute(hashsb.ToString());
+				hash += 10 * (Quality ?? 90) + 1000 * (Loops ?? 1) + (int)(10000 * (Pause ?? 0)) + 100000 * (Dpi ?? 96);
+				return Path.ChangeExtension(ImageUrl, hash.ToString("X") + Path.GetExtension(ImageUrl));
+			}
+		}
 
 		XElement element = null;
 		public XElement XElement {
@@ -65,7 +81,9 @@ namespace XamlImageConverter.Web.UI {
 			get {
 				var sb = new StringBuilder();
 				if (string.IsNullOrEmpty(Source)) {
-					sb.Append("xic.axd?Source="); sb.Append(HttpUtility.UrlEncode(SessionID));
+					var path = Image ?? "";
+					path = path.Substring(0, path.LastIndexOf('/')+1);
+					sb.Append(path + "xic.axd?Verbose=true&Source="); sb.Append(HttpUtility.UrlEncode(SessionID));
 				} else {
 					sb.Append(Source + "?");
 				}
@@ -79,6 +97,7 @@ namespace XamlImageConverter.Web.UI {
 					if (Loops.HasValue) { sb.Append("&Loops="); sb.Append(Loops.Value); }
 					if (Pause.HasValue) { sb.Append("&Pause="); sb.Append(Pause.Value); }
 					if (Dpi.HasValue) { sb.Append("&Dpi="); sb.Append(Dpi.Value); }
+					if (Scale.HasValue) { sb.Append("&Scale="); sb.Append(Scale.Value); }
 					if (!string.IsNullOrEmpty(Type)) { sb.Append("&Type="); sb.Append(HttpUtility.UrlEncode(Type)); }
 					/*if (e.Name.NamespaceName == "") {
 						e.Name = xaml + e.Name.LocalName;
@@ -105,16 +124,7 @@ namespace XamlImageConverter.Web.UI {
 					}
 				}
 				if (!string.IsNullOrEmpty(ImageUrl)) {
-					var hashsb = new StringBuilder();
-					hashsb.Append(Storyboard ?? "");
-					hashsb.Append(Theme ?? "");
-					hashsb.Append(Skin ?? "");
-					hashsb.Append(Cultures ?? "");
-					hashsb.Append(Type ?? "");
-					hashsb.Append(Content ?? "");
-					var hash = Hash.Compute(hashsb.ToString());
-					hash += 10 * (Quality ?? 90) + 1000 * (Loops ?? 1) + (int)(10000 * (Pause ?? 0)) + 100000 * (Dpi ?? 96);
-					sb.Append("&Image="); sb.Append(HttpUtility.UrlEncode(Path.ChangeExtension(ImageUrl, hash.ToString("X") + Path.GetExtension(ImageUrl))));
+					sb.Append("&Image="); sb.Append(HttpUtility.UrlEncode(Output));
 				}
 				return sb.ToString();
 			}
@@ -131,4 +141,45 @@ namespace XamlImageConverter.Web.UI {
 			ImageUrl = oldimage;
 		}
 	}
+
+	/*
+	public class Map: XamlImage {
+		
+		public enum SelectModes = { Multiple, Single };
+
+		public SelectModes Select { get { return (SelectModes)(ViewState["Select"] ?? SelectModes.Multiple; } set { ViewState["Select"] = value; } }
+		public string Source { get { return Image; } set { Image = value; } }
+		public bool Legend { get { return (bool)(ViewState["Legend"] ?? false); } set { ViewState["Legend"] = value; } } 
+		public int Columns { get { return (int)(ViewState["Columns"] ?? 1); } set { ViewState["Columns"] = value; } }
+		public string SubmitText { get { return (string)ViewState["SubmitText"]; } set { ViewState["SubmitText"] = value; } }
+		public string CancelText { get { return (string)ViewState["CancelText"]; } set { ViewState["CancelText"] = value; } }
+		public string IDs { get { return (string)ViewState["IDs"]; } set { ViewState["IDs"] = value; } }
+		public string Regions { get { return (string)ViewState["Regions"]; } set { ViewState["Regions"] = value; } }
+
+		public event EventHandler OnSubmit;
+		public event EventHandler OnCancel;
+		
+		protected override void CreateChildControls() {
+			var map = new StringBuilder();
+			map.Append("<xic:XamlImageConverter xmlns:xic=\"http://schemas.johnshope.com/XamlImageConverter/2012\"><xic:Scene ");
+			map.Append((string.IsNullOrEmpty(Type) ? "Source=\"" + Source : "Type=\"" + Type));
+			map.Append("\"><xic:Snapshot File=\"");
+			map.Append(Image); map.Append("\" ");
+			if (!string.IsNullOrEmpty(Theme)) { map.Append("Theme=\""); map.Append(HttpUtility.UrlEncode(Theme)); map.Append("\" "); }
+			if (!string.IsNullOrEmpty(Skin)) { map.Append("Skin="); map.Append(HttpUtility.UrlEncode(Skin)); map.Append("\" "); }
+			if (!string.IsNullOrEmpty(Cultures)) { map.Append("Cultures="); map.Append(HttpUtility.UrlEncode(Cultures)); map.Append("\" "); }
+			if (Quality.HasValue) { map.Append("Quality="); map.Append(Quality.Value); map.Append("\" "); }
+			if (Dpi.HasValue) { map.Append("Dpi="); map.Append(Dpi.Value); map.Append("\" "); }
+			if (Scale.HasValue) { map.Append("Scale="); map.Append(Scale.Value); map.Append("\" "); }
+			if (!string.IsNullOrEmpty(Type)) { map.Append("Type="); map.Append(HttpUtility.UrlEncode(Type)); map.Append("\" "); }
+			map.Append("/><xic:Map Type=\"Html\" FileType=\"IncludeFile\" Image=\""); map.Append(Image); map.Append("\" File=\""); map.Append(Output); map.Append(".map\" ");
+
+			base.CreateChildControls();
+		}
+
+		<xic:Map runat="server" Source="Usa.Map.svg" Scale="0.5" Mode="Multiple" CssClass="map" Legend="true" Columns="3" SubmitText="Submit" 
+			IDs="WA,OR,CA,AK,ID,NV,AZ,UT,MT,WY,CO,NM,TX,OK,KS,NE,SD,ND,MN,IA,MO,AR,LA,WI,IL,TN,MS,MI,IN,KY,AL,FL,GA,SC,NC,VA,WV,OH,PA,MD,NJ,NY,CT,MA,VT,NH,ME,RI,DE,HI"
+			Regions="Washington,Oregon,California,Arkansas,Utah,Montana,Wyoming,Colorado,New Mexico,Texas,Oklahoma,Kansas,Nebraska,South Dakota,North Dakota,Minnesota,Iowa,Mississippi,Michigan,Indiana,Kentucky,Alabama,Florida,Georgia,South Carolina,North Carolina,Virginia,West Virginia,Ohio,Pennsylvania,Maryland,New Jersey,New York,Connecticut,Massachusetts,Vermont,New Hampshire,Maine,Rhode Island, Delaware,Hawaii" />
+	}
+	*/
 }

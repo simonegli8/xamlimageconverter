@@ -22,7 +22,7 @@ namespace XamlImageConverter {
 			}
 
 			if (a.Count == 0 || new[] { "-h", "help", "-help", "?", "/?", "-?" }.Any(s => a.Any(at => s == at.Trim().ToLower()))) {
-				Console.WriteLine("XamlImageConverter 3.10 by Chris Cavanagh & David Egli");
+				Console.WriteLine("XamlImageConverter 3.11 by Chris Cavanagh & David Egli");
 				Console.WriteLine("Creates snapshots, gif animations or html image maps from XAML, SVG & PSD images\n\r");
 				Console.Error.WriteLine("XamlImageConverter [-x] [-w] [-1] [-s [running time]] [-r] [-v]");
 				Console.Error.WriteLine("   [-l librarypath] [-p projectpath] configFile { configFile }");

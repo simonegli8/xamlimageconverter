@@ -15,7 +15,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>XamlImageConverter</RootNamespace>
-    <AssemblyName>XamlImageConverter310</AssemblyName>
+    <AssemblyName>XamlImageConverter311</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <GeneratePkgDefFile>false</GeneratePkgDefFile>
     <IncludeAssemblyInVSIXContainer>false</IncludeAssemblyInVSIXContainer>
@@ -62,7 +62,8 @@
     </Content>
     <Content Include="Demo\Readme.aspx">
       <IncludeInVSIX>true</IncludeInVSIX>
-      <SubType>ASPXCodeBehind</SubType>
+      <SubType>
+      </SubType>
     </Content>
     <Content Include="Demo\SiteSpecification.xml">
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -78,6 +79,7 @@
     </Content>
     <Content Include="Demo\CreateImages.xic.xaml">
       <IncludeInVSIX>true</IncludeInVSIX>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Demo\Homepage.xaml">
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -103,10 +105,16 @@
     <Content Include="Lazy\Awesomium\Awesomium.Core.dll">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Lazy\Awesomium\Awesomium.Core.XML">
+    <Content Include="Lazy\Awesomium\Awesomium.Core.xml">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Lazy\Awesomium\awesomium.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Mono.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Mono.XML">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Lazy\Awesomium\Awesomium.Windows.Controls.dll">
@@ -121,6 +129,21 @@
     <Content Include="Lazy\Awesomium\Awesomium.Windows.Forms.XML">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="Lazy\Awesomium\Design\Awesomium.Windows.Controls.Design.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\Design\Awesomium.Windows.Forms.Design.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\Design\README.txt">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\html2pdf.exe">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\html2pdf.pdb">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="Lazy\Awesomium\icudt.dll">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -130,15 +153,13 @@
     <Content Include="Lazy\Awesomium\libGLESv2.dll">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Lazy\Awesomium\Packed\Awesomium.Core.dll" />
-    <Content Include="Lazy\Awesomium\Packed\README.txt" />
+    <Content Include="Lazy\Awesomium\Packed\Awesomium.Core.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\Packed\README.txt">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="Lazy\Awesomium\README.txt">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\Awesomium\XamlImageConverter.Awesomium.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\Awesomium\XamlImageConverter.Awesomium.pdb">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Lazy\Awesomium\xinput9_1_0.dll">
@@ -148,9 +169,6 @@
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Lazy\gxps\gxps-9.07-win32.exe">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\html2xaml\readme.txt">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Lazy\ImageMagick\atl100.dll">
@@ -255,9 +273,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <None Include="source.extension.vsixmanifest.new">
-      <SubType>Designer</SubType>
-    </None>
     <Content Include="XamlImageConverter.targets">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -265,13 +280,15 @@
   </ItemGroup>
   <ItemGroup>
     <ZipCS Include="Templates\ProjectItem\XamlImageConverterConfiguration.CSharp.vstemplate" />
-    <ZipVB Include="Templates\ProjectItem\XamlImageConverterConfiguration.VB.vstemplate" />
+    <ZipVB Include="Templates\ProjectItem\XamlImageConverterConfiguration.VB.vstemplate">
+      <SubType>Designer</SubType>
+    </ZipVB>
     <ZipItem Include="Templates\ProjectItem\CreateImages.xic.xaml" />
     <ZipItem Include="Templates\ProjectItem\__TemplateIcon.ico" />
   </ItemGroup>
   <PropertyGroup>
-    <ZipItemCSharpPath>$(ProjectDir)Templates\XamlImageConverterConfiguration.CSharp.zip</ZipItemCSharpPath>
-    <ZipItemVBPath>$(ProjectDir)Templates\XamlImageConverterConfiguration.VB.zip</ZipItemVBPath>
+    <ZipItemCSharpPath>$(ProjectDir)ItemTemplates\CSharp\General\XamlImageConverterConfiguration.CSharp.zip</ZipItemCSharpPath>
+    <ZipItemVBPath>$(ProjectDir)ItemTemplates\VisualBasic\General\XamlImageConverterConfiguration.VB.zip</ZipItemVBPath>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\XamlImageConverter.Exe\XamlImageConverter.Exe.csproj">
@@ -324,6 +341,14 @@
     </CreateItem>
     <Copy SourceFiles="@(ItemsSource)" DestinationFiles="@(ItemsSource->'$(ProjectDir)%(RecursiveDir)%(Filename)%(Extension)')" />
     <!-- <Copy SourceFiles="$(SolutionDir)XamlImageConverter.Exe\bin\$(Configuration)\convert.*" DestinationFolder="$(ProjectDir)Items" /> -->
+    <CreateItem Include="$(SolutionDir)XamlImageConverter.Awesomium\Lazy\**\*.*">
+      <Output TaskParameter="Include" ItemName="AwesomiumLazy" />
+    </CreateItem>
+    <CreateItem Include="$(SolutionDir)XamlImageConverter.Awesomium\bin\*.*">
+      <Output TaskParameter="Include" ItemName="AwesomiumBin" />
+    </CreateItem>
+    <Copy SourceFiles="@(AwesomiumLazy)" DestinationFiles="@(AwesomiumLazy->'$(ProjectDir)Lazy\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(AwesomiumBin)" DestinationFiles="@(AwesomiumBin->'$(ProjectDir)Lazy\Awesomium\%(Filename)%(Extension)')" />
   </Target>
   <Target Name="BeforeBuild" DependsOnTargets="Copy; ZipTemplates">
   </Target>

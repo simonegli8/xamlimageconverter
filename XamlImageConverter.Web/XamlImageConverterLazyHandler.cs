@@ -118,7 +118,7 @@ namespace XamlImageConverter.Web {
 			var ext = Path.GetExtension(file).ToLower();
 
 			if (ext == ".axd") {
-				return Doc(CreateAxd(QueryString));
+				return Doc(CreateAxd(file, QueryString));
 			} else if (ext == ".xaml" || ext == ".psd" || ext == ".svg" || ext == ".svgz") {
 				if (!InFile(file)) return false;
 				nsVersion = Version;
@@ -178,7 +178,7 @@ namespace XamlImageConverter.Web {
 
 		public XElement Dynamic = new XElement(xic+"Dynamic");
 		public bool DynamicResult;
-		public static string[] validAttributes = new string[] { "Element", "Storyboard", "Frames", "Filmstrip", "Dpi", "RenderDpi", "Quality", "Filename", "Left", "Top", "Right", "Bottom", "Width", "Height", "Cultures", "RenderTimeout", "Page", "FitToPage", "File", "Loop", "Pause", "Skin", "Theme", "Type", "Image" };
+		public static string[] validAttributes = new string[] { "Element", "Storyboard", "Frames", "Filmstrip", "Dpi", "RenderDpi", "Quality", "Filename", "Left", "Top", "Right", "Bottom", "Width", "Height", "Cultures", "RenderTimeout", "Page", "FitToPage", "File", "Loop", "Pause", "Skin", "Theme", "Type", "Image", "Verbose", "Parallel", "Ghost", "RenderMode" };
 
 		public void ApplyParameters(string filename, XElement e, Dictionary<string, string> parameters) {
 
@@ -225,6 +225,10 @@ namespace XamlImageConverter.Web {
 				e.SetAttributeValue("Hash", hash.Value);
 			}
 			if (!nohash && filename != null) {
+				if (filename.StartsWith("http://") || filename.StartsWith("https://")) {
+					if (filename.Contains('?')) filename = filename.Substring(0, filename.IndexOf('?'));
+					filename = filename.Substring(filename.LastIndexOf('/') + 1);
+				}
 				e.SetAttributeValue("File", filename + "." + type);
 			}
 		}
@@ -244,20 +248,21 @@ namespace XamlImageConverter.Web {
 			}
 		}
 
-		public XElement CreateDirect(string filename, Dictionary<string, string> parameters) {
-			XElement source;
-			var file = InFilename(filename);
-			source = XElement.Load(file, LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo);
-			if (source.Name == xic+"XamlImageConverter" || source.Name == sb+"SkinBuilder") {
-				foreach (var key in validAttributes) parameters.Remove(key);
-				return source;
+		public XElement CreateDirect(string filename, Dictionary<string, string> parameters, string outputPath = null) {
+			XElement source = null;
+			if (!filename.StartsWith("http://") && !filename.StartsWith("https://")) {
+				var file = InFilename(filename);
+				source = XElement.Load(file, LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo);
+				if (source.Name == xic + "XamlImageConverter" || source.Name == sb + "SkinBuilder") {
+					foreach (var key in validAttributes) parameters.Remove(key);
+					return source;
+				}
 			}
-
 			XElement snapshot, scene;
 			var res = new XElement(xic + "XamlImageConverter",
 					new XAttribute(XNamespace.Xmlns + "xic", xic.NamespaceName),
 					scene = new XElement(xic + "Scene",
-						new XAttribute("OutputPath", Path.GetDirectoryName(filename.Replace("/","\\")).Replace("\\","/")),
+						new XAttribute("OutputPath", outputPath ?? Path.GetDirectoryName(filename.Replace("/","\\")).Replace("\\","/")),
 						new XAttribute("Source", filename)
 					)
 				);
@@ -267,13 +272,13 @@ namespace XamlImageConverter.Web {
 					ApplyParameters(null, snapshot, parameters);
 				} else parameters.Remove("xic");
 			}
-			ParseXaml(source, scene);
+			if (source != null) ParseXaml(source, scene);
 			DynamicResult = true;
 			if (parameters.Count > 0) return Dynamic;
 			return res;
 		}
 
-		public XElement CreateDirect(string filename, XElement e, Dictionary<string, string> parameters) {
+		public XElement CreateDirect(string filename, XElement e, Dictionary<string, string> parameters, string outputPath = null) {
 			XElement scene;
 			if (e.Name != xic + "XamlImageConverter") {
 				XNamespace mc = "http://schemas.openxmlformats.org/markup-compatibility/2006";
@@ -293,6 +298,7 @@ namespace XamlImageConverter.Web {
 						if (child.Name.NamespaceName == "") child.Name = xamlns + child.Name.LocalName;
 					}
 				}
+				if (outputPath != null) scene.Add(new XAttribute("OutputPath", outputPath));
 				if (parameters.ContainsKey("Image") || parameters.ContainsKey("File") || parameters.ContainsKey("Filename") || parameters.ContainsKey("Type")) {
 					var snapshot = new XElement(xic + "Snapshot");
 					ApplyParameters(filename, snapshot, parameters);
@@ -307,16 +313,21 @@ namespace XamlImageConverter.Web {
 			}
 		}
 
-		public XElement CreateAxd(Dictionary<string, string> par) {
+		public XElement CreateAxd(string filename, Dictionary<string, string> par) {
 			var src = par["Source"];
 			if (string.IsNullOrEmpty(src)) {
 				DynamicResult = false;
 				return Dynamic;
 			}
+			if (src.StartsWith("http://") || src.StartsWith("https://")) {
+				DynamicResult = true;
+				return Dynamic;
+			}
 			if (src.Trim()[0] == '#') src = (string)HttpContext.Current.Session[src];
-			if (!src.Trim().StartsWith("<")) return CreateDirect(src, par);
+			var outputPath = Path.GetDirectoryName(filename);
+			if (!src.Trim().StartsWith("<")) return CreateDirect(src, par, outputPath);
 
-			return CreateDirect("xic.axd", XElement.Parse(src, LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo), par);
+			return CreateDirect("xic.axd", XElement.Parse(src, LoadOptions.PreserveWhitespace | LoadOptions.SetBaseUri | LoadOptions.SetLineInfo), par, outputPath);
 		}
 	}
 
@@ -404,6 +415,8 @@ namespace XamlImageConverter.Web {
 		public bool IsReusable { get { return true; } }
 
 		static System.Web.IHttpHandler handler = null;
+		static bool AssemblyResolverInitialized = false;
+		static object Lock = new object();
 
 		public void Compile(string xic) {
 		
@@ -421,12 +434,33 @@ namespace XamlImageConverter.Web {
 						handlerInfo.Load();
 						handler = handlerInfo.New<IHttpHandler>();
 #else
-						var assemblyfile = context.Server.MapPath("~/Bin/Lazy/XamlImageConverter.dll");
-						if (!File.Exists(assemblyfile)) assemblyfile = context.Server.MapPath("~/Silversite/BinLazy/XamlImageConverter.dll");
-						var aname = new AssemblyName("XamlImageConverter");
-						aname.CodeBase = new Uri(assemblyfile).ToString();
-						var a = Assembly.Load(aname);
+						//AppDomain.CurrentDomain.AppendPrivatePath("Lazy\\Awesomium");
+						lock (Lock) {
+							if (!AssemblyResolverInitialized) {
+								int resolving = 0;
+								AppDomain.CurrentDomain.AssemblyResolve += (sender, args) => {
+									try {
+										lock (Lock) {
+											resolving++;
+											if (resolving > 1) return null;
+											var aname = new AssemblyName(args.Name);
+											aname.CodeBase = context.Request.MapPath("~/Bin/Lazy/" + aname.Name + ".dll");
+											var n = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(l => l.GetName().Name == args.Name) ?? System.Reflection.Assembly.Load(aname);
+											return n;
+										}
+									} catch {
+										return null;
+									} finally {
+										resolving--;
+									}
+								};
+								AssemblyResolverInitialized = true;
+							}
+						}
+						var aname2 = new AssemblyName("XamlImageConverter");
+						var a = Assembly.Load(aname2);
 						var type = a.GetType("XamlImageConverter.XamlImageHandler");
+
 						handler = (System.Web.IHttpHandler)Activator.CreateInstance(type);
 #endif
 					} catch {

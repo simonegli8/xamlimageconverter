@@ -127,7 +127,15 @@ namespace XamlImageConverter {
 						par.Add("Type", ext);
 					} else direct = image == null;
 				} else if (ext != ".axd") direct = true;
-
+				else {
+					var exts = context.Request.QueryString.GetValues(null);
+					if (exts != null) {
+						var pars = exts.Where(p => p == "png" || p == "tiff" || p == "tif" || p == "bmp" || p == "jpg" || p == "jpeg" || p == "pdf" || p == "gif" || p == "xps" || p == "ps" || p == "eps");
+						if (pars.Any()) {
+							par.Add("Type", pars.First());
+						}
+					}
+				}
 				var name = System.IO.Path.GetFileName(image);
 				image = context.Server.MapPath(image);
 				ext = System.IO.Path.GetExtension(image).Substring(1).ToLower();
@@ -167,7 +175,7 @@ namespace XamlImageConverter {
 
 					var lockpath = skinpath;
 					if (lockpath.EndsWith("xic.axd")) lockpath = lockpath + image;
-					lock (Locks) { if (!Locks.ContainsKey(skinpath)) Locks.Add(lockpath, new object()); }
+					lock (Locks) { if (!Locks.ContainsKey(lockpath)) Locks.Add(lockpath, new object()); }
 					lock (Locks[lockpath]) {
 						compiler.Compile();
 					}

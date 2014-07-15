@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <xic:XamlImageConverter Theme="Aero" TextMode="ClearType, Display" OutputPath="Images"
 	xmlns:xic="http://schemas.johnshope.com/XamlImageConverter/2012"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -34,8 +34,9 @@
 		<xic:Snapshot File="full.xps" />
 		<xic:Snapshot File="full.png" />
 		<xic:Snapshot File="full.eps" />
+		<xic:Snapshot File="full.ps" />
 		<xic:Snapshot File="full.pdf" />
-		<xic:Snapshot Element="rotatingTest" File="arrow.xps" />
+		<xic:Snapshot Element="rotatingTest" File="arrow.pdf" />
 
 	</xic:Scene>
 
@@ -47,7 +48,7 @@
 		<xic:Snapshot File="Kaxaml.png" />
 		<xic:Snapshot Storyboard="rotate" Frames="50" Width="200" Height="200" File="Kaxaml.gif" Loop="0"/>
 		<xic:Snapshot File="Kaxaml.xps" Page="A4" FitToPage="true" />
-				
+		<xic:Snapshot File="Kaxaml.pdf" Page="A4" FitToPage="true" />
 	</xic:Scene>
 	
 	<!--
@@ -65,16 +66,14 @@
 	<xic:Scene Source="Tux.svg">
 		<xic:Snapshot File="tux.xaml" />
 		<xic:Snapshot File="tux.png" />
+		<xic:Snapshot File="tux.pdf" />
 	</xic:Scene>
 
 	<xic:Scene Source="Usa.Map.svg">
-		<xic:Snapshot File="Usa.Map.png" />
-		<xic:Snapshot File="Usa.Map.xaml" />
-
-		<xic:Map Image="Usa.Map.png" File="..\Usa.Map.html" ID="usamap">
+		<xic:Map Image="Usa.Map.svg" File="..\Usa.Map.html" ID="usamap">
 			<Areas Elements="WA,OR,CA,AK,ID,NV,AZ,UT,MT,WY,CO,NM,TX,OK,KS,NE,SD,ND,MN,IA,MO,AR,LA,WI,IL,TN,MS,MI,IN,KY,AL,FL,GA,SC,NC,VA,WV,OH,PA,MD,NJ,NY,CT,MA,VT,NH,ME,RI,DE,HI" onclick="alert('State %ID% clicked...');" href="#"/>
 		</xic:Map>
-		<xic:ImageMap Image="Usa.Map.png" File="..\Readme.aspx" ID="usamap">
+		<xic:ImageMap Image="Usa.Map.svg" File="..\Readme.aspx" ID="usamap">
 			<HotSpots Elements="WA,OR,CA,AK,ID,NV,AZ,UT,MT,WY,CO,NM,TX,OK,KS,NE,SD,ND,MN,IA,MO,AR,LA,WI,IL,TN,MS,MI,IN,KY,AL,FL,GA,SC,NC,VA,WV,OH,PA,MD,NJ,NY,CT,MA,VT,NH,ME,RI,DE,HI" HotSpotMode="PostBack" PostBackValue="%ID%"/>
 		</xic:ImageMap>
 	</xic:Scene>
@@ -86,8 +85,4 @@
 		<xic:Snapshot File="button.png" />
 	</xic:Scene>
 	
-	<xic:Scene Source="http://www.msn.com">
-		<xic:Snapshot File="msn.pdf" Page="A4" />
-	</xic:Scene>
-
 </xic:XamlImageConverter>
