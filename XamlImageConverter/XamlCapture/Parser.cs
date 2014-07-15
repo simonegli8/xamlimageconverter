@@ -254,7 +254,7 @@ namespace XamlImageConverter {
 					Scale = (double?)x.Attribute("Scale") ?? 1
 				};
 				ValidAttributes(x, container, "Element", "Storyboard", "Frames", "Filmstrip", "Dpi", "Quality", "Filename", "Left", "Top", "Right", "Bottom", "Width", "Height", "Cultures", "Page", "FitToPage", 
-					"File", "Loop", "Pause", "Skin", "Theme", "TextMode", "Type", "Image", "Culture", "Hash", "Layer", "Scale");
+					"File", "Loop", "Pause", "Skin", "Theme", "TextMode", "Type", "Image", "Culture", "Hash", "Layer", "Scale", "Parallel", "Ghost", "RenderMode", "Verbose");
 				break;
 			case "ImageMap":
 			case "Map":
@@ -306,7 +306,7 @@ namespace XamlImageConverter {
 				break;
 			case "Group":
 				result = new Group { OutputPath = (string)x.Attribute("OutputPath") };
-				ValidAttributes(x, container, "Element", "OutputPath", "Left", "Top", "Right", "Bottom", "Width", "Height", "Skin", "Theme", "TextMode");
+				ValidAttributes(x, container, "Element", "OutputPath", "Left", "Top", "Right", "Bottom", "Width", "Height", "Skin", "Theme", "TextMode", "RenderMode", "Parallel", "Ghost", "Verbose");
 				break;
 			default:
 				container.Errors.Error("Invalid element " +  x.Name.LocalName, "20", x);
