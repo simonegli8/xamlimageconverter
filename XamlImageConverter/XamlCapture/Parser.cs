@@ -54,11 +54,15 @@ namespace XamlImageConverter {
 				}
 			}
 			var parallel = (string)e.Attribute("Parallel");
-			group.Parallel = parallel != null && parallel.Equals("false", StringComparison.OrdinalIgnoreCase) ? false : true;
+			group.parallel = parallel != null && parallel.Equals("false", StringComparison.OrdinalIgnoreCase) ? (bool?)false : null;
 			var ghost = (string)e.Attribute("Ghost");
 			group.ghost = ghost == null ? (bool?)null : ghost.Equals("true", StringComparison.OrdinalIgnoreCase);
 			var verbose = (string)e.Attribute("Verbose");
 			group.verbose = verbose == null ? (bool?)null : verbose.Equals("true", StringComparison.OrdinalIgnoreCase);
+			group.Dpi = (double?)e.Attribute("Dpi");
+			group.Quality = (int?)e.Attribute("Quality");
+			group.Scale = (double?)e.Attribute("Scale");
+			group.Page = (string)e.Attribute("Page");
 		}
 
 		/// <summary>

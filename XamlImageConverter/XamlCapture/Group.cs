@@ -75,8 +75,8 @@ namespace XamlImageConverter {
 		public Errors Errors { get { return Master.errors ?? (Master.errors = Compiler.Errors.Clone(Master.Filename)); } set { Master.errors = value; } }
 		Dictionary<string, FixedDocument> xpsDocs;
 		public Dictionary<string, FixedDocument> XpsDocs { get { return Root.xpsDocs ?? (Root.xpsDocs = new Dictionary<string,FixedDocument>()); } set { Root.xpsDocs = value; } }
-		public bool parallel = false;
-		public bool Parallel { get { return Master.parallel; } set { Master.parallel = value; } }
+		public bool? parallel = false;
+		public bool Parallel { get { return parallel ?? (Parent != null ? Parent.Parallel : true); } set { parallel = value; } }
 		public System.Windows.Interop.RenderMode? renderMode = null;
 		public System.Windows.Interop.RenderMode RenderMode { get { return (System.Windows.Interop.RenderMode)(renderMode ?? Parent.renderMode ?? System.Windows.Interop.RenderMode.Default); } set { renderMode = value; } }
 		public IDisposable FileLock(string path) { return Compiler.FileLock(path); }
@@ -84,6 +84,14 @@ namespace XamlImageConverter {
 		public bool Ghost { get { return ghost ?? (Parent != null ? Parent.Ghost : false); } set { ghost = value; } }
 		public bool? verbose = null;
 		public bool Verbose { get { return verbose ?? (Parent != null ? Parent.Verbose : false); } set { verbose = value; } }
+		double? dpi = null;
+		public virtual double? Dpi { get { return dpi ?? (Parent != null ? Parent.Dpi : null); } set { dpi = value; } }
+		int? quality = null;
+		public virtual int? Quality { get { return quality ?? (Parent != null ? Parent.Quality : null); } set { quality = value; } }
+		string page;
+		public virtual string Page { get { return page ?? (Parent != null ? Parent.Page : null); } set { page = value; } }
+		double? scale;
+		public virtual double? Scale { get { return scale ?? (Parent != null ? Parent.Scale : 1); } set { scale = value; } }
 
 
 		public void ImageCreated() {
@@ -643,6 +651,8 @@ namespace XamlImageConverter {
 		public void SaveXps() {
 			foreach (var key in XpsDocs.Keys.ToList()) {
 				var doc = XpsDocs[key];
+				var snapshot = Snapshot.XpsSnapshots[key];
+				Snapshot.XpsSnapshots.Remove(key);
 
 				var dir = Path.GetDirectoryName(key);
 				if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
@@ -665,20 +675,23 @@ namespace XamlImageConverter {
 					TempFiles.Add(key);
 					var filename = key.Substring(0, key.Length - "._temp.xps".Length);
 					var ext = Path.GetExtension(filename);
-					string device, exe;
+					string device, exe, r;
 
 					//TODO ps2write doesn't work!? Use ghostscript to convert pdf to ps.
 
+					r = "-r" + ((int)(snapshot.Scale * (snapshot.Dpi ?? 96.0) + 0.5)).ToString();
 					switch (ext) {
 						case ".pdf":
 						default:
 							device = "pdfwrite";
 							exe = "gxps-9.05-win32.exe";
+							r = "";
 							break;
 						case ".ps":
 						case ".eps":
 							device = "ps2write";
 							exe = "gxps-9.07-win32.exe";
+							r = "";
 							break;
 						case ".jpg":
 						case ".jpeg":
@@ -697,7 +710,7 @@ namespace XamlImageConverter {
 					}
 					exe = Compiler.BinPath("Lazy\\gxps\\" + exe);
 					//if (!File.Exists(exe)) exe = Path.Combine(path, @"\gxps.exe");
-					var args = string.Format("-sDEVICE={0} -dNOPAUSE \"-sOutputFile={1}\" \"{2}\"", device, filename, key);
+					var args = string.Format("-sDEVICE={0} -dNOPAUSE \"-sOutputFile={1}\" {2} \"{3}\"", device, filename, r, key);
 					var process = NewProcess(exe, args, Path.GetDirectoryName(filename));
 					//var keylock = FileLock(key);
 					//var filelock = FileLock(filename);
@@ -817,7 +830,7 @@ namespace XamlImageConverter {
 
 		public virtual void Save() { }
 
-		public virtual bool MustRunOnMainThread { get { return false; } }
+		public virtual bool MustRunOnMainThread { get { return Parallel == false; } }
 		public virtual bool MustRunSequential { get { return false; } }
 
 		public void DirectoryCopy(string sourceDirName, string destDirName) {

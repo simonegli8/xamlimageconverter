@@ -32,15 +32,11 @@ namespace XamlImageConverter {
 		}
 		public int? Frames { get; set; }
 		public bool Filmstrip { get; set; }
-		public double? Dpi { get; set; }
-		public int? Quality { get; set; }
-		public string Page { get; set; }
 		public bool FitToPage { get; set; }
 		public int Loop { get; set; }
 		public double Pause { get; set; }
 		public string Type { get; set; }
 		public int? Hash { get; set; }
-		public double Scale { get; set; }
 
 		public IEnumerable<BitmapSource> Bitmaps;
 
@@ -194,6 +190,8 @@ namespace XamlImageConverter {
 
 		string XpsTempFile {	get { return LocalFilename + "._temp.xps"; } }
 
+		public static Dictionary<string, Snapshot> XpsSnapshots = new Dictionary<string, Snapshot>(); 
+
 		public virtual Snapshot Save(string Culture) {
 			var oldculture = Thread.CurrentThread.CurrentCulture;
 			var olduiculture = Thread.CurrentThread.CurrentUICulture;
@@ -219,6 +217,7 @@ namespace XamlImageConverter {
 				if (Scene.Element is HtmlSource) SaveHtml();
 				else {
 					TempFiles.Add(XpsTempFile);
+					XpsSnapshots.Add(XpsTempFile, this);
 					SaveXpsPage(XpsTempFile);
 				}
 			} else if (ext == ".xps") SaveXpsPage(filename);
