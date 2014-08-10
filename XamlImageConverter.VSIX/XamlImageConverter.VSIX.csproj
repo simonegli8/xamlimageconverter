@@ -4,6 +4,7 @@
     <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -15,7 +16,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>XamlImageConverter</RootNamespace>
-    <AssemblyName>XamlImageConverter311</AssemblyName>
+    <AssemblyName>XamlImageConverter312</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <GeneratePkgDefFile>false</GeneratePkgDefFile>
     <IncludeAssemblyInVSIXContainer>false</IncludeAssemblyInVSIXContainer>
@@ -165,6 +166,18 @@
     <Content Include="Lazy\Awesomium\xinput9_1_0.dll">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="Lazy\gxps\gsdll32.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\gxps\gswin32.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\gxps\gswin32c.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="Lazy\gxps\gxps-9.05-win32.exe">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -238,6 +251,25 @@
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Lazy\Awesomium\inspector.pak">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\gxps\gsdll32.lib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\gxps\ISOcoated_v2_300_eci.icc">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\gxps\ISOcoated_v2_eci.icc">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\gxps\PDFA.ps">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\gxps\PDFX.ps">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\gxps\sRGB_v4_ICC_preference.icc">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <None Include="source.extension.vsixmanifest" />

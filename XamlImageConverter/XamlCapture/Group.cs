@@ -107,13 +107,20 @@ namespace XamlImageConverter {
 					workingdir = workingdir ?? Path.GetDirectoryName(exe);
 					var pinfo = p.StartInfo;
 					pinfo.FileName = exe;
-					//pinfo.CreateNoWindow = true;
-					pinfo.CreateNoWindow = false;
 					pinfo.Arguments = args;
+#if DEBUG
+					pinfo.CreateNoWindow = false;
+					pinfo.UseShellExecute = true;
+					pinfo.RedirectStandardOutput = false;
+					pinfo.RedirectStandardError = false;
+					pinfo.RedirectStandardInput = false;
+#else
+					pinfo.CreateNoWindow = true;
 					pinfo.UseShellExecute = false;
 					pinfo.RedirectStandardOutput = true;
 					pinfo.RedirectStandardError = true;
 					pinfo.RedirectStandardInput = true;
+#endif
 					pinfo.WorkingDirectory = workingdir;
 					p.EnableRaisingEvents = true;
 					Processes.Add(p);
@@ -130,8 +137,8 @@ namespace XamlImageConverter {
 				if (p != null) {
 					Processes.Remove(p);
 					LocalProcesses.Remove(p);
+					ProcessCount--;
 				}
-				ProcessCount--;
 				if (ProcessCount == 0) {
 					var time = DateTime.Now - Master.Start;
 					Errors.Message("{0} images rendered in {1:G3} seconds.", Master.CreatedImages, time.TotalSeconds);
@@ -647,91 +654,253 @@ namespace XamlImageConverter {
 		public virtual void Cleanup() {
 			foreach (var child in Children.OfType<Group>()) child.Cleanup(); 
 		}
+		
+		string Utf16(string text) {
+			if (string.IsNullOrEmpty(text)) return "()";
+			var str = new StringBuilder();
+			var utf16 = Encoding.GetEncoding("UTF-16BE");
+			var bytes = utf16.GetBytes(text);
+			str.Append("<FEFF");
+			foreach (var b in bytes) str.Append(b.ToString("X2"));
+			str.Append(">");
+			return str.ToString();
+		}
+
+		void RunGS(string args, string temp, string filename, FixedDocument doc, Snapshot snapshot) {
+			var exe = Compiler.BinPath("Lazy\\gxps\\gswin32c.exe");
+			var process = NewProcess(exe, args, Path.GetDirectoryName(filename));
+			process.Exited += (sender, arg) => {
+
+				if (File.Exists(filename)) File.Delete(filename);
+				if (File.Exists(temp)) File.Move(temp, filename);
+
+				var info = new FileInfo(filename);
+				if (info.Exists) {
+					Errors.Message("Created {0} ({1} pages, {2:f2} MB)", info.Name, doc.Pages.Count, (double)info.Length / (1024 * 1024));
+				} else {
+					Errors.Error(string.Format("Error in ghostscript when creating {0}.", info.Name), "84", snapshot.XElement);
+				}
+				ImageCreated();
+				ExitProcess(process);
+			};
+			process.Start();
+		}
+
+		static int n = 0;
 
 		public void SaveXps() {
 			foreach (var key in XpsDocs.Keys.ToList()) {
-				var doc = XpsDocs[key];
-				var snapshot = Snapshot.XpsSnapshots[key];
-				Snapshot.XpsSnapshots.Remove(key);
+				SaveXps(key);
+				Compiler.CheckMemory();
+			}
+		}
 
-				var dir = Path.GetDirectoryName(key);
-				if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
-				if (File.Exists(key)) File.Delete(key);
+		void SaveXps(string key) {
+			var doc = XpsDocs[key];
+			var snapshot = Snapshot.XpsSnapshots[key];
+			Snapshot.XpsSnapshots.Remove(key);
 
-				using (FileLock(key))
-				using (var xpsd = new XpsDocument(key, FileAccess.ReadWrite)) {
-					// var fds = xpsd.AddFixedDocumentSequence();
-					// var w = fds.AddFixedDocument();
-					var xw = XpsDocument.CreateXpsDocumentWriter(xpsd);
-					xw.Write(doc);
-					//xpsd.Close();
+			var dir = Path.GetDirectoryName(key);
+			if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+			if (File.Exists(key)) File.Delete(key);
+
+			using (FileLock(key))
+			using (var xpsd = new XpsDocument(key, FileAccess.ReadWrite)) {
+				// var fds = xpsd.AddFixedDocumentSequence();
+				// var w = fds.AddFixedDocument();
+				var xw = XpsDocument.CreateXpsDocumentWriter(xpsd);
+				xw.Write(doc);
+				//xpsd.Close();
+			}
+
+			XpsDocs.Remove(key);
+
+			// cleaning up memory
+			foreach (var fixedPage in doc.Pages.Select(pageContent => pageContent.Child)) {
+				fixedPage.Children.Clear();
+			}
+			System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.SystemIdle);
+
+			string final;
+
+			if (key.EndsWith("._temp.xps")) { // convert xps to final format
+				TempFiles.Add(key);
+				var filename = key.Substring(0, key.Length - "._temp.xps".Length);
+				var ext = Path.GetExtension(filename);
+				string device, exe, r;
+
+				//TODO ps2write doesn't work!? Use ghostscript to convert pdf to ps.
+
+				var ansiname = System.Text.RegularExpressions.Regex.Replace(Path.GetFileName(filename), "[^a-zA-Z0-9.\\-]", "");
+
+				var key2 = Path.Combine(Path.GetDirectoryName(key), ansiname + "." + (n++).ToString() + "._temp.xps");
+				var filename2 = Path.Combine(Path.GetDirectoryName(filename), ansiname + "." + (n++).ToString() + "._temp" + ext);
+				var filename3 = Path.Combine(Path.GetDirectoryName(filename), ansiname + "." + (n++).ToString() + "._temp" + ext);
+
+				if (File.Exists(key2)) File.Delete(key2);
+				TempFiles.Add(key2);
+				File.Move(key, key2);
+				TempFiles.Remove(key);
+
+				r = "-r" + ((int)(snapshot.Scale * (snapshot.Dpi ?? 96.0) + 0.5)).ToString();
+				switch (ext) {
+					case ".pdf":
+					default:
+						device = "pdfwrite";
+						exe = "gxps-9.05-win32.exe";
+						r = "-dEmbedAllFonts=true -dSubsetFonts=true -dPDFSETTINGS=/prepress -dAutoRotatePages=/None -dAutoFilterColorImages=false " +
+								"-dColorImageFilter=/FlateEncode -dAutoFilterGrayImages=false -dGrayImageFilter=/FlateEncode -dAutoFilterMonoImages=false -dMonoImageFilter=/FlateEncode -dEmbedAllFonts=true " +
+								"-dSubsetFonts=true -dDownsampleColorImages=false -dDownsampleGrayImages=false -dDownsampleMonoImages=false";
+						break;
+					case ".ps":
+					case ".eps":
+						device = "ps2write";
+						exe = "gxps-9.07-win32.exe";
+						r = "";
+						break;
+					case ".jpg":
+					case ".jpeg":
+						exe = "gxps-9.05-win32.exe";
+						device = "jpeg";
+						break;
+					case ".png":
+						exe = "gxps-9.05-win32.exe";
+						device = "png16m";
+						break;
+					case ".tif":
+					case ".tiff":
+						exe = "gxps-9.05-win32.exe";
+						device = "tiffg32d";
+						break;
 				}
+				exe = Compiler.BinPath("Lazy\\gxps\\" + exe);
+				//if (!File.Exists(exe)) exe = Path.Combine(path, @"\gxps.exe");
+				string args;
+				args = string.Format("-sDEVICE={0} -dNOPAUSE \"-sOutputFile={1}\" {2} \"{3}\"", device, filename2, r, key2);
+				
+				TempFiles.Add(filename2);
 
-				XpsDocs.Remove(key);
+				var process = NewProcess(exe, args, Path.GetDirectoryName(filename));
+				//var keylock = FileLock(key);
+				//var filelock = FileLock(filename);
+				process.Exited += (sender, arg) => {
+					//filelock.Dispose();
+					//keylock.Dispose();
 
-				string final;
+					var type = snapshot.Type ?? "";
+					if (type.StartsWith("pdf/x", StringComparison.OrdinalIgnoreCase)) {
+						if (string.Equals(type, "pdf/x", StringComparison.OrdinalIgnoreCase) || string.Equals(type, "pdf/x-3", StringComparison.OrdinalIgnoreCase)) {
+							if (string.IsNullOrEmpty(snapshot.Profile) || string.IsNullOrEmpty(snapshot.Title) || string.IsNullOrEmpty(snapshot.Author)) {
+								throw new CompilerException("PDF/X-3 requires Profile, Title and Author", 80, snapshot.XElement, snapshot.Scene, null);
+							}
 
-				if (key.EndsWith("._temp.xps")) { // convert xps to final format
-					TempFiles.Add(key);
-					var filename = key.Substring(0, key.Length - "._temp.xps".Length);
-					var ext = Path.GetExtension(filename);
-					string device, exe, r;
+							var profile = snapshot.Profile.ToLower();
+							string identifier, condition, info;
+							if (!profile.Contains('.') && !profile.Contains('\\') && !profile.Contains('~')) {
+								identifier = snapshot.Profile.ToUpper();
+								profile = "";
+								info = snapshot.Info;
+							} else if (profile == "iso coated v2 300%") {
+								identifier = "Custom";
+								profile = "\"-sPDFAICCProfile=" + Compiler.BinPath("Lazy\\gxps\\ISOcoated_v2_300_eci.icc") + "\" ";
+								info = Path.GetFileName(profile);
+							} else if (profile == "iso coated v2") {
+								identifier = "Custom";
+								profile = "\"-sPDFAICCProfile=" + Compiler.BinPath("Lazy\\gxps\\ISOcoated_v2_eci.icc") + "\" ";
+								info = Path.GetFileName(profile);
+							} else if (profile == "srgb v4 icc preference") {
+								identifier = "Custom";
+								profile = "\"-sPDFAICCProfile=" + Compiler.BinPath("Lazy\\gxps\\sRGB_v4_ICC_preference.icc") + "\" ";
+								info = Path.GetFileName(profile);
+							} else {
+								identifier = "Custom";
+								profile = "\"-sPDFXICCProfile=" + Compiler.MapPath(snapshot.Profile) + "\" ";
+								info = snapshot.Info;
+							}
+							if (!string.IsNullOrEmpty(snapshot.OutputCondition)) condition = string.Format(" \"-dPDFXOutputCondition={0}\"", snapshot.OutputCondition);
+							else condition = "";
 
-					//TODO ps2write doesn't work!? Use ghostscript to convert pdf to ps.
 
-					r = "-r" + ((int)(snapshot.Scale * (snapshot.Dpi ?? 96.0) + 0.5)).ToString();
-					switch (ext) {
-						case ".pdf":
-						default:
-							device = "pdfwrite";
-							exe = "gxps-9.05-win32.exe";
-							r = "";
-							break;
-						case ".ps":
-						case ".eps":
-							device = "ps2write";
-							exe = "gxps-9.07-win32.exe";
-							r = "";
-							break;
-						case ".jpg":
-						case ".jpeg":
-							exe = "gxps-9.05-win32.exe";
-							device = "jpeg";
-							break;
-						case ".png":
-							exe = "gxps-9.05-win32.exe";
-							device = "png16m";
-							break;
-						case ".tif":
-						case ".tiff":
-							exe = "gxps-9.05-win32.exe";
-							device = "tiffg32d";
-							break;
-					}
-					exe = Compiler.BinPath("Lazy\\gxps\\" + exe);
-					//if (!File.Exists(exe)) exe = Path.Combine(path, @"\gxps.exe");
-					var args = string.Format("-sDEVICE={0} -dNOPAUSE \"-sOutputFile={1}\" {2} \"{3}\"", device, filename, r, key);
-					var process = NewProcess(exe, args, Path.GetDirectoryName(filename));
-					//var keylock = FileLock(key);
-					//var filelock = FileLock(filename);
-					process.Exited += (sender, arg) => {
-						//filelock.Dispose();
-						//keylock.Dispose();
-						final = filename;
-						var info = new FileInfo(final);
-						Errors.Message("Created {0} ({1} pages, {2:f2} MB)", info.Name, doc.Pages.Count, (double)info.Length / (1024 * 1024));
+							args = string.Format("-dSAVER -dBATCH " +
+#if RELEASE
+								"-dNOPAUSE " +
+#endif
+								" -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress \"-sOutputFile={0}\" -dAutoRotatePages=/None -dAutoFilterColorImages=false " +
+								"-dColorImageFilter=/FlateEncode -dAutoFilterGrayImages=false -dGrayImageFilter=/FlateEncode -dAutoFilterMonoImages=false -dMonoImageFilter=/FlateEncode -dEmbedAllFonts=true " +
+								"-dSubsetFonts=true -dColorConversionStrategy=/CMYK -dProcessColorModel=/DeviceCMYK -dDownsampleColorImages=false -dDownsampleGrayImages=false -dDownsampleMonoImages=false " +
+								"-dPDFX=false -dCompatibilityLevel=1.3 -dTransferFunctionInfo=/Preserve -dConvertCMYKImagesToRGB=false -dPreserveOverprintSettings=true \"-dPDFXTitle={1}\" \"-sPDFXOutputConditionIdentifier={2}\" {3} " +
+								"-dPDFXInfo={4} " +
+								"\"-sPDFXRegistryName=http://www.color.org\" -f \"{5}\" \"{6}\" -c \"[ /Creator (XamlImageCreator) /Title {7} /Subject {8} /Author {9} /Keywords {10} /DOCINFO pdfmark\"",
+								filename3, Utf16(snapshot.Title), identifier, condition, Utf16(info), Compiler.BinPath("Lazy\\gxps\\PDFX.ps"), filename2, Utf16(snapshot.Title), Utf16(snapshot.Subject), Utf16(snapshot.Author), Utf16(snapshot.Keywords));
+
+							RunGS(args, filename3, filename, doc, snapshot);
+
+						} else throw new CompilerException("Only PDF/X-3 supported.", 81, snapshot.XElement, snapshot.Scene, null);
+					} else if (type.StartsWith("pdf/a", StringComparison.OrdinalIgnoreCase)) {
+						if (string.IsNullOrEmpty(snapshot.Profile) || string.IsNullOrEmpty(snapshot.Title) || string.IsNullOrEmpty(snapshot.Author)) {
+							throw new CompilerException("PDF/A requires Profile, Title and Author", 82, snapshot.XElement, snapshot.Scene, null);
+						}
+						var profile = snapshot.Profile.ToLower();
+						string info, version, condition;
+						if (string.Equals(type, "pdf/a-1", StringComparison.OrdinalIgnoreCase)) version = "1";
+						else {
+							if (string.Equals(type, "pdf/a", StringComparison.OrdinalIgnoreCase) || string.Equals(type, "pdf/a-2", StringComparison.OrdinalIgnoreCase)) {
+								version = "2";
+							} else throw new CompilerException("Only PDF/A-1 & PDF/A-2 supported.", 83, snapshot.XElement, snapshot.Scene, null);
+						}
+						if (profile == "iso coated v2 300%") {
+							profile = Compiler.BinPath("Lazy\\gxps\\ISOcoated_v2_300_eci.icc");
+							info = Path.GetFileName(profile);
+						} else if (profile == "iso coated v2") {
+							profile = Compiler.BinPath("Lazy\\gxps\\ISOcoated_v2_eci.icc");
+								info = Path.GetFileName(profile);
+						} else if (profile == "srgb v4 icc preference") {
+							profile = Compiler.BinPath("Lazy\\gxps\\sRGB_v4_ICC_preference.icc");
+							info = Path.GetFileName(profile);
+						} else {
+							profile = Compiler.MapPath(snapshot.Profile);
+							info = snapshot.Info;
+						}
+						if (!string.IsNullOrEmpty(snapshot.OutputCondition)) condition = string.Format(" \"-dPDFAOutputCondition={0}\"", snapshot.OutputCondition);
+						else condition = "";
+
+						args = string.Format("-dSAVER -dBATCH "+  
+#if RELEASE
+								"-dNOPAUSE " +
+#endif
+							"-sDEVICE=pdfwrite -dPDFSETTINGS=/prepress \"-sOutputFile={0}\" -dAutoRotatePages=/None -dAutoFilterColorImages=false " +
+							"-dColorImageFilter=/FlateEncode -dAutoFilterGrayImages=false -dGrayImageFilter=/FlateEncode -dAutoFilterMonoImages=false -dMonoImageFilter=/FlateEncode -dEmbedAllFonts=true " +
+							"-dSubsetFonts=true -dColorConversionStrategy=/CMYK -dProcessColorModel=/DeviceCMYK -dDownsampleColorImages=false -dDownsampleGrayImages=false -dDownsampleMonoImages=false " +
+							"-dPDFA={1} -dTransferFunctionInfo=/Preserve -dConvertCMYKImagesToRGB=false -dPreserveOverprintSettings=true \"-dPDFATitle={2}\" \"-sPDFAICCProfile={3}\" "+
+							"\"-sPDFARegistryName={4}\" -sPDFAOutputConditionIdentifier=Custom \"-dPDFAInfo={5}\" {6} -f \"{7}\" \"{8}\" " +
+							"-c \"[ /Creator (XamlImageCreator) /Title {9} /Subject {10} /Author {11} /Keywords {12} /DOCINFO pdfmark",
+							filename3, version, Utf16(snapshot.Title), profile, snapshot.RegistryName ?? "http://www.color.org", Utf16(info), condition, Compiler.BinPath("Lazy\\gxps\\PDFA.ps"), filename2, Utf16(snapshot.Title), Utf16(snapshot.Subject),
+							Utf16(snapshot.Author), Utf16(snapshot.Keywords));
+
+						RunGS(args, filename3, filename, doc, snapshot);
+
+					} else {
+						if (File.Exists(filename)) File.Delete(filename);
+						if (File.Exists(filename2)) File.Move(filename2, filename);
+						
+						var info = new FileInfo(filename);
+						if (info.Exists) {
+							Errors.Message("Created {0} ({1} pages, {2:f2} MB)", info.Name, doc.Pages.Count, (double)info.Length / (1024 * 1024));
+						} else {
+							Errors.Error(string.Format("Error in gxps.exe when creating {0}.", info.Name), "84", snapshot.XElement);
+						}
 						ImageCreated();
-						ExitProcess(process);
-					};
-					process.Start();
-				} else {
-					final = key;
-					using (FileLock(final)) {
-						var info = new FileInfo(final);
-						Errors.Message("Created {0} ({1} pages, {2:f2} MB)", info.Name, doc.Pages.Count, (double)info.Length / (1024 * 1024));
 					}
-					ImageCreated();
+					ExitProcess(process);
+				};
+				process.Start();
+			} else {
+				final = key;
+				using (FileLock(final)) {
+					var info = new FileInfo(final);
+					Errors.Message("Created {0} ({1} pages, {2:f2} MB)", info.Name, doc.Pages.Count, (double)info.Length / (1024 * 1024));
 				}
+				ImageCreated();
 			}
 		}
 

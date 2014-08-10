@@ -112,6 +112,22 @@ namespace XamlImageConverter.Elements {
 		public bool Ghost { get; set; }
 		public bool Verbose { get; set; }
 		public string RenderMode { get; set; }
+		[Description("The Author for PDF/A & PDF/X")]
+		public string Author { get; set; }
+		[Description("The Subject for PDF/A & PDF/X")]
+		public string Subject { get; set; }
+		[Description("The Keywords for PDF/A & PDF/X")]
+		public string Keywords { get; set; }
+		[Description("The Title for PDF/A & PDF/X")]
+		public string Title { get; set; }
+		[Description("The Profile for PDF/A & PDF/X")]
+		public string Profile { get; set; }
+		[Description("The Info for PDF/A & PDF/X")]
+		public string Info { get; set; }
+		[Description("The RegistryName (http://www.color.org) for PDF/A & PDF/X")]
+		public string RegistryName { get; set; }
+		[Description("The OutputCondition for PDF/A & PDF/X")]
+		public string OutputCondition { get; set; }
 
 	}
 

@@ -87,6 +87,20 @@
 		- Skin: A custom xaml skin to apply to the Snapshot.
 		- TextMode: Text rendering mode. A comma separated list of System.Windows.Media.TextFormattingMode (Ideal, Display) and
 			System.Windows.Media.TextRenderingMode (Auto, Aliased, Grayscale, ClearType)
+		- Type: If you omit the parameter file, you can specify a file type like "pdf" so the filename will be determined from the xaml source file + type extension.	
+	
+		For PDF/A & PDF/X generation there are additional parameters:
+		- Type: PDF/A or PDF/A-2, PDF/A-1, PDF/X or PDF/X-3.
+		- Profile: For PDF/X: The name of the profile like FOGRA39,  or "Custom".
+							For PDF/A: Either "ISO coated v2c 300%" or "ISO coated v2" or "sRGB v4 ICC preference" or "Custom".
+		- Title: The Document Title.
+		- Author: The Document Author.
+		- Subject: The Document Subject.
+		- Keywords: The Document Keywords.
+		- Info: The name of the ICC color profile (only needed for the "Custom" profile).
+		- RegistryName: The name of the profile registry (default http://www.color.org, only needed for the "Custom" profile).
+		- OutputCondition: Custom output condition (only needed for the "Custom" profile).
+	
 	
 		Note: If you don't render your images during the build process of your project, but with the XamlImageConverter HttpHandler on the fly, notice that the HttpHandler is not able
 			to render 3D content, because IIS runs in the system session, that has no access to video drivers.

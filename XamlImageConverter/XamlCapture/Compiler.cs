@@ -89,15 +89,22 @@ namespace XamlImageConverter {
 		[NonSerialized]
 		public ManualResetEvent Finished = new ManualResetEvent(true);
 
+		public const int MaxMemory = 400000000;
+
 		public void Finish() {
 	
 			foreach (var t in Threads) t.Join();
 			Threads.Clear();
 	
-			IEnumerable<System.Diagnostics.Process> active;
-			lock (Processes) active = Processes.ToList();
-			foreach (var p in active) p.WaitForExit();
-			lock (Processes) Processes.Clear();
+			System.Diagnostics.Process p;
+			lock (Processes) p = Processes.FirstOrDefault();
+			while (p != null) {
+				p.WaitForExit();
+				Thread.Sleep(0);
+				lock (Processes) {
+					p = Processes.FirstOrDefault();
+				}
+			}
 		}
 
 		public class FileLocks: IDisposable {
@@ -142,7 +149,8 @@ namespace XamlImageConverter {
 			}
 			TempPaths.Clear();
 
-			if (GCLevel > 0) System.GC.Collect(GCLevel, GCCollectionMode.Optimized);
+			if (MemorySet > MaxMemory) System.GC.Collect(5, GCCollectionMode.Forced);
+			else if (GCLevel > 0) System.GC.Collect(GCLevel, GCCollectionMode.Optimized);
 		}
 
 		public void ImageCreated() {
@@ -301,7 +309,7 @@ namespace XamlImageConverter {
 	/*	void Init() {
 			if (!init) {
 				init = true;
-				Errors.Message("XamlImageConverter 3.11 by Chris Cavanagh & David Egli");
+				Errors.Message("XamlImageConverter 3.12 by Chris Cavanagh & David Egli");
 				Cpus = Parallel ? Environment.ProcessorCount : 1;
 				Errors.Message("Using {0} CPU Cores.", Cpus);
 			}
@@ -365,7 +373,7 @@ namespace XamlImageConverter {
 				root.Filename = filename;
 				root.Compiler = this;
 				if (!CheckBuilding) {
-					root.Errors.Status("XamlImageConverter 3.11 by Chris Cavanagh & David Egli");
+					root.Errors.Status("XamlImageConverter 3.12 by Chris Cavanagh & David Egli");
 					root.Errors.Status("{0:G}, using {1} CPU cores.", DateTime.Now, Cpus);
 					root.Errors.Status(Path.GetFileName(filename) + ":");
 				}
@@ -482,7 +490,7 @@ namespace XamlImageConverter {
 
 				for (int i = 0; i < mysteps.Count; i++) { // split steps into first & later queues
 					var st = mysteps[i];
-					var isSeq = st.MustRunSequential && Cpus > 1; // do not process sequential steps special with only 1 cpu
+					var isSeq = st.MustRunSequential && Cpus > 1 && !st.MustRunOnMainThread; // do not process sequential steps special with only 1 cpu
 					if (isSeq) hasFirst = true;
 					if (st is Parameters || isSeq) first.Enqueue(st);
 					if (!isSeq && (cpu == 0 || !st.MustRunOnMainThread)) later.Enqueue(steps[cpu][i]);
@@ -496,6 +504,8 @@ namespace XamlImageConverter {
 			}
 
 			public Step Next(int cpu) {
+				CheckMemory();
+
 				lock (this) {
 					int n = -1;
 					Step step = null;
@@ -524,6 +534,7 @@ namespace XamlImageConverter {
 						Root.ExitProcess(null);
 					}
 				}
+				CheckMemory();
 			}
 		}
 
@@ -618,6 +629,7 @@ namespace XamlImageConverter {
 
 		void RawCompile() {
 			foreach (var file in SourceFiles) Compile(file);
+			Finish();
 		}
 
 		void CoreCompile() {
@@ -642,7 +654,13 @@ namespace XamlImageConverter {
 		}
 
 
-		public long MemorySet { get { return GC.GetTotalMemory(false); } }
+		public static long MemorySet { get { return GC.GetTotalMemory(false); } }
+		public static void CheckMemory() {
+			if (MemorySet > MaxMemory) {
+				//System.Runtime.GCSettings.LargeObjectHeapCompactionMode = System.Runtime.GCLargeObjectHeapCompactionMode.CompactOnce;
+				GC.Collect();
+			}
+		}
 
 		public void Compile() {
 			Cpus = Cores ?? (Parallel ? Environment.ProcessorCount : 1);
@@ -701,7 +719,6 @@ namespace XamlImageConverter {
 					CoreCompile();
 				}
 
-				Finish();
 				if (Serve != null) Serve();
 				Cleanup();
 

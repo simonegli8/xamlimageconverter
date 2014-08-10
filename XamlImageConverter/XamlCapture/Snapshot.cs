@@ -37,6 +37,15 @@ namespace XamlImageConverter {
 		public double Pause { get; set; }
 		public string Type { get; set; }
 		public int? Hash { get; set; }
+		public string Title { get; set; }
+		public string Author { get; set; }
+		public string Keywords { get; set; }
+		public string Subject { get; set; }
+		public string Profile { get; set; }
+		public string Info { get; set; }
+		public string RegistryName { get; set; }
+		public string OutputCondition { get; set; }
+		//public string OutputConditionIdentifier { get; set; }
 
 		public IEnumerable<BitmapSource> Bitmaps;
 
@@ -47,7 +56,11 @@ namespace XamlImageConverter {
 					if (src.Contains('?')) src = src.Substring(0, src.IndexOf('?'));
 					src = src.Substring(src.LastIndexOf('/') + 1);
 				}
-				var name = base.Filename ?? src + "." + Type ?? "png";
+				string type = Type;
+				if (Type != null && Type.StartsWith("PDF/", StringComparison.OrdinalIgnoreCase)) {
+					type = "pdf";
+				}
+				var name = base.Filename ?? src + "." + type ?? "png";
 				if (Hash.HasValue) name = Path.ChangeExtension(name, Hash.Value.ToString("X") + Path.GetExtension(name));
 				return name;
 			}
@@ -188,6 +201,12 @@ namespace XamlImageConverter {
 			doc.Pages.Add(cont);
 		}
 
+		public static int TempNBase = 0;
+
+		int tempN = -1;
+
+		int TempN { get { if (tempN > 0) return tempN; else return tempN = TempNBase++; } } 
+
 		string XpsTempFile {	get { return LocalFilename + "._temp.xps"; } }
 
 		public static Dictionary<string, Snapshot> XpsSnapshots = new Dictionary<string, Snapshot>(); 
@@ -217,7 +236,7 @@ namespace XamlImageConverter {
 				if (Scene.Element is HtmlSource) SaveHtml();
 				else {
 					TempFiles.Add(XpsTempFile);
-					XpsSnapshots.Add(XpsTempFile, this);
+					XpsSnapshots[XpsTempFile] = this;
 					SaveXpsPage(XpsTempFile);
 				}
 			} else if (ext == ".xps") SaveXpsPage(filename);
@@ -309,7 +328,7 @@ namespace XamlImageConverter {
 
 			if (Html2PDF == null) {
 				/*var apath = Compiler.BinPath("Lazy\\Awesomium\\");
-				var aname = new System.Reflection.AssemblyName("XamlImageConverter.Awesomium, Version=3.11.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45");
+				var aname = new System.Reflection.AssemblyName("XamlImageConverter.Awesomium, Version=3.12.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45");
 				aname.CodeBase = apath + "XamlImageConverter.Awesomium.dll";
 				var a = System.Reflection.Assembly.Load(aname);
 				var Html2PDFType = a.GetType("XamlImageConverter.Html2PDF");

@@ -4,7 +4,7 @@
     <StartArguments>-w -v -l "D:\Code\Visitenkarte\Simon Egli\bin\Debug" -p "D:\Code\Visitenkarte\Simon Egli" "D:\Code\Visitenkarte\Simon Egli\CreateLogos.xic.xaml"</StartArguments>
   </PropertyGroup>
   <PropertyGroup>
-    <ProjectView>ProjectFiles</ProjectView>
+    <ProjectView>ShowAllFiles</ProjectView>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <StartArguments>-p "D:\Code\Visitenkarte\Simon Egli" -l "D:\Code\Visitenkarte\Simon Egli\bin\Debug" -w -f ~/CreateLogos.xic.xaml</StartArguments>

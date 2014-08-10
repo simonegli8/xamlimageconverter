@@ -141,6 +141,9 @@
     <Content Include="Lazy\Awesomium\xinput9_1_0.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Lazy\gxps\gsdll32.dll" />
+    <Content Include="Lazy\gxps\gswin32.exe" />
+    <Content Include="Lazy\gxps\gswin32c.exe" />
     <Content Include="Lazy\gxps\gxps-9.05-win32.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -295,6 +298,16 @@
     <Content Include="Lazy\XamlImageConverter.targets">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Lazy\gxps\gsdll32.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Lazy\gxps\ISOcoated_v2_300_eci.icc" />
+    <Content Include="Lazy\gxps\ISOcoated_v2_eci.icc" />
+    <Content Include="Lazy\gxps\PDFA.ps" />
+    <Content Include="Lazy\gxps\PDFX.ps" />
+    <Content Include="Lazy\gxps\sRGB_v4_ICC_preference.icc" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
