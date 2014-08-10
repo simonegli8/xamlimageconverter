@@ -18,7 +18,7 @@ namespace XamlImageConverter {
 		System.Diagnostics.Process process;
 		string file;
 
-		public void SaveAsync(Snapshot s) {
+		public void Save(Snapshot s) {
 			Snapshot = s;
 			var source = ((Group.HtmlSource)s.Element).Source;
 			if (!source.StartsWith("http://") && !source.StartsWith("https://") && !source.StartsWith("~")) source = s.Compiler.MapPath(source);
@@ -41,25 +41,19 @@ namespace XamlImageConverter {
 			filelock = s.FileLock(file);
 
 			process.Exited +=(sender, args2) => {
-				Signal.Set();
-			};
-			s.Processes.Add(process);
-			process.Start();
-		}
-
-		public void AwaitSave() {
-			Signal.WaitOne();
-			try {
-				if (process.ExitCode == 0) {
-					Snapshot.Errors.Message("Created {0} ({1} MB RAM used)", Path.GetFileName(file), System.Environment.WorkingSet / (1024 * 1024));
-				} else {
-					Snapshot.Errors.Error("Failed converting html to pdf.", "61", Snapshot.XElement);
+				try {
+					if (process.ExitCode == 0) {
+						Snapshot.Errors.Message("Created {0} ({1} MB RAM used)", Path.GetFileName(file), System.Environment.WorkingSet / (1024 * 1024));
+					} else {
+						Snapshot.Errors.Error("Failed converting html to pdf.", "61", Snapshot.XElement);
+					}
+				} finally {
+					filelock.Dispose();
+					s.ImageCreated();
+					s.ExitProcess(process);
 				}
-			} finally {
-				filelock.Dispose();
-				Snapshot.ImageCreated();
-				Snapshot.ExitProcess(process);
-			}
+			};
+			process.Start();
 		}
 	}
 

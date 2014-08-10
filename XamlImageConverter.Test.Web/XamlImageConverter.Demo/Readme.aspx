@@ -24,9 +24,14 @@
 		<img src="Homepage.xaml?png" runat="server" />
 		<hr />
 		 	
-		 <h3>A PDF of the above xaml</h3>
+		<h3>A PDF of the above xaml</h3>
 		<pre><code>&lt;a href="Homepage.xaml?pdf"&gt;Homepage PDF&lt;/a&gt;</code></pre>
 		<a href="Homepage.xaml?pdf">Homepage PDF</a>
+		<hr />
+
+		<h3>A PDF of www.msn.com</h3>
+		<pre><code>&lt;a href="xic.axd?Source=http:%2F%2Fwww.msn.com&amp;Image=msn.pdf&amp;Page=A4"&gt;MSN Printout&lt;/a&gt;</code></pre>
+		<a href="xic.axd?Source=http:%2F%2Fwww.msn.com&Image=msn.pdf&Page=A4">MSN Printout</a>
 		<hr />
 
 		<h3>Rendering of multiple images with a batch script file, and of an animated gif.</h3>	

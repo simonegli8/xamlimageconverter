@@ -146,6 +146,7 @@ namespace XamlImageConverter {
 		public void Error(string message, string errorCode, TextSpan span, Exception ex = null) {
 			Write(Path, message, errorCode, span, Severity.Error);
 			if (ex != null) {
+				Write(Path, "Exception: " + ex.Message + Environment.NewLine + ex.StackTrace, errorCode, span, Severity.Error);
 				var inner = ex.InnerException;
 				while (inner != null) {
 					Write(Path, "InnerException: " + inner.Message + Environment.NewLine + inner.StackTrace, errorCode, span, Severity.Error);

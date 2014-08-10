@@ -190,7 +190,9 @@ namespace XamlImageConverter {
 			}
 			if (UndoStack != null) UndoStack.Push(undo);
 
-			element.MeasureAndArrange(new Size(element.Width, element.Height));
+			if (element == GetElement() && Scene != null) element.MeasureAndArrange(Scene.PreferredSize);
+			else element.MeasureAndArrange(new Size(double.PositiveInfinity, double.PositiveInfinity));
+			
 			return element;
 		}
 

@@ -118,6 +118,33 @@
     <Content Include="Lazy\Awesomium\inspector.pak">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Lazy\gxps\gsdll32.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\gxps\gswin32.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\gxps\gswin32c.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\gxps\ISOcoated_v2_300_eci.icc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\gxps\ISOcoated_v2_eci.icc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\gxps\PDFA.ps">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\gxps\PDFX.ps">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\gxps\sRGB_v4_ICC_preference.icc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Lazy\gxps\gsdll32.lib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Lazy\svg2xaml\SharpVectors\SharpVectorConverters\Drawings\Controls.cd" />
     <None Include="Lazy\svg2xaml\SharpVectors\SharpVectorConverters\Drawings\Converters.cd" />
     <None Include="Lazy\svg2xaml\SharpVectors\SharpVectorConverters\Drawings\Others.cd" />
@@ -846,6 +873,7 @@
     <Content Include="Lazy\svg2xaml\SharpVectors\SharpVectorModel\Resources\www.w3.org\Graphics.SVG.1.1.DTD\svg11-tiny-model.mod" />
     <Content Include="Lazy\svg2xaml\SharpVectors\SharpVectorRuntime\SharpVectors.Runtime.csproj" />
     <Content Include="Lazy\svg2xaml\SharpVectors\SharpVectorRuntime\SharpVectors.Runtime.csproj.vspscc" />
+    <Content Include="XamlCapture\ErrorCodes.txt" />
     <Content Include="XamlImageConverter.targets">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>

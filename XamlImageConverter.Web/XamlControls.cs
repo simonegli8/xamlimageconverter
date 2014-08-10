@@ -59,7 +59,10 @@ namespace XamlImageConverter.Web.UI {
 				hashsb.Append(Content ?? "");
 				var hash = Hash.Compute(hashsb.ToString());
 				hash += 10 * (Quality ?? 90) + 1000 * (Loops ?? 1) + (int)(10000 * (Pause ?? 0)) + 100000 * (Dpi ?? 96);
-				return Path.ChangeExtension(ImageUrl, hash.ToString("X") + Path.GetExtension(ImageUrl));
+				var image = ImageUrl;
+				var lastSlash = image.LastIndexOf('/');
+				if (lastSlash > -1) image = image.Substring(lastSlash + 1);
+				return Path.ChangeExtension(image, hash.ToString("X") + Path.GetExtension(image));
 			}
 		}
 

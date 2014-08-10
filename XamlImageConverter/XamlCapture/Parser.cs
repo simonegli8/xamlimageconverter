@@ -255,10 +255,19 @@ namespace XamlImageConverter {
 					Type = (string)x.Attribute("Type"),
 					Hash = (int?)x.Attribute("Hash"),
 					Layer = (int?)x.Attribute("Layer"),
-					Scale = (double?)x.Attribute("Scale") ?? 1
+					Scale = (double?)x.Attribute("Scale") ?? 1,
+					Title = (string)x.Attribute("Title"),
+					Profile = (string)x.Attribute("Profile"),
+					Info = (string)x.Attribute("Info"),
+					RegistryName = (string)x.Attribute("RegistryName"),
+					OutputCondition = (string)x.Attribute("OutputCondition"),
+					Author = (string)x.Attribute("Author"),
+					Subject = (string)x.Attribute("Subject"),
+					Keywords = (string)x.Attribute("Keywords")
 				};
 				ValidAttributes(x, container, "Element", "Storyboard", "Frames", "Filmstrip", "Dpi", "Quality", "Filename", "Left", "Top", "Right", "Bottom", "Width", "Height", "Cultures", "Page", "FitToPage", 
-					"File", "Loop", "Pause", "Skin", "Theme", "TextMode", "Type", "Image", "Culture", "Hash", "Layer", "Scale", "Parallel", "Ghost", "RenderMode", "Verbose");
+					"File", "Loop", "Pause", "Skin", "Theme", "TextMode", "Type", "Image", "Culture", "Hash", "Layer", "Scale", "Parallel", "Ghost", "RenderMode", "Verbose", "Title", "Profile", "Info", "RegistryName", "OutputCondition",
+					"Author", "Subject", "Keywords");
 				break;
 			case "ImageMap":
 			case "Map":

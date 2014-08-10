@@ -37,6 +37,15 @@ namespace XamlImageConverter {
 		public double Pause { get; set; }
 		public string Type { get; set; }
 		public int? Hash { get; set; }
+		public string Title { get; set; }
+		public string Author { get; set; }
+		public string Keywords { get; set; }
+		public string Subject { get; set; }
+		public string Profile { get; set; }
+		public string Info { get; set; }
+		public string RegistryName { get; set; }
+		public string OutputCondition { get; set; }
+		//public string OutputConditionIdentifier { get; set; }
 
 		public IEnumerable<BitmapSource> Bitmaps;
 
@@ -47,7 +56,11 @@ namespace XamlImageConverter {
 					if (src.Contains('?')) src = src.Substring(0, src.IndexOf('?'));
 					src = src.Substring(src.LastIndexOf('/') + 1);
 				}
-				var name = base.Filename ?? src + "." + Type ?? "png";
+				string type = Type;
+				if (Type != null && Type.StartsWith("PDF/", StringComparison.OrdinalIgnoreCase)) {
+					type = "pdf";
+				}
+				var name = base.Filename ?? src + "." + type ?? "png";
 				if (Hash.HasValue) name = Path.ChangeExtension(name, Hash.Value.ToString("X") + Path.GetExtension(name));
 				return name;
 			}
@@ -129,8 +142,8 @@ namespace XamlImageConverter {
 					return Element.DesiredSize;
 				}
 			}
-			if ((!(double.IsNaN(element.Width) && element.Width == 0) && (double.IsNaN(element.ActualWidth) || element.ActualWidth == 0)) ||
-				(!(double.IsNaN(element.Height) && element.Height == 0) && (double.IsNaN(element.ActualHeight) || element.ActualHeight == 0))) {
+			if (!double.IsNaN(element.Width) && !double.IsNaN(element.Height) && element.Width != 0 && element.Height != 0 &&
+				(double.IsNaN(element.ActualWidth) || element.ActualWidth == 0 || double.IsNaN(element.ActualHeight) || element.ActualHeight == 0)) {
 				element.MeasureAndArrange(new Size(element.Width, element.Height));
 			}
 			if ((double.IsNaN(element.ActualWidth) || element.ActualWidth == 0) || (double.IsNaN(element.ActualHeight) || element.ActualHeight == 0)) return size;
@@ -147,6 +160,8 @@ namespace XamlImageConverter {
 				XpsDocs.Add(filename, d);
 			}
 			var doc = XpsDocs[filename];
+			XpsSnapshots[filename] = this;
+
 			var size = doc.DocumentPaginator.PageSize;
 			var cont = new PageContent();
 			var pg = new FixedPage();
@@ -188,6 +203,12 @@ namespace XamlImageConverter {
 			doc.Pages.Add(cont);
 		}
 
+		public static int TempNBase = 0;
+
+		int tempN = -1;
+
+		int TempN { get { if (tempN > 0) return tempN; else return tempN = TempNBase++; } } 
+
 		string XpsTempFile {	get { return LocalFilename + "._temp.xps"; } }
 
 		public static Dictionary<string, Snapshot> XpsSnapshots = new Dictionary<string, Snapshot>(); 
@@ -217,7 +238,6 @@ namespace XamlImageConverter {
 				if (Scene.Element is HtmlSource) SaveHtml();
 				else {
 					TempFiles.Add(XpsTempFile);
-					XpsSnapshots.Add(XpsTempFile, this);
 					SaveXpsPage(XpsTempFile);
 				}
 			} else if (ext == ".xps") SaveXpsPage(filename);
@@ -280,10 +300,13 @@ namespace XamlImageConverter {
 					var filename2 = file;
 					var frames = Bitmaps.Count();
 					process.Exited += (sender, args2) => {
-						Errors.Message("Created {0} ({1}{2} MB RAM used)", filename2, (frames != 1) ? frames.ToString() + " frames, " : "", System.Environment.WorkingSet / (1024 * 1024));
-						//filelock.Dispose();
-						ImageCreated();
-						ExitProcess(process);
+						try {
+							Errors.Message("Created {0} ({1}{2} MB RAM used)", filename2, (frames != 1) ? frames.ToString() + " frames, " : "", System.Environment.WorkingSet / (1024 * 1024));
+							//filelock.Dispose();
+							ImageCreated();
+						} finally {
+							ExitProcess(process);
+						}
 					};
 					process.Start();
 				} else {
@@ -301,28 +324,16 @@ namespace XamlImageConverter {
 		private Html2PDFConverter Html2PDF = null;
 		
 		public interface Html2PDFConverter {
-			void SaveAsync(Snapshot s);
-			void AwaitSave();
+			void Save(Snapshot s);
 		}
 
 		public void SaveHtml() {
-
-			if (Html2PDF == null) {
-				/*var apath = Compiler.BinPath("Lazy\\Awesomium\\");
-				var aname = new System.Reflection.AssemblyName("XamlImageConverter.Awesomium, Version=3.11.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45");
-				aname.CodeBase = apath + "XamlImageConverter.Awesomium.dll";
-				var a = System.Reflection.Assembly.Load(aname);
-				var Html2PDFType = a.GetType("XamlImageConverter.Html2PDF");
-				Html2PDF = (Html2PDFConverter)Activator.CreateInstance(Html2PDFType); */
-				Html2PDF = new Html2PDF();
-			}
-			Html2PDF.SaveAsync(this);
+			if (Html2PDF == null) Html2PDF = new Html2PDF();
+			Html2PDF.Save(this);
 		}
 
 		public override void Cleanup() {
 			base.Cleanup();
-			if (Html2PDF != null) 
-				Html2PDF.AwaitSave();
 		}
 
 		/// <summary>

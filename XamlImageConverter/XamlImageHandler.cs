@@ -116,9 +116,16 @@ namespace XamlImageConverter {
 			try {
 				var filename = context.Request.AppRelativeCurrentExecutionFilePath;
 				var image = context.Request.QueryString["Image"] ?? context.Request.QueryString["File"] ?? context.Request.QueryString["Filename"];
+				var hasImage = image != null; 
 				var direct = false;
 				var par = new Dictionary<string, string>();
 				var ext = System.IO.Path.GetExtension(filename).ToLower();
+				string parext = null;
+				var pexts = context.Request.QueryString.GetValues(null);
+				if (pexts != null) {
+					var pars = pexts.Where(p => p == "png" || p == "tiff" || p == "tif" || p == "bmp" || p == "jpg" || p == "jpeg" || p == "pdf" || p == "gif" || p == "xps" || p == "ps" || p == "eps");
+					parext = pars.FirstOrDefault();
+				}
 				if (ext == ".xaml" || ext == ".psd" || ext == ".svg" || ext == ".svgz") {
 					var exts = context.Request.QueryString.GetValues(null);
 					if (exts != null && exts.Length > 0) {
@@ -127,15 +134,7 @@ namespace XamlImageConverter {
 						par.Add("Type", ext);
 					} else direct = image == null;
 				} else if (ext != ".axd") direct = true;
-				else {
-					var exts = context.Request.QueryString.GetValues(null);
-					if (exts != null) {
-						var pars = exts.Where(p => p == "png" || p == "tiff" || p == "tif" || p == "bmp" || p == "jpg" || p == "jpeg" || p == "pdf" || p == "gif" || p == "xps" || p == "ps" || p == "eps");
-						if (pars.Any()) {
-							par.Add("Type", pars.First());
-						}
-					}
-				}
+				else if (parext != null) par.Add("Type", parext);
 				var name = System.IO.Path.GetFileName(image);
 				image = context.Server.MapPath(image);
 				ext = System.IO.Path.GetExtension(image).Substring(1).ToLower();
@@ -174,12 +173,11 @@ namespace XamlImageConverter {
 					};
 
 					var lockpath = skinpath;
-					if (lockpath.EndsWith("xic.axd")) lockpath = lockpath + image;
+					if (lockpath.EndsWith("xic.axd")) lockpath = lockpath + "?" + (hasImage ? image : (context.Request.QueryString["Source"] != null ? context.Request.QueryString["Source"] + "&" + parext ?? "png": context.Request.Url.Query));
 					lock (Locks) { if (!Locks.ContainsKey(lockpath)) Locks.Add(lockpath, new object()); }
 					lock (Locks[lockpath]) {
 						compiler.Compile();
 					}
-
 				} else {
 					Serve(context, ext, name, image);
 				}
