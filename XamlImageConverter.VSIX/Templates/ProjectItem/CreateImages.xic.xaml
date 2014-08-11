@@ -92,10 +92,14 @@
 		- TextMode: Text rendering mode. A comma separated list of System.Windows.Media.TextFormattingMode (Ideal, Display) and
 			System.Windows.Media.TextRenderingMode (Auto, Aliased, Grayscale, ClearType)
 		- Type: If you omit the parameter file, you can specify a file type like "pdf" so the filename will be determined from the xaml source file + type extension.	
+<<<<<<< HEAD
 		- Ghost: Use XPS & Ghostscript for rendering.
 		- Scale: Scale the output.
 		- Parallel: If set to false, the snapshot is rendered sequentially on the main thread, so Xaml resources are only acessed from the main thread. Default is true.
 
+=======
+	
+>>>>>>> 4730c0d1975b835ef76f1674282eb1841b5c8288
 		For PDF/A & PDF/X generation there are additional parameters:
 		- Type: PDF/A or PDF/A-2, PDF/A-1, PDF/X or PDF/X-3.
 		- Profile: For PDF/X: The name of the profile like FOGRA39,  or "Custom".

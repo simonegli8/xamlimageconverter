@@ -670,6 +670,7 @@ namespace XamlImageConverter {
 			var exe = Compiler.BinPath("Lazy\\gxps\\gswin32c.exe");
 			var process = NewProcess(exe, args, Path.GetDirectoryName(filename));
 			process.Exited += (sender, arg) => {
+
 				try {
 					if (File.Exists(filename)) File.Delete(filename);
 					if (File.Exists(temp)) File.Move(temp, filename);
@@ -684,6 +685,7 @@ namespace XamlImageConverter {
 				} finally {
 					ExitProcess(process);
 				}
+
 			};
 			process.Start();
 		}
@@ -783,6 +785,7 @@ namespace XamlImageConverter {
 				TempFiles.Add(filename2);
 
 				var process = NewProcess(exe, args, Path.GetDirectoryName(filename));
+
 				process.Exited += (sender, arg) => {
 					try {
 
@@ -897,6 +900,7 @@ namespace XamlImageConverter {
 					} finally {
 						ExitProcess(process);
 					}
+
 				};
 				process.Start();
 			} else {
