@@ -3,7 +3,9 @@
 	xmlns:xic="http://schemas.johnshope.com/XamlImageConverter/2012"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-
+	
+	<xic:Snapshot Source="Homepage.xaml" Type="png" />
+	
 	<xic:Scene>
 		
 		<xic:Xaml Source="Homepage.xaml"/>

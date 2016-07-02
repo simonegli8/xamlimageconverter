@@ -13,12 +13,12 @@ using System.Text.RegularExpressions;
 
 namespace XamlImageConverter {
 
-	public class AttributeCollection: KeyedCollection<string, XAttribute> {
+	public class AttributeCollection : KeyedCollection<string, XAttribute> {
 		protected override string GetKeyForItem(XAttribute a) { return a.Name.ToString(); }
 		public AttributeCollection() : base(StringComparer.OrdinalIgnoreCase) { }
 	}
-	
-	public class ImageMap: Group, Step {
+
+	public class ImageMap : Group, Step {
 
 		public enum FileTypes { UserControl, IncludeFile, Insert };
 
@@ -26,7 +26,7 @@ namespace XamlImageConverter {
 		public enum IdentChars { Tab, Space };
 
 		public string Image { get; set; }
-		public double? Scale, XScale, YScale, XOffset, YOffset, Angle;
+		public double? XScale, YScale, XOffset, YOffset, Angle;
 		public string File { get { return Filename; } set { Filename = value; } }
 		public Types Type { get; set; }
 		public double Flatness { get; set; }
@@ -93,34 +93,34 @@ namespace XamlImageConverter {
 			XElement area = null;
 			if (Type == Types.AspNet) {
 				switch (type) {
-					case Shapes.Circle:
-						area = new XElement("_asp_CircleHotSpot");
-						AddAreaAttributes(area, name, id, source);
-						area.SetAttributeValue("X", coords[0].ToString("D"));
-						area.SetAttributeValue("Y", coords[1].ToString("D"));
-						area.SetAttributeValue("Radius", coords[2].ToString("D"));
-						break;
-					case Shapes.Rectangle:
-						area = new XElement("_asp_RectangleHotSpot");
-						AddAreaAttributes(area, name, id, source);
-						area.SetAttributeValue("Left", coords[0].ToString("D"));
-						area.SetAttributeValue("Top", coords[1].ToString("D"));
-						area.SetAttributeValue("Right", coords[2].ToString("D"));
-						area.SetAttributeValue("Bottom", coords[3].ToString("D"));
-						break;
-					case Shapes.Polygon:
-						area = new XElement("_asp_PolygonHotSpot");
-						AddAreaAttributes(area, name, id, source);
-						area.SetAttributeValue("Coordinates", Coordinates(coords));
-						break;
+				case Shapes.Circle:
+					area = new XElement("_asp_CircleHotSpot");
+					AddAreaAttributes(area, name, id, source);
+					area.SetAttributeValue("X", coords[0].ToString("D"));
+					area.SetAttributeValue("Y", coords[1].ToString("D"));
+					area.SetAttributeValue("Radius", coords[2].ToString("D"));
+					break;
+				case Shapes.Rectangle:
+					area = new XElement("_asp_RectangleHotSpot");
+					AddAreaAttributes(area, name, id, source);
+					area.SetAttributeValue("Left", coords[0].ToString("D"));
+					area.SetAttributeValue("Top", coords[1].ToString("D"));
+					area.SetAttributeValue("Right", coords[2].ToString("D"));
+					area.SetAttributeValue("Bottom", coords[3].ToString("D"));
+					break;
+				case Shapes.Polygon:
+					area = new XElement("_asp_PolygonHotSpot");
+					AddAreaAttributes(area, name, id, source);
+					area.SetAttributeValue("Coordinates", Coordinates(coords));
+					break;
 				}
 			} else {
 				area = new XElement("area");
 				AddAreaAttributes(area, name, id, source);
 				switch (type) {
-					case Shapes.Circle: area.SetAttributeValue("shape", "circle"); break;
-					case Shapes.Rectangle: area.SetAttributeValue("shape", "rect"); break;
-					case Shapes.Polygon: area.SetAttributeValue("shape", "poly"); break;
+				case Shapes.Circle: area.SetAttributeValue("shape", "circle"); break;
+				case Shapes.Rectangle: area.SetAttributeValue("shape", "rect"); break;
+				case Shapes.Polygon: area.SetAttributeValue("shape", "poly"); break;
 				}
 				area.SetAttributeValue("coords", Coordinates(coords));
 			}
@@ -143,7 +143,7 @@ namespace XamlImageConverter {
 			AddArea(Shapes.Circle, source, name, ref n, X, Y, Radius);
 		}
 
-		private class Renderer: UIElement {
+		private class Renderer : UIElement {
 
 			List<Geometry> Geometries = new List<Geometry>();
 			Transform Transform = Transform.Identity;
@@ -206,7 +206,7 @@ namespace XamlImageConverter {
 						AddGeometry(group, g.GetOutlinedPathGeometry(Flatness, ToleranceType.Relative));
 					}
 				}
-				if (pen != null && pen.Thickness > 1 ) {
+				if (pen != null && pen.Thickness > 1) {
 					AddGeometry(group, g.GetWidenedPathGeometry(pen, Flatness, ToleranceType.Relative));
 				}
 			}
@@ -258,8 +258,8 @@ namespace XamlImageConverter {
 				foreach (var child in children) {
 					var childParents = GetParents(child, e);
 					if (childParents != null) {
-							childParents.Insert(0, root);
-							return childParents;
+						childParents.Insert(0, root);
+						return childParents;
 					}
 				}
 				return null;
@@ -278,7 +278,7 @@ namespace XamlImageConverter {
 			}
 
 			public GeneralTransform TransformToAncestor(FrameworkElement root, DependencyObject element) {
-				if (root == element || element == null) return Transform.Identity; 
+				if (root == element || element == null) return Transform.Identity;
 				if (element is UIElement) return ((UIElement)element).TransformToAncestor(root);
 				var parents = GetParents(root, element);
 				Transform et = Transform.Identity;
@@ -416,7 +416,7 @@ namespace XamlImageConverter {
 							if (segment is LineSegment) { // segment is a LineSegment
 								var ls = (LineSegment)segment;
 								points.Add(t.Transform(ls.Point)); // add point to points
-								//points.Add(ls.Point);
+																			  //points.Add(ls.Point);
 							} else if (segment is PolyLineSegment) { // segment is a PolyLineSegment
 								var pls = (PolyLineSegment)segment;
 								foreach (var point in pls.Points) points.Add(t.Transform(point)); // add point to points 
@@ -445,7 +445,7 @@ namespace XamlImageConverter {
 
 				var str = new StringBuilder();
 
-				double? scale = Scale, xscale = XScale, yscale = YScale, xoffset = XOffset, yoffset = YOffset, angle = Angle; 
+				double? scale = Scale, xscale = XScale, yscale = YScale, xoffset = XOffset, yoffset = YOffset, angle = Angle;
 
 				if (FileType == null) {
 					if (Path.GetExtension(file) == ".ascx") FileType = FileTypes.UserControl;

@@ -24,6 +24,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -135,9 +136,9 @@
     <Content Include="Lazy\Awesomium\Packed\README.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Lazy\Awesomium\README.txt">
+    <None Include="Lazy\Awesomium\README.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </None>
     <Content Include="Lazy\Awesomium\xinput9_1_0.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -246,6 +247,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="XamlImageConverter.Demo\CreateImages.xic.xaml">
@@ -308,6 +312,14 @@
     <Content Include="Lazy\gxps\PDFA.ps" />
     <Content Include="Lazy\gxps\PDFX.ps" />
     <Content Include="Lazy\gxps\sRGB_v4_ICC_preference.icc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Lazy\Awesomium\html2pdf.exe.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Lazy\Awesomium\pdf_js.pak">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

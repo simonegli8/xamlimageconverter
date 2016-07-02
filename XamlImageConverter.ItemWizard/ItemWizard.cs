@@ -34,27 +34,33 @@ namespace XamlImageConverter {
 	/// ShouldAddProjectItem to return true when the item to be added is the App_Code folder. 
 	///  In all other methods we will just delegate to the default wizard
 	/// </summary>
-	public class CustomWizardBase: IWizard {
+	public class CustomWizardBase : IWizard {
 		#region fields
 		IWizard aggregatedWizard;
 		#endregion
 
 		#region Properties
-		internal protected string AggregatedWizardAssemblyName {
-			get {
+		internal protected string AggregatedWizardAssemblyName
+		{
+			get
+			{
 				// return 'Microsoft.VisualStudio.Web, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a';
 				return null;
 			}
 		}
 
-		internal protected virtual string AggregatedFullClassName {
-			get {
+		internal protected virtual string AggregatedFullClassName
+		{
+			get
+			{
 				return "";
 			}
 		}
 
-		internal protected IWizard AggregatedWizard {
-			get {
+		internal protected IWizard AggregatedWizard
+		{
+			get
+			{
 				if (aggregatedWizard == null) {
 					LoadAggregatedWizard();
 				}
@@ -106,17 +112,19 @@ namespace XamlImageConverter {
 	}
 
 
-	public class ItemWizard: IWizard {
-	
+	public class ItemWizard : IWizard {
+
 		EnvDTE.ProjectItem item;
+		string msbuild;
 
 		public virtual void ProjectItemFinishedGenerating(EnvDTE.ProjectItem projectItem) {
-			projectItem.Properties.Item("ItemType").Value = "XamlImageConverterPostCompile";
+			projectItem.Properties.Item("ItemType").Value = "XamlConvert";
 			projectItem.Properties.Item("CustomTool").Value = "";
 			item = projectItem;
 		}
 
 		const string target = "XamlImageConverter.targets";
+		const string MSBuildExtensionsPath = @"$(MSBuildExtensionsPath)\johnshope.com\XamlImageConverter";
 
 		public virtual void RunFinished() {
 			try {
@@ -133,43 +141,25 @@ namespace XamlImageConverter {
 				dte.ExecuteCommand("File.SaveAll", string.Empty);
 
 				var filename = proj.FullName;
-				var bproj = new Microsoft.Build.BuildEngine.Project(new Microsoft.Build.BuildEngine.Engine());
-				bproj.Load(filename);
+				var bproj = new Microsoft.Build.Evaluation.Project(filename);
 
-				//bool change = false;
-				var path = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-				var imppath = Path.Combine(path, target);
+				var imppath = Path.Combine(MSBuildExtensionsPath, target);
 
-				Import sbimp = null;
-				foreach (Import imp in bproj.Imports) {
-					if (imp.ProjectPath.Contains(target)) {
-						sbimp = imp;
-						if (sbimp.ProjectPath == imppath) return; // import is already there, so no need to modify project any further.
-						break;
-					}
-				}
+				if (bproj.Imports.Any(imp => imp.ImportedProject.FullPath == imppath)) return; // import is already there, so no need to modify project any further.
 
 				ModifyWebConfig();
 
-				//Because modify the open *.csproj file outside of the IDE will pop up a window to let you reload the file.
-				//I Execute Command to unload the project before modifying the *.csproj file. And reload after the *.csproj has already updated.
-
+				// select project
 				string solutionName = Path.GetFileNameWithoutExtension(dte.Solution.FullName);
 				dte.Windows.Item(EnvDTE.Constants.vsWindowKindSolutionExplorer).Activate();
 				((EnvDTE80.DTE2)dte).ToolWindows.SolutionExplorer.GetItem(solutionName + @"\" + proj.Name).Select(vsUISelectionType.vsUISelectionTypeSelect);
 
+				//Because modify the open *.csproj file outside of the IDE will pop up a window to let you reload the file.
+				//IExecute Command to unload the project before modifying the *.csproj file. And reload after the *.csproj has already updated.
+				bproj.Xml.AddImport(imppath);
 				dte.ExecuteCommand("Project.UnloadProject", string.Empty);
-
-				if (sbimp != null) {
-					if (sbimp.ProjectPath != imppath) {
-						bproj.Imports.RemoveImport(sbimp);
-						sbimp = null;
-					}
-				}
-				if (sbimp == null) bproj.Imports.AddNewImport(imppath, null);
-				bproj.Save(filename);
+				bproj.Save();
 				dte.ExecuteCommand("Project.ReloadProject", string.Empty);
-
 			} catch (Exception ex) {
 			}
 		}
@@ -238,14 +228,14 @@ namespace XamlImageConverter {
 						try {
 							var litem = folder.ProjectItems.AddFromFileCopy(file);
 							litem.Properties.Item("CustomTool").Value = "";
-							if (file.EndsWith(".xaml")) litem.Properties.Item("ItemType").Value = "XamlImageConverterPostCompile";
+							if (file.EndsWith(".xaml")) litem.Properties.Item("ItemType").Value = "XamlConvert";
 							//else if (file.EndsWith(".xaml")) litem.Properties.Item("ItemType").Value = "Content";
 						} catch (Exception ex) {
 						}
 					}
 					// collapse folder
 					var solutionExplorer = (UIHierarchy)vsproj.DTE.Windows.Item(Constants.vsext_wk_SProjectWindow).Object;
- 
+
 					if (solutionExplorer.UIHierarchyItems.Count > 0) {
 						UIHierarchyItem rootNode = solutionExplorer.UIHierarchyItems.Item(1);
 
@@ -259,13 +249,62 @@ namespace XamlImageConverter {
 				}
 			}
 		}
+		class CopyDir {
+			public static void Copy(string sourceDirectory, string targetDirectory) {
+				DirectoryInfo diSource = new DirectoryInfo(sourceDirectory);
+				DirectoryInfo diTarget = new DirectoryInfo(targetDirectory);
+
+				CopyAll(diSource, diTarget);
+			}
+
+			public static void CopyAll(DirectoryInfo source, DirectoryInfo target) {
+				Directory.CreateDirectory(target.FullName);
+
+				// Copy each file into the new directory.
+				foreach (FileInfo fi in source.GetFiles()) {
+					Console.WriteLine(@"Copying {0}\{1}", target.FullName, fi.Name);
+					fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
+				}
+
+				// Copy each subdirectory using recursion.
+				foreach (DirectoryInfo diSourceSubDir in source.GetDirectories()) {
+					DirectoryInfo nextTargetSubDir =
+						 target.CreateSubdirectory(diSourceSubDir.Name);
+					CopyAll(diSourceSubDir, nextTargetSubDir);
+				}
+			}
+
+			public static void Main() {
+				string sourceDirectory = @"c:\sourceDirectory";
+				string targetDirectory = @"c:\targetDirectory";
+
+				Copy(sourceDirectory, targetDirectory);
+			}
+
+			// Output will vary based on the contents of the source directory.
+		}
 
 		public void CopyBin() {
+
 			var proj = item.ContainingProject;
 			var projname = proj.FullName;
 			var dest = Path.GetDirectoryName(projname);
 			var conf = Path.Combine(dest, "web.config");
 			var src = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
+			// Copy to MSBuild extensions
+			msbuild = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"MSBuild\johnshope.com\XamlImageConverter");
+			Directory.CreateDirectory(msbuild);
+			/*Files.Copy(Path.Combine(src, "XamlImageConverter.targets"), msbuild);
+			Files.Copy(Path.Combine(src, "XamlImageConverter.dll"), msbuild);
+			Files.Copy(Path.Combine(src, "XamlImageConverter.pdb"), msbuild);
+			Files.Copy(Path.Combine(src, "Awesomium"), msbuild, );
+			Files.Copy(Path.Combine(src, "gxps"), msbuild);
+			Files.Copy(Path.Combine(src, "html2xaml"), msbuild);
+			Files.Copy(Path.Combine(src, "ImageMagick"), msbuild);
+			Files.Copy(Path.Combine(src, "psd2xaml"), msbuild);*/
+			CopyDirectory.Copy(src, msbuild);
+
 
 			var IsWeb = File.Exists(conf);
 			if (!IsWeb) return;
@@ -279,23 +318,24 @@ namespace XamlImageConverter {
 			binlazy = Path.Combine(bin, "Lazy");
 			if (IsWeb && !Directory.Exists(binlazy)) {
 				Directory.CreateDirectory(binlazy);
-				Files.Copy(Path.Combine(src, "XamlImageConverter.dll"), binlazy);
+				CopyDirectory.Copy(src, binlazy);
+				/*Files.Copy(Path.Combine(src, "XamlImageConverter.dll"), binlazy);
 				Files.Copy(Path.Combine(src, "XamlImageConverter.pdb"), binlazy);
 				Files.Copy(Path.Combine(src, "Awesomium"), binlazy);
 				Files.Copy(Path.Combine(src, "gxps"), binlazy);
 				Files.Copy(Path.Combine(src, "html2xaml"), binlazy);
 				Files.Copy(Path.Combine(src, "ImageMagick"), binlazy);
-				Files.Copy(Path.Combine(src, "psd2xaml"), binlazy);
+				Files.Copy(Path.Combine(src, "psd2xaml"), binlazy);*/
 				//var cache = Path.Combine(dest, "Images\\Cache");
 				//if (!Directory.Exists(cache)) Directory.CreateDirectory(cache);
 			}
 
 			// copy XamlImageConverter.Web.dll when not using Silversite.
-			if (!Silversite || !IsWeb) {
+			if (!Silversite && IsWeb) {
 				Files.Copy(Path.Combine(src, "XamlImageConverter.Web.*"), bin);
 			}
 		}
-		
+
 		public void ModifyWebConfig() {
 			var proj = item.ContainingProject;
 			var projname = proj.FullName;
@@ -325,7 +365,7 @@ namespace XamlImageConverter {
 				if (configSections == null) webconfig.AddFirst(configSections = new XElement("configSections"));
 
 				//configSections.Elements().Where(x => ((string)x.Attribute("type") ?? "").Contains("PublicKeyToken=60c2ec984bc1bb45")).Remove();
-				configSections.Add(XElement.Parse("<section name='XamlImageConverter' type='XamlImageConverter.Configuration, 	XamlImageConverters.Web, Version=3.12.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
+				configSections.Add(XElement.Parse("<section name='XamlImageConverter' type='XamlImageConverter.Configuration, 	XamlImageConverters.Web, Version=3.2.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
 				// XamlImageConverter section
 				if (webconfig.Element("XamlImageConverter") == null) configSections.AddAfterSelf(XElement.Parse("<XamlImageConverter Log='true' Cache='~/Images/Cache' />"));
 			}
@@ -336,11 +376,11 @@ namespace XamlImageConverter {
 			var handlers = server.Element("handlers");
 			if (handlers == null) server.Add(handlers = new XElement("handlers"));
 			handlers.Elements().Where(x => ((string)x.Attribute("type") ?? "").Contains("PublicKeyToken=60c2ec984bc1bb45")).Remove();
-			handlers.Add(XElement.Parse("<add name='XamlImageConverter.Xaml' verb='*' path='*.xaml' preCondition='integratedMode' type='XamlImageConverter.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.12.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-					XElement.Parse("<add name='XamlImageConverter.Svg' verb='*' path='*.svg' preCondition='integratedMode' type='XamlImageConverter.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.12.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-					XElement.Parse("<add name='XamlImageConverter.Svgz' verb='*' path='*.svgz' preCondition='integratedMode' type='XamlImageConverter.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.12.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-					XElement.Parse("<add name='XamlImageConverter.Psd' verb='*' path='*.psd' preCondition='integratedMode' type='XamlImageConverter.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.12.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
-					XElement.Parse("<add name='XamlImageConverter.Dynamic' verb='*' path='xic.axd' preCondition='integratedMode' type='XamlImageConverter.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.12.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
+			handlers.Add(XElement.Parse("<add name='XamlImageConverter.Xaml' verb='*' path='*.xaml' preCondition='integratedMode' type='XamlImageConverter.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.2.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
+					XElement.Parse("<add name='XamlImageConverter.Svg' verb='*' path='*.svg' preCondition='integratedMode' type='XamlImageConverter.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.2.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
+					XElement.Parse("<add name='XamlImageConverter.Svgz' verb='*' path='*.svgz' preCondition='integratedMode' type='XamlImageConverter.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.2.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
+					XElement.Parse("<add name='XamlImageConverter.Psd' verb='*' path='*.psd' preCondition='integratedMode' type='XamlImageConverter.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.2.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"),
+					XElement.Parse("<add name='XamlImageConverter.Dynamic' verb='*' path='xic.axd' preCondition='integratedMode' type='XamlImageConverter.Web.XamlImageHandler, XamlImageConverter.Web, Version=3.2.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
 
 			// system.web
 			var web = webconfig.Element("system.web");
@@ -352,7 +392,7 @@ namespace XamlImageConverter {
 			var assemblies = comp.Element("assemblies");
 			if (assemblies == null) comp.Add(assemblies = new XElement("assemblies"));
 			assemblies.Elements().Where(x => ((string)x.Attribute("assembly") ?? "").Contains("PublicKeyToken=60c2ec984bc1bb45")).Remove();
-			assemblies.Add(XElement.Parse("<add assembly='XamlImageConverter.Web, Version=3.12.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45'/>"));
+			assemblies.Add(XElement.Parse("<add assembly='XamlImageConverter.Web, Version=3.2.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45'/>"));
 
 			// pages
 			var pages = web.Element("pages");
@@ -360,7 +400,7 @@ namespace XamlImageConverter {
 			var controls = pages.Element("controls");
 			if (controls == null) pages.Add(controls = new XElement("controls"));
 			controls.Elements().Where(x => ((string)x.Attribute("assembly") ?? "").Contains("PublicKeyToken=60c2ec984bc1bb45")).Remove();
-			controls.Add(XElement.Parse("<add tagPrefix='xic' namespace='XamlImageConverter.Web.UI' assembly='XamlImageConverter.Web, Version=3.12.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
+			controls.Add(XElement.Parse("<add tagPrefix='xic' namespace='XamlImageConverter.Web.UI' assembly='XamlImageConverter.Web, Version=3.2.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45' />"));
 
 			/*
 			// httpHandlers

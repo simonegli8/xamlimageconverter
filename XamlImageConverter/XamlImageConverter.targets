@@ -23,22 +23,25 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<AvailableItemName Include="XamlImageConverterPreCompile" />
-		<AvailableItemName Include="XamlImageConverterPostCompile" />
+		<AvailableItemName Include="XamlConverter" />
+		<AvailableItemName Include="ConvertToPng" />
+		<AvailableItemName Include="ConvertToPdf" />
+		<AvailableItemName Include="ConvertToJpeg" />
 	</ItemGroup>
 
 	<!--Compile target (this is the target that calls the compiler task)-->
 	<Target Name="XamlImageConverterPreCompiler" DependsOnTargets="$(XamlImageConverterPreCompilerDependsOn)">
-		<XamlImageConverter
-			SourceFiles="@(XamlImageConverterPreCompile)"
-			ProjectPath="$(MSBuildProjectDirectory)" />
+		<XamlImageConverter SourceFiles="@(XamlConverter)" ProjectPath="$(MSBuildProjectDirectory)" Mode="Loose" />
+		<XamlImageConverter SourceFiles="@(ConvertToPng)" ProjectPath="$(MSBuildProjectDirectory)" Mode="Loose" Parameters="Type=png" />
+		<XamlImageConverter SourceFiles="@(ConvertToPdf)" ProjectPath="$(MSBuildProjectDirectory)" Mode="Loose" Parameters="Type=pdf" />
+		<XamlImageConverter SourceFiles="@(ConvertToJpeg)" ProjectPath="$(MSBuildProjectDirectory)" Mode="Loose" Parameters="Type=jpg" />
 	</Target>
 
 	<Target Name="XamlImageConverterPostCompiler" DependsOnTargets="$(XamlImageConverterPostCompilerDependsOn)">
-		<XamlImageConverter
-			SourceFiles="@(XamlImageConverterPostCompile)"
-			ProjectPath="$(MSBuildProjectDirectory)"
-			LibraryPath="$(OutputPath)" />
+		<XamlImageConverter SourceFiles="@(XamlConverter)" ProjectPath="$(MSBuildProjectDirectory)" Mode="Compiled" />
+		<XamlImageConverter SourceFiles="@(ConvertToPng)" ProjectPath="$(MSBuildProjectDirectory)" Mode="Compiled" Parameters="Type=png" />
+		<XamlImageConverter SourceFiles="@(ConvertToPdf)" ProjectPath="$(MSBuildProjectDirectory)" Mode="Compiled" Parameters="Type=pdf" />
+		<XamlImageConverter SourceFiles="@(ConvertToJpeg)" ProjectPath="$(MSBuildProjectDirectory)" Mode="Compiled" Parameters="Type=jpg" />
 	</Target>
 
 	<!--This is an override of CoreCompile to have our XamlImageConverter be called at compile time-->

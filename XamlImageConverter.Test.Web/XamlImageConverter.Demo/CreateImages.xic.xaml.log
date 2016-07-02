@@ -1,0 +1,64 @@
+XamlImageConverter 3.12 by Chris Cavanagh & David Egli
+20.09.2014 23:38:35, using 1 CPU cores.
+CreateImages.xic.xaml:
+   background_top_gradient.png is up to date.
+   page_header_ctr.png is up to date.
+   animated-loader.gif is up to date.
+   animated-loader-filmstrip.jpg is up to date.
+   Set
+     Copyright.Content=System.Windows.Controls.Button: Chris Cavanagh & johnshope.com
+   copyright_bar.png is up to date.
+   copyright_bar_element.png is up to date.
+   modified.page.png is up to date.
+   Reset
+   full.xps is up to date.
+   full.png is up to date.
+   full.eps is up to date.
+   full.ps is up to date.
+   full.pdf is up to date.
+   arrow.pdf is up to date.
+   Kaxaml.png is up to date.
+   Kaxaml.gif is up to date.
+   Kaxaml.xps is up to date.
+   Kaxaml.pdf is up to date.
+  Error 32 (61,3): Unable to convert PSD to xaml.
+  Error 34 (61,3): Planet.psd> Internal error occurred:
+Error loading xaml: Ungültige Daten auf Stammebene. Zeile 1, Position 1.
+   bei XamlImageConverter.Group.get_Element() in d:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Group.cs:Zeile 316.
+   bei XamlImageConverter.Snapshot.Save(String Culture) in d:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Snapshot.cs:Zeile 236.
+   bei XamlImageConverter.Snapshot.Save() in d:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Snapshot.cs:Zeile 80.
+   bei XamlImageConverter.Group.Process() in d:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Group.cs:Zeile 1020.
+
+Inner Exception:
+Ungültige Daten auf Stammebene. Zeile 1, Position 1.   bei System.Xml.XmlTextReaderImpl.Throw(Exception e)
+   bei System.Xml.XmlTextReaderImpl.Throw(String res, String arg)
+   bei System.Xml.XmlTextReaderImpl.ParseRootLevelWhitespace()
+   bei System.Xml.XmlTextReaderImpl.ParseDocumentContent()
+   bei System.Xml.XmlTextReaderImpl.Read()
+   bei System.Xml.XmlReader.MoveToContent()
+   bei System.Xml.Linq.XElement.Load(XmlReader reader, LoadOptions options)
+   bei System.Xml.Linq.XElement.Load(String uri, LoadOptions options)
+   bei XamlImageConverter.Group.get_Element() in d:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Group.cs:Zeile 297.
+  Error 34 (61,3): Planet.psd> Internal error occurred:
+Error loading xaml: Ungültige Daten auf Stammebene. Zeile 1, Position 1.
+   bei XamlImageConverter.Group.get_Element() in d:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Group.cs:Zeile 316.
+   bei XamlImageConverter.Snapshot.Save(String Culture) in d:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Snapshot.cs:Zeile 236.
+   bei XamlImageConverter.Snapshot.Save() in d:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Snapshot.cs:Zeile 80.
+   bei XamlImageConverter.Group.Process() in d:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Group.cs:Zeile 1020.
+
+Inner Exception:
+Ungültige Daten auf Stammebene. Zeile 1, Position 1.   bei System.Xml.XmlTextReaderImpl.Throw(Exception e)
+   bei System.Xml.XmlTextReaderImpl.Throw(String res, String arg)
+   bei System.Xml.XmlTextReaderImpl.ParseRootLevelWhitespace()
+   bei System.Xml.XmlTextReaderImpl.ParseDocumentContent()
+   bei System.Xml.XmlTextReaderImpl.Read()
+   bei System.Xml.XmlReader.MoveToContent()
+   bei System.Xml.Linq.XElement.Load(XmlReader reader, LoadOptions options)
+   bei System.Xml.Linq.XElement.Load(String uri, LoadOptions options)
+   bei XamlImageConverter.Group.get_Element() in d:\Code\XamlImageConverter\XamlImageConverter\XamlCapture\Group.cs:Zeile 297.
+   tux.xaml is up to date.
+   tux.png is up to date.
+   tux.pdf is up to date.
+   ..\Usa.Map.html is up to date.
+   ..\Readme.aspx is up to date.
+   button.png is up to date.

@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 namespace XamlImageConverter {
 	//TODO: ImageMaps
 
-	public class CompilerException: Exception {
+	public class CompilerException : Exception {
 		public int ErrorCode;
 		public XObject XObject;
 		public Group Group;
@@ -31,6 +31,7 @@ namespace XamlImageConverter {
 		List<string> SourceFiles { get; set; }
 		string ProjectPath { get; set; }
 		string LibraryPath { get; set; }
+		Compiler.Modes Mode { get; set; }
 		bool RebuildAll { get; set; }
 		bool UseService { get; set; }
 		bool SeparateAppDomain { get; set; }
@@ -44,13 +45,16 @@ namespace XamlImageConverter {
 	}
 
 	[Serializable]
-	public class Compiler: Parser, ICompiler {
+	public class Compiler : Parser, ICompiler {
+
+		public enum Modes { Loose, Compiled, Both };
 
 		public List<string> SourceFiles { get; set; }
 
 		public string ProjectPath { get; set; }
 		public string LibraryPath { get; set; }
 		public string SkinPath { get; set; }
+		public Modes Mode { get; set; } = Modes.Both;
 		//public bool STAThread { get; set; }
 		const bool STAThread = true;
 		public bool NeedsBuilding { get; set; }
@@ -70,7 +74,7 @@ namespace XamlImageConverter {
 		public Dictionary<string, string> Parameters { get; set; }
 		static int id = 0;
 		public List<Process> Processes { get; set; }
-		public System.Web.HttpContext Context { get; set; }  
+		public System.Web.HttpContext Context { get; set; }
 		public int? hash { get; set; }
 		[NonSerialized]
 		public List<string> TempPaths = new List<string>();
@@ -92,10 +96,10 @@ namespace XamlImageConverter {
 		public const int MaxMemory = 400000000;
 
 		public void Finish() {
-	
+
 			foreach (var t in Threads) t.Join();
 			Threads.Clear();
-	
+
 			System.Diagnostics.Process p;
 			lock (Processes) p = Processes.FirstOrDefault();
 			while (p != null) {
@@ -107,7 +111,7 @@ namespace XamlImageConverter {
 			}
 		}
 
-		public class FileLocks: IDisposable {
+		public class FileLocks : IDisposable {
 			static Dictionary<string, object> Locks = new Dictionary<string, object>();
 			string path = null;
 
@@ -125,7 +129,7 @@ namespace XamlImageConverter {
 						Monitor.Exit(Locks[path]);
 						path = null;
 					}
-				} catch (Exception ex) {
+				} catch {
 				}
 			}
 		}
@@ -156,7 +160,7 @@ namespace XamlImageConverter {
 		public void ImageCreated() {
 			lock (this) CreatedImages++;
 		}
-	
+
 		public void InitDomain() {
 			AppDomain.CurrentDomain.AssemblyResolve += (sender, args) => {
 				var aname = new AssemblyName(args.Name);
@@ -165,7 +169,7 @@ namespace XamlImageConverter {
 			};
 		}
 
-	public void HandleException(Exception ex, StringBuilder msg) {
+		public void HandleException(Exception ex, StringBuilder msg) {
 			msg.AppendLine(ex.Message);
 			msg.AppendLine(ex.StackTrace);
 			var iex = ex.InnerException;
@@ -209,15 +213,15 @@ namespace XamlImageConverter {
 			hash = null;
 		}
 
-		public Compiler(string projectPath, string libraryPath): this() { ProjectPath = projectPath; LibraryPath = libraryPath; }
+		public Compiler(string projectPath, string libraryPath) : this() { ProjectPath = projectPath; LibraryPath = libraryPath; }
 
 		public void CopyTo(Compiler dest) {
 			dest.SourceFiles = SourceFiles.ToList();
 			dest.ProjectPath = ProjectPath; dest.LibraryPath = LibraryPath; dest.SkinPath = SkinPath; //dest.STAThread = STAThread;
 			dest.NeedsBuilding = NeedsBuilding; dest.CheckBuilding = CheckBuilding; dest.NeedsBuildingChecked = NeedsBuildingChecked;
-			dest.SeparateAppDomain = SeparateAppDomain;	dest.RebuildAll = RebuildAll; dest.UseService = UseService;
+			dest.SeparateAppDomain = SeparateAppDomain; dest.RebuildAll = RebuildAll; dest.UseService = UseService;
 			dest.Culture = Culture;
-			foreach (var key in Parameters.Keys) dest.Parameters.Add(key, Parameters[key]); 
+			foreach (var key in Parameters.Keys) dest.Parameters.Add(key, Parameters[key]);
 			dest.Errors.Loggers = Errors.Loggers;
 			//dest.Errors = Errors;
 			dest.Initialized = this.Initialized;
@@ -227,10 +231,12 @@ namespace XamlImageConverter {
 			dest.Cores = this.Cores;
 		}
 
-		public List<ILogger> Loggers { get { return Errors.Loggers; } } 
+		public List<ILogger> Loggers { get { return Errors.Loggers; } }
 
-		public string ID {
-			get {
+		public string ID
+		{
+			get
+			{
 				var hash = id++;
 				hash += ProjectPath.GetHashCode();
 				hash += LibraryPath.GetHashCode();
@@ -281,11 +287,11 @@ namespace XamlImageConverter {
 				assemblyName = null;
 				assemblyQualifiedName = null;
 				typeName = path;
-			}	
+			}
 		}
 
 		bool CheckNeedsBuilding(IEnumerable<Group> scenes) {
-			if (NeedsBuildingChecked) return true; 
+			if (NeedsBuildingChecked) return true;
 			foreach (Group scene in scenes) {
 				foreach (var step in scene.Steps()) {
 					if (step.NeedsBuilding) {
@@ -298,7 +304,7 @@ namespace XamlImageConverter {
 		}
 
 		[NonSerialized]
-		bool init= false;
+		bool init = false;
 		[NonSerialized]
 		static bool dllsLoaded = false;
 		[NonSerialized]
@@ -306,18 +312,18 @@ namespace XamlImageConverter {
 
 		public bool Initialized { get { return init; } set { init = value; } }
 
-	/*	void Init() {
-			if (!init) {
-				init = true;
-				Errors.Message("XamlImageConverter 3.12 by Chris Cavanagh & David Egli");
-				Cpus = Parallel ? Environment.ProcessorCount : 1;
-				Errors.Message("Using {0} CPU Cores.", Cpus);
-			}
-		} */
+		/*	void Init() {
+				if (!init) {
+					init = true;
+					Errors.Message("XamlImageConverter 3.2 by Chris Cavanagh & David Egli");
+					Cpus = Parallel ? Environment.ProcessorCount : 1;
+					Errors.Message("Using {0} CPU Cores.", Cpus);
+				}
+			} */
 
 		public void LoadDlls() {
 			lock (DllLock) {
-				var baseDir =  AppDomain.CurrentDomain.BaseDirectory;
+				var baseDir = AppDomain.CurrentDomain.BaseDirectory;
 				var projDir = ProjectPath;
 				if (baseDir.EndsWith("\\")) baseDir = baseDir.Substring(0, baseDir.Length-1);
 				if (projDir.EndsWith("\\")) projDir = projDir.Substring(0, projDir.Length-1);
@@ -373,7 +379,7 @@ namespace XamlImageConverter {
 				root.Filename = filename;
 				root.Compiler = this;
 				if (!CheckBuilding) {
-					root.Errors.Status("XamlImageConverter 3.12 by Chris Cavanagh & David Egli");
+					root.Errors.Status("XamlImageConverter 3.2 by Chris Cavanagh & David Egli");
 					root.Errors.Status("{0:G}, using {1} CPU cores.", DateTime.Now, Cpus);
 					root.Errors.Status(Path.GetFileName(filename) + ":");
 				}
@@ -475,7 +481,7 @@ namespace XamlImageConverter {
 				var mysteps = steps[cpu];
 				int n;
 				lock (this) n = ++initialized;
-				
+
 				if (cpu == icpu && cpu > 0) {
 					var root = new Group();
 					root.Master = Root;
@@ -570,7 +576,7 @@ namespace XamlImageConverter {
 				}
 
 				LoadDlls();
-	
+
 				var steps = new StepQueue(root, Version, config, this, scenes, CheckBuilding);
 
 				for (int cpu = cpus-1; cpu >= 0; cpu--) {
@@ -667,7 +673,7 @@ namespace XamlImageConverter {
 
 			if (SourceFiles != null && SourceFiles.Count > 0) {
 				if (!ProjectPath.Contains(":")) { ProjectPath = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, ProjectPath)).FullName; }
-					
+
 				if (UseService) {
 					var server = new CompilerServer();
 					server.Compile(this);
@@ -690,8 +696,7 @@ namespace XamlImageConverter {
 							.Select(p => Path.Combine(p, "XamlImageConverter.dll"))
 							.FirstOrDefault(p => File.Exists(p));
 
-						try 
-						{
+						try {
 
 							Compiler compiler = null;
 							object proxy;
@@ -700,7 +705,7 @@ namespace XamlImageConverter {
 							else
 								proxy = domain.CreateInstanceAndUnwrap(aname.FullName, "XamlImageConverter.Compiler");
 							compiler = (Compiler)proxy;
-							
+
 							compiler.InitDomain();
 							CopyTo(compiler);
 							compiler.SeparateAppDomain = false;

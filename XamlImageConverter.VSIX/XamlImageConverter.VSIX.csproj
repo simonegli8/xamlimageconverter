@@ -21,7 +21,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>XamlImageConverter</RootNamespace>
-    <AssemblyName>XamlImageConverter312</AssemblyName>
+    <AssemblyName>XamlImageConverter322</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <GeneratePkgDefFile>false</GeneratePkgDefFile>
     <IncludeAssemblyInVSIXContainer>false</IncludeAssemblyInVSIXContainer>
@@ -42,7 +42,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -139,12 +139,11 @@
     <Content Include="Lazy\Awesomium\Awesomium.Windows.Forms.XML">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Lazy\Awesomium\Design\Awesomium.Windows.Controls.Design.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\Awesomium\Design\Awesomium.Windows.Forms.Design.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
+    <Content Include="Lazy\Awesomium\Design\Awesomium.Windows.Controls.Design.10.dll" />
+    <Content Include="Lazy\Awesomium\Design\Awesomium.Windows.Controls.Design.11.dll" />
+    <Content Include="Lazy\Awesomium\Design\Awesomium.Windows.Controls.Design.12.dll" />
+    <Content Include="Lazy\Awesomium\Design\Awesomium.Windows.Controls.Design.dll" />
+    <Content Include="Lazy\Awesomium\Design\Awesomium.Windows.Forms.Design.dll" />
     <Content Include="Lazy\Awesomium\Design\README.txt">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -163,12 +162,8 @@
     <Content Include="Lazy\Awesomium\libGLESv2.dll">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Lazy\Awesomium\Packed\Awesomium.Core.dll">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Lazy\Awesomium\Packed\README.txt">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
+    <Content Include="Lazy\Awesomium\Packed\Awesomium.Core.dll" />
+    <Content Include="Lazy\Awesomium\Packed\README.txt" />
     <Content Include="Lazy\Awesomium\README.txt">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -279,6 +274,15 @@
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Lazy\gxps\sRGB_v4_ICC_preference.icc">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\Awesomium.Mono.dll.config">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\html2pdf.exe.config">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Lazy\Awesomium\pdf_js.pak">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <None Include="source.extension.vsixmanifest" />

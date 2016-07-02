@@ -2,8 +2,8 @@
 <Vsix xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2010">
 	<Identifier Id="XamlImageConverter.2c5e9477-428f-4362-a5b5-d8c2d6ec2605">
 		<Name>Xaml Image Converter</Name>
-		<Author>David Egli</Author>
-		<Version>3.13</Version>
+		<Author>Simon Egli</Author>
+		<Version>3.22</Version>
 		<AllUsers>true</AllUsers>
 		<Description xml:space="preserve">Renders images, animations, html image maps &amp; pdf's from Xaml, HTML, SVG &amp; Photoshop files.
 
@@ -47,9 +47,18 @@ Features:
 				<Edition>Premium</Edition>
 				<Edition>Pro</Edition>
 			</VisualStudio>
-
+			<VisualStudio Version="15.0">
+				<Edition>Ultimate</Edition>
+				<Edition>Premium</Edition>
+				<Edition>Pro</Edition>
+			</VisualStudio>
+			<VisualStudio Version="16.0">
+				<Edition>Ultimate</Edition>
+				<Edition>Premium</Edition>
+				<Edition>Pro</Edition>
+			</VisualStudio>
 		</SupportedProducts>
-		<SupportedFrameworkRuntimeEdition MinVersion="3.5" MaxVersion="4.5.2" />
+		<SupportedFrameworkRuntimeEdition MinVersion="3.5" MaxVersion="4.9" />
 	</Identifier>
 	<References />
 	<Content>
@@ -89,20 +98,20 @@ Features:
 		<CustomExtension Type="Resource">Lazy\Awesomium\avformat-53.dll</CustomExtension>
 		<CustomExtension Type="Resource">Lazy\Awesomium\avutil-51.dll</CustomExtension>
 		<CustomExtension Type="Resource">Lazy\Awesomium\Awesomium.Core.dll</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\Awesomium\Awesomium.Core.XML</CustomExtension>
+		<CustomExtension Type="Resource">Lazy\Awesomium\Awesomium.Mono.dll</CustomExtension>
 		<CustomExtension Type="Resource">Lazy\Awesomium\awesomium.dll</CustomExtension>
 		<CustomExtension Type="Resource">Lazy\Awesomium\Awesomium.Windows.Controls.dll</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\Awesomium\Awesomium.Windows.Controls.XML</CustomExtension>
 		<CustomExtension Type="Resource">Lazy\Awesomium\Awesomium.Windows.Forms.dll</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\Awesomium\Awesomium.Windows.Forms.XML</CustomExtension>
 		<CustomExtension Type="Resource">Lazy\Awesomium\awesomium_process</CustomExtension>
 		<CustomExtension Type="Resource">Lazy\Awesomium\icudt.dll</CustomExtension>
 		<CustomExtension Type="Resource">Lazy\Awesomium\inspector.pak</CustomExtension>
+		<CustomExtension Type="Resource">Lazy\Awesomium\pdf_js.pak</CustomExtension>
 		<CustomExtension Type="Resource">Lazy\Awesomium\libEGL.dll</CustomExtension>
 		<CustomExtension Type="Resource">Lazy\Awesomium\libGLESv2.dll</CustomExtension>
 		<CustomExtension Type="Resource">Lazy\Awesomium\README.txt</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\Awesomium\XamlImageConverter.Awesomium.dll</CustomExtension>
-		<CustomExtension Type="Resource">Lazy\Awesomium\XamlImageConverter.Awesomium.pdb</CustomExtension>
+		<CustomExtension Type="Resource">Lazy\Awesomium\html2pdf.exe</CustomExtension>
+		<CustomExtension Type="Resource">Lazy\Awesomium\html2pdf.pdb</CustomExtension>
+		<CustomExtension Type="Resource">Lazy\Awesomium\html2pdf.config</CustomExtension>
 		<CustomExtension Type="Resource">Lazy\Awesomium\xinput9_1_0.dll</CustomExtension>
 		<CustomExtension Type="Resource">Demo\blog-banner.jpg</CustomExtension>
 		<CustomExtension Type="Resource">Demo\CreateImages.xic.xaml</CustomExtension>

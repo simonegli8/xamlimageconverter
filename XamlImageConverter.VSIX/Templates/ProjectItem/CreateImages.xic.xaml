@@ -14,21 +14,24 @@
 	
 	<!-- Documentation:
 	
+		IMPORTANT NOTE:
+		After you have upgraded XamlImageConverter from a previous version, you need to add a new XamlImageCreator Image Conversion
+		to your project, otherwise your project will still use the old version of XamlImageConverter. This is, because the VSIX Installer has no setup
+		features, so XamlImageConverter has to do the setup upon it's first invocation, that happens when you add a new conversion to your 
+		project.
+	
 		For some usage examples have a look at the folder ~/XamlImageConverter.Demo in your project, or navigate to the page
 		~/XamlImageConverter.Demo in your browser.
 
-		A XamlImageConverter xaml batch file consists of one or several Scene elements.
+		A XamlImageConverter xaml batch file consists of one or several Scene, Group or Snapshot elements.
 		Each Scene has a Source file that is either a xaml, svg or psd file, or, for compiled xaml, a Type name must be specified,
 		or alternatively the Scene contains a Xaml element that contains the source xaml as child elements in the batch file.
 
 
 		A Scene has the following properties:
 		- Xaml, Source or File: The path to the file containing the xaml, svg, svgz or psd source (This way you can only load loose xaml.)
-			If you load the Xaml source this way, you preferably set the build action of this file to XamlImageConverterPreCompile, so you can
-			use the generated images as a resource in your project.
 		- Type: A Fully Qualified type name including assembly, specifying a compiled xaml class as xaml source. You use this way of loading the
-			Xaml for compiled xaml. You also need to set the build action of this file to XamlImageConverterPostCompile, and you won't be able to use
-			the generated images as a resource.
+			Xaml for compiled xaml.
 		- Assembly: The name of an assembly the Type is located in.
 		- OutputPath: The common path all images with a relative path will be stored in.
 		- DependsOn: A list of additional files the source depends on, and if modified will force a re-rendering of the images. 
@@ -64,12 +67,13 @@
 		This describes a Scene that describes the source xaml inline in the xaml element.
 
 
-		A Scene may contain Snapshots that render images.
+		A Scene may contain Groups and Snapshots that render images.
 		Snapshots can refer to a child Element in the xaml source that should be rendered and also can specify a rectangle
 		that should be rendered through their Left, Top, Width, Height, Right & Bottom properties.
 		Supported output formats are: gif, png, jpeg, jpg, tif, tiff, bmp, wdp, xsp, pdf, xaml, eps & ps.
 		Snapshots have the following additional properties:
 		- Element: Specifies the source element in the source xaml that should be rendered. If omitted, the root element of the xaml is rendered.
+		- Source and Type: Specifies a Xaml source file or a Xaml source type, for compiled xaml.
 		- File: The filename of the image file to create, either an application relative path (as in ASP.NET) like ~/Images/logo.png or a path
 		  relative the the OutputPath of the Scene or last Group like logo.png .
 		- Left, Top, Right, Bottom, Width, Height: Specifies a rectangle relative to the Element that should be rendered.  
@@ -122,6 +126,7 @@
 		Snapshots can be grouped by the Group element.
 		The Group element has the following properties:
 		- Element: Specifies the source element in the source xaml that should be rendered. If omitted, the root element of the xaml is rendered.
+		- Source and Type: Specifies a Xaml source file or a Xaml source type, for compiled xaml.
 		- Left, Top, Right, Bottom, Width, Height: Specifies a rectangle relative to the Element that should be rendered.  
 		- OutputPath: The common path all images with a relative path will be stored in.
 		- Theme: A string denoting a OS Theme like Default, Aero, Aero2, AeroLite, Royale, Classic, Luna, Luna.Metallic, Luna.Homestead.
@@ -167,6 +172,7 @@
 		ImageMap creates an asp:ImageMap element, the Map creates a standard html map element.
 		The ImageMap or Map has the following parameters:
 		- Image: The filename of the Image to determine the Snapshot's parameters which created the image.
+		- Source: Specifies a Xaml or Svg source file.
 		- File: The filename of the file where the map to substitute is located or the UserControl or include file to generate.
 		- Scale, XScale, YScale: The Zooming Scale to apply to the map's area's coordinates.
 		- XOffset, YOffset, Angle: A transformation to apply to all computed coordinates.
@@ -235,8 +241,8 @@
 	
 		For rendering the images you have several alternatives:
 	
-		- During the build process, by setting the build action of a .xic.xaml batch file to either XamlImageConverterPreCompile (for loose xaml) or
-			XamlImageConverterPostCompile (for compiled xaml).
+		- During the build process, by setting the build action of a .xic.xaml batch file to XamlConvert.
+		- Settings the build action of a xaml, html, psd etc. file to one of the ConvertTo... settings, either ConvertToPdf, ConvertToPng or ConvertToJpg.
 		- With the XamlImageConverter HttpHandler.
 	
 		Using the HttpHandler does not support rendering of 3D images, because IIS runs in the system session and has no access to video drivers.

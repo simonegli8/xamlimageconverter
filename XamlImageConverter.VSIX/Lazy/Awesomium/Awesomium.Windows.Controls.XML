@@ -77,7 +77,7 @@
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
                 xmlns:awe="http://schemas.awesomium.com/winfx"
                 xmlns:data="http://schemas.awesomium.com/winfx/data"
-                xmlns:core="clr-namespace:Awesomium.Core;assembly=Awesomium.Core"
+                xmlns:core="http://schemas.awesomium.com/core"
                 WindowStartupLocation="CenterScreen"
                 Title="{Binding Title, ElementName=webControl}"
                 Height="700" 
@@ -201,6 +201,16 @@
             Triggers the <see cref="E:Awesomium.Windows.Controls.WebControl.Printing"/> event.
             </summary>
         </member>
+        <member name="M:Awesomium.Windows.Controls.WebControl.OnJavascriptRequest(Awesomium.Core.JavascriptRequestEventArgs)">
+            <summary>
+            Triggers the <see cref="E:Awesomium.Windows.Controls.WebControl.JavascriptRequest"/> event.
+            </summary>
+        </member>
+        <member name="M:Awesomium.Windows.Controls.WebControl.OnJavascriptMessage(Awesomium.Core.JavascriptMessageEventArgs)">
+            <summary>
+            Triggers the <see cref="E:Awesomium.Windows.Controls.WebControl.JavascriptMessage"/> event.
+            </summary>
+        </member>
         <member name="M:Awesomium.Windows.Controls.WebControl.OnTitleChanged(Awesomium.Core.TitleChangedEventArgs)">
             <summary>
             Triggers the <see cref="E:Awesomium.Windows.Controls.WebControl.TitleChanged"/> event.
@@ -241,7 +251,7 @@
             Triggers the <see cref="E:Awesomium.Windows.Controls.WebControl.ShowCreatedWebView"/> event.
             </summary>
         </member>
-        <member name="M:Awesomium.Windows.Controls.WebControl.OnDocumentReady(Awesomium.Core.UrlEventArgs)">
+        <member name="M:Awesomium.Windows.Controls.WebControl.OnDocumentReady(Awesomium.Core.DocumentReadyEventArgs)">
             <summary>
             Triggers the <see cref="E:Awesomium.Windows.Controls.WebControl.DocumentReady"/> event.
             </summary>
@@ -524,7 +534,7 @@
             </list>
             <p/>
             Global Objects will retain any custom methods that are registered
-            (see <see cref="M:Awesomium.Core.JSObject.Bind(System.String,System.Boolean,Awesomium.Core.JavascriptMethodEventHandler)"/>).
+            (see <see cref="O:Awesomium.Core.JSObject.Bind"/>).
             <note>
             To create a child global-object, you should specify the full name with dot-notation for example:
             <c>parentObject.childObject</c>.
@@ -539,9 +549,11 @@
             </remarks><exception cref="T:System.InvalidOperationException">
             The member is called on an invalid view. (See: <see cref="P:Awesomium.Core.IWebView.IsLive"/>)
             </exception><exception cref="T:System.NotSupportedException">
+            The operation is not supported on a Developer Tools Inspector view (see: <see cref="P:Awesomium.Core.IWebView.IsJavascriptEnabled"/>).
+            </exception><exception cref="T:System.NotSupportedException">
             Javascript calls are not supported when Javascript is disabled (see: <see cref="P:Awesomium.Core.IWebView.IsJavascriptEnabled"/>).
             </exception><exception cref="T:System.InvalidOperationException">
-            The member is called from inside a synchronous JS method handler. (See: <see cref="M:Awesomium.Core.JSObject.Bind(System.String,System.Boolean,Awesomium.Core.JavascriptMethodEventHandler)"/>)
+            The member is called from inside a synchronous <a href="http://wiki.awesomium.net/javascript/jec.html">Javascript Execution Context</a>.
             </exception><exception cref="T:System.ArgumentException">
             The specified <paramref name="name"/> is reserved. It either represents an HTML DOM object, 
             or an object variable already available in the page. Use <see cref="M:Awesomium.Core.IWebView.ExecuteJavascriptWithResult(System.String)"/> 
@@ -555,6 +567,8 @@
             The string of JavaScript to execute.
             </param><exception cref="T:System.InvalidOperationException">
             The member is called on an invalid view. (See: <see cref="P:Awesomium.Core.IWebView.IsLive"/>)
+            </exception><exception cref="T:System.NotSupportedException">
+            The operation is not supported on a Developer Tools Inspector view (see: <see cref="P:Awesomium.Core.IWebView.IsJavascriptEnabled"/>).
             </exception><exception cref="T:System.NotSupportedException">
             Javascript calls are not supported when Javascript is disabled (see: <see cref="P:Awesomium.Core.IWebView.IsJavascriptEnabled"/>).
             </exception><exception cref="T:System.InvalidOperationException">
@@ -572,6 +586,8 @@
             this blank to execute in the main frame.
             </param><exception cref="T:System.InvalidOperationException">
             The member is called on an invalid view. (See: <see cref="P:Awesomium.Core.IWebView.IsLive"/>)
+            </exception><exception cref="T:System.NotSupportedException">
+            The operation is not supported on a Developer Tools Inspector view (see: <see cref="P:Awesomium.Core.IWebView.IsJavascriptEnabled"/>).
             </exception><exception cref="T:System.NotSupportedException">
             Javascript calls are not supported when Javascript is disabled (see: <see cref="P:Awesomium.Core.IWebView.IsJavascriptEnabled"/>).
             </exception><exception cref="T:System.InvalidOperationException">
@@ -593,9 +609,11 @@
             </returns><exception cref="T:System.InvalidOperationException">
             The member is called on an invalid view. (See: <see cref="P:Awesomium.Core.IWebView.IsLive"/>)
             </exception><exception cref="T:System.NotSupportedException">
+            The operation is not supported on a Developer Tools Inspector view (see: <see cref="P:Awesomium.Core.IWebView.IsJavascriptEnabled"/>).
+            </exception><exception cref="T:System.NotSupportedException">
             Javascript calls are not supported when Javascript is disabled (see: <see cref="P:Awesomium.Core.IWebView.IsJavascriptEnabled"/>).
             </exception><exception cref="T:System.InvalidOperationException">
-            The member is called from inside a synchronous JS method handler. (See: <see cref="M:Awesomium.Core.JSObject.Bind(System.String,System.Boolean,Awesomium.Core.JavascriptMethodEventHandler)"/>)
+            The member is called from inside a synchronous <a href="http://wiki.awesomium.net/javascript/jec.html">Javascript Execution Context</a>
             </exception><exception cref="T:System.InvalidOperationException">
             Attempted to execute Javascript on the page, before the DOM is ready. 
             Wait for the <see cref="E:Awesomium.Core.IWebView.DocumentReady"/> event before executing your Javascript.
@@ -618,9 +636,11 @@
             </returns><exception cref="T:System.InvalidOperationException">
             The member is called on an invalid view. (See: <see cref="P:Awesomium.Core.IWebView.IsLive"/>)
             </exception><exception cref="T:System.NotSupportedException">
+            The operation is not supported on a Developer Tools Inspector view (see: <see cref="P:Awesomium.Core.IWebView.IsJavascriptEnabled"/>).
+            </exception><exception cref="T:System.NotSupportedException">
             Javascript calls are not supported when Javascript is disabled (see: <see cref="P:Awesomium.Core.IWebView.IsJavascriptEnabled"/>).
             </exception><exception cref="T:System.InvalidOperationException">
-            The member is called from inside a synchronous JS method handler. (See: <see cref="M:Awesomium.Core.JSObject.Bind(System.String,System.Boolean,Awesomium.Core.JavascriptMethodEventHandler)"/>)
+            The member is called from inside a synchronous <a href="http://wiki.awesomium.net/javascript/jec.html">Javascript Execution Context</a>
             </exception><exception cref="T:System.InvalidOperationException">
             Attempted to execute Javascript on the page, before the DOM is ready. 
             Wait for the <see cref="E:Awesomium.Core.IWebView.DocumentReady"/> event before executing your Javascript.
@@ -696,10 +716,10 @@
             values are "right".
             <p/>
             This method will attempt to download the image at the specified coordinates,
-            directly from the server. In technology-specific WebControls, a <i>Save As</i>
+            directly from the server. In technology-specific WebControls, a <b><i>Save As</i></b>
             dialog will be shown in response to the download request.
             <p/>
-            If you are using the <i>headless</i> <see cref="T:Awesomium.Core.WebView"/> component, you will have to 
+            If you are using the <i>headless</i> <see cref="T:Awesomium.Core.WebView"/> component, you will have to 
             handle <see cref="E:Awesomium.Core.WebCore.Download"/> to either display a dialog or silently save
             the resource. More appropriately in this case, you should assign your implementation
             of <see cref="T:Awesomium.Core.IWebViewPresenter"/> to <see cref="P:Awesomium.Core.WebView.Presenter"/>, to handle 
@@ -818,6 +838,8 @@
             <see cref="E:Awesomium.Core.IWebView.ShowPageInfo"/> event.
             </summary><exception cref="T:System.InvalidOperationException">
             The member is called on an invalid view. (See: <see cref="P:Awesomium.Core.IWebView.IsLive"/>)
+            </exception><exception cref="T:System.NotSupportedException">
+            The operation is not supported on a Developer Tools Inspector view (see: <see cref="P:Awesomium.Core.IWebView.IsJavascriptEnabled"/>).
             </exception>
         </member>
         <member name="M:Awesomium.Windows.Controls.WebControl.ReduceMemoryUsage">
@@ -828,6 +850,12 @@
             </summary><exception cref="T:System.InvalidOperationException">
             The member is called on an invalid view. (See: <see cref="P:Awesomium.Core.IWebView.IsLive"/>)
             </exception><seealso cref="P:Awesomium.Core.WebConfig.ReduceMemoryUsageOnNavigation"/>
+        </member>
+        <member name="M:Awesomium.Windows.Controls.WebControl.CreateJavascriptExecutionContext``1(Awesomium.Core.JavascriptExecutionContextMethod{``0},``0)">
+            <!-- No matching elements were found for the following include tag --><include file="../Awesomium.Core/Awesomium.Core_S.XML" path="doc/members/member[@name=&quot;M:Awesomium.Core.IWebView.CreateJavascriptExecutionContext{T}&quot;]/*"/>
+        </member>
+        <member name="M:Awesomium.Windows.Controls.WebControl.CreateJavascriptExecutionContext(Awesomium.Core.JavascriptExecutionContextMethod)">
+            <!-- No matching elements were found for the following include tag --><include file="../Awesomium.Core/Awesomium.Core_S.XML" path="doc/members/member[@name=&quot;M:Awesomium.Core.IWebView.CreateJavascriptExecutionContext&quot;]/*"/>
         </member>
         <member name="M:Awesomium.Windows.Controls.WebControl.#ctor">
             <summary>
@@ -1028,6 +1056,27 @@
             </note>
             </remarks>
         </member>
+        <member name="M:Awesomium.Windows.Controls.WebControl.InjectTouchEvent(Awesomium.Core.WebTouchEvent)">
+            <summary>
+            Injects a multi-touch event.
+            </summary>
+            <param name="touchEvent">
+            A <see cref="T:Awesomium.Core.WebTouchEvent"/> instance representing the multi-touch event to inject.
+            </param>
+            <remarks>
+            <note type="inherit">
+            <see cref="T:Awesomium.Windows.Controls.WebControl"/> handles this internally. Inheritors do not need to call this method unless
+            they implement custom logic.
+            </note>
+            <note>
+            This method bypasses the setting of the <see cref="P:Awesomium.Windows.Controls.WebControl.ProcessInput"/> property.
+            </note>
+            <note type="caution">
+            For performance reasons, no validity check is performed when calling protected members.
+            Inheritors should perform any such checks (see <see cref="P:Awesomium.Windows.Controls.WebControl.IsLive"/>), before calling these members.
+            </note>
+            </remarks>
+        </member>
         <member name="F:Awesomium.Windows.Controls.WebControl.NativeWindowProperty">
             <summary>
             Identifies the <see cref="P:Awesomium.Windows.Controls.WebControl.NativeWindow"/> dependency property.
@@ -1196,6 +1245,11 @@
         <member name="F:Awesomium.Windows.Controls.WebControl.HTMLProperty">
             <summary>
             Identifies the <see cref="P:Awesomium.Windows.Controls.WebControl.HTML"/> dependency property.
+            </summary>
+        </member>
+        <member name="F:Awesomium.Windows.Controls.WebControl.CreationTimeProperty">
+            <summary>
+            Identifies the <see cref="P:Awesomium.Windows.Controls.WebControl.CreationTime"/> dependency property.
             </summary>
         </member>
         <member name="F:Awesomium.Windows.Controls.WebControl.NativeViewProperty">
@@ -1433,6 +1487,62 @@
             </item>
             </list>
             </remarks><seealso cref="E:Awesomium.Core.IWebView.PrintRequest"/><seealso cref="P:Awesomium.Core.IWebView.IsPrinting"/><seealso cref="E:Awesomium.Core.IWebView.PrintComplete"/><seealso cref="E:Awesomium.Core.IWebView.PrintFailed"/>
+        </member>
+        <member name="E:Awesomium.Windows.Controls.WebControl.JavascriptRequest">
+            <summary>
+            Occurs when a JavaScript client sends a management request through
+            <see cref="T:global.OSMJIF"/> (such as <see cref="M:global.OSMJIF.minimize(global.Multiple)"/>, 
+            <see cref="M:global.OSMJIF.maximize(global.Multiple)"/> etc.).
+            </summary><remarks>
+            The request sent is identified by <see cref="P:Awesomium.Core.JavascriptRequestEventArgs.Request"/>.
+            <p/>
+            A request token can be passed by JavaScript clients to the native application and
+            it's received through <see cref="P:Awesomium.Core.JavascriptRequestEventArgs.RequestToken"/>
+            <p/>
+            <!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><include file="Awesomium.Core_S.XML" path="doc/members/member[@name=&quot;F:Awesomium.Core.JavascriptRequestEventArgs.RequestToken&quot;]/remarks/node()"/>
+            <p/>
+            <!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><!-- No matching elements were found for the following include tag --><include file="Awesomium.Core_S.XML" path="doc/members/member[@name=&quot;F:Awesomium.Core.JavascriptRequestEventArgs&quot;]/remarks/node()"/>
+            <p/>
+            Unless the request originates from a page that has been created by the application
+            (such as pages provided though a <see cref="T:Awesomium.Core.Data.DataSource"/>), applications should be careful
+            when handling management requests. For example, a <see cref="M:global.OSMJIF.exit(global.Multiple)"/>
+            command asks from the native application to exit immediately. The <see cref="P:Awesomium.Core.JavascriptRequestEventArgs.RequestToken"/>
+            is provided so that native applications can validate such requests.
+            </remarks>
+        </member>
+        <member name="E:Awesomium.Windows.Controls.WebControl.JavascriptMessage">
+            <summary>
+            Occurs when a JavaScript client sends a message through <see cref="M:global.OSMJIF.sendMessage(global.String,global.Any[])"/>
+            or <see cref="M:global.OSMJIF.sendMessageAsync(global.String,global.Function,global.Any[])"/>.
+            </summary><remarks>
+            <see cref="M:global.OSMJIF.sendMessage(global.String,global.Any[])"/> and the asynchronous
+            <see cref="M:global.OSMJIF.sendMessageAsync(global.String,global.Function,global.Any[])"/>, 
+            can be used instead of creating and binding to custom methods of a global JavaScript object
+            created with <see cref="M:Awesomium.Core.IWebView.CreateGlobalJavascriptObject(System.String)"/>.
+            <p/>
+            Unlike regular <b>synchronous</b> custom JavaScript methods created by the managed application
+            through <see cref="O:Awesomium.Core.JSObject.Bind"/> or using the Dynamic Language Runtime (DLR),
+            <b><see cref="M:global.OSMJIF.sendMessage(global.String,global.Any[])"/> allows callers to pass 
+            JavaScript objects to the <see cref="P:Awesomium.Core.JavascriptMessageEventArgs.Arguments"/> array, even though the method 
+            is called synchronously</b> (see <a href="http://wiki.awesomium.net/javascript/sync_async_js_api.html">Synchronous &amp; Asynchronous API</a>).
+            <p/>
+            JavaScript objects passed to <see cref="P:Awesomium.Core.JavascriptMessageEventArgs.Arguments"/> are being serialized,
+            any function members (methods) are stripped out and they are deserialized to the hosting
+            application as local JSObjects. Nevertheless, the objects are still passed by reference.
+            <b>Any changes applied to passed objects in the handler of a <see cref="E:Awesomium.Core.IWebView.JavascriptMessage"/>
+            event, will be reflected back to the original remote instances when <see cref="M:global.OSMJIF.sendMessage(global.String,global.Any[])"/>
+            returns</b>.
+            <p/>
+            <note type="note">
+            Function members (methods) of objects passed to <see cref="P:Awesomium.Core.JavascriptMessageEventArgs.Arguments"/>,
+            are being stripped out when the object is passed to the hosting application (calling them from the hosting
+            application would cause a deadlock). However this does not affect the original client-side instances.
+            </note>
+            <note type="caution">
+            JavaScript objects passed to <see cref="P:Awesomium.Core.JavascriptMessageEventArgs.Arguments"/>, are serialized
+            and deserialized using JSON. Objects whose structure includes a circular reference, cannot be passed.
+            </note>
+            </remarks>
         </member>
         <member name="E:Awesomium.Windows.Controls.WebControl.TitleChanged">
             <summary>
@@ -2186,7 +2296,9 @@
             <summary>
             Occurs when the DOM has finished parsing and the
             <c>window</c> object is available for JavaScript execution.
-            </summary><seealso cref="E:Awesomium.Core.IWebView.ProcessCreated"/>
+            </summary><remarks>
+            
+            </remarks><seealso cref="E:Awesomium.Core.IWebView.ProcessCreated"/>
         </member>
         <member name="E:Awesomium.Windows.Controls.WebControl.LoadingFrame">
             <summary>
@@ -3299,6 +3411,12 @@
             </note>
             </remarks><seealso cref="P:Awesomium.Core.IWebView.Source"/><seealso cref="M:Awesomium.Core.IWebView.LoadHTML(System.String)"/><seealso cref="E:Awesomium.Core.IWebView.DocumentReady"/><seealso cref="P:Awesomium.Core.IWebView.IsJavascriptEnabled"/>
         </member>
+        <member name="P:Awesomium.Windows.Controls.WebControl.CreationTime">
+            <summary>
+            Indicates the date and time this <see cref="T:Awesomium.Core.IWebView"/> instance was created.
+            If the view has not been successfully initialized, this is <see cref="F:System.DateTime.MinValue"/>.
+            </summary>
+        </member>
         <member name="P:Awesomium.Windows.Controls.WebControl.NativeView">
             <summary>
             Gets or sets the handle to the underlying web-view instance.
@@ -4047,6 +4165,55 @@
         <member name="F:Awesomium.Windows.Controls.WebControlService.DialogsStyleProperty">
             <summary>
             Identifies the <see cref="P:Awesomium.Windows.Controls.WebControlService.DialogsStyle"/> attached property.
+            </summary>
+        </member>
+        <member name="M:Awesomium.Windows.Controls.WebControlService.GetPressAndHoldDelay(System.Windows.DependencyObject)">
+            <summary>
+            Gets the value of the <see cref="P:Awesomium.Windows.Controls.WebControlService.PressAndHoldDelay"/> attached property for an object.
+            </summary>
+            <param name="element">
+            The object from which the property value is read.
+            </param>
+            <returns>
+            The object's <see cref="P:Awesomium.Windows.Controls.WebControlService.PressAndHoldDelay"/> property value.
+            </returns>
+            <remarks>
+            Attach and set this property on a <see cref="T:Awesomium.Windows.Controls.WebControl"/> or <see cref="T:Awesomium.Windows.Controls.WebViewPresenter"/> to specify the delay time (in milliseconds) 
+            for a press-and-hold gesture to cancel a touch manipulation and promote touch to mouse events. The default <c>1000</c> (1 second).
+            <p/>
+            To completely disable pres-and-touch, use the <see cref="P:System.Windows.Input.Stylus.IsPressAndHoldEnabled"/> attached property.
+            <p/>
+            <note type="note">
+            The minimum allowed value for <see cref="P:Awesomium.Windows.Controls.WebControlService.PressAndHoldDelay"/>, is <c>10</c> milliseconds.
+            </note>
+            </remarks>
+            <seealso cref="P:System.Windows.Input.Stylus.IsPressAndHoldEnabled"/>
+        </member>
+        <member name="M:Awesomium.Windows.Controls.WebControlService.SetPressAndHoldDelay(System.Windows.DependencyObject,System.Int32)">
+            <summary>
+            Sets the value of the <see cref="P:Awesomium.Windows.Controls.WebControlService.PressAndHoldDelay"/> attached property for an object.
+            </summary>
+            <param name="element">
+            The object to which the attached property is written.
+            </param>
+            <param name="value">
+            The value to set.
+            </param>
+            <remarks>
+            Attach and set this property on a <see cref="T:Awesomium.Windows.Controls.WebControl"/> or <see cref="T:Awesomium.Windows.Controls.WebViewPresenter"/> to specify the delay time (in milliseconds) 
+            for a press-and-hold gesture to cancel a touch manipulation and promote touch to mouse events. The default <c>1000</c> (1 second).
+            <p/>
+            To completely disable pres-and-touch, use the <see cref="P:System.Windows.Input.Stylus.IsPressAndHoldEnabled"/> attached property.
+            <p/>
+            <note type="note">
+            The minimum allowed value for <see cref="P:Awesomium.Windows.Controls.WebControlService.PressAndHoldDelay"/>, is <c>10</c> milliseconds.
+            </note>
+            </remarks>
+            <seealso cref="P:System.Windows.Input.Stylus.IsPressAndHoldEnabled"/>
+        </member>
+        <member name="F:Awesomium.Windows.Controls.WebControlService.PressAndHoldDelayProperty">
+            <summary>
+            Identifies the <see cref="P:Awesomium.Windows.Controls.WebControlService.PressAndHoldDelay"/> attached property.
             </summary>
         </member>
         <member name="T:Awesomium.Windows.Controls.WebPageInfoControl">
@@ -5162,22 +5329,16 @@
         <member name="M:Awesomium.Windows.Controls.WebViewPresenter.OnMouseLeave(System.Windows.Input.MouseEventArgs)">
             <inheritdoc />
         </member>
-        <member name="M:Awesomium.Windows.Controls.WebViewPresenter.OnStylusMove(System.Windows.Input.StylusEventArgs)">
+        <member name="M:Awesomium.Windows.Controls.WebViewPresenter.OnManipulationStarting(System.Windows.Input.ManipulationStartingEventArgs)">
             <inheritdoc />
         </member>
-        <member name="M:Awesomium.Windows.Controls.WebViewPresenter.OnStylusButtonDown(System.Windows.Input.StylusButtonEventArgs)">
+        <member name="M:Awesomium.Windows.Controls.WebViewPresenter.OnManipulationStarted(System.Windows.Input.ManipulationStartedEventArgs)">
             <inheritdoc />
         </member>
-        <member name="M:Awesomium.Windows.Controls.WebViewPresenter.OnStylusButtonUp(System.Windows.Input.StylusButtonEventArgs)">
+        <member name="M:Awesomium.Windows.Controls.WebViewPresenter.OnManipulationDelta(System.Windows.Input.ManipulationDeltaEventArgs)">
             <inheritdoc />
         </member>
-        <member name="M:Awesomium.Windows.Controls.WebViewPresenter.OnTouchMove(System.Windows.Input.TouchEventArgs)">
-            <inheritdoc />
-        </member>
-        <member name="M:Awesomium.Windows.Controls.WebViewPresenter.OnTouchDown(System.Windows.Input.TouchEventArgs)">
-            <inheritdoc />
-        </member>
-        <member name="M:Awesomium.Windows.Controls.WebViewPresenter.OnTouchUp(System.Windows.Input.TouchEventArgs)">
+        <member name="M:Awesomium.Windows.Controls.WebViewPresenter.OnManipulationCompleted(System.Windows.Input.ManipulationCompletedEventArgs)">
             <inheritdoc />
         </member>
         <member name="M:Awesomium.Windows.Controls.WebViewPresenter.OnGotFocus(System.Windows.RoutedEventArgs)">
@@ -5346,6 +5507,25 @@
             </remarks>
             <seealso cref="P:Awesomium.Windows.Controls.WebSessionProvider.DataSources"/>
         </member>
+        <member name="M:Awesomium.Windows.Data.DataSourceProvider.RaisePropertyChanged(System.Windows.DependencyProperty,System.Object,System.Object)">
+            <summary>
+            Helper method to raise the <see cref="E:Awesomium.Windows.Data.DataSourceProvider.PropertyChanged"/> event.
+            </summary>
+            <param name="property">
+            The identifier for the dependency property that changed.
+            </param>
+            <param name="oldValue">
+            The value of the property before the change reported by the 
+            relevant event or state change.
+            </param>
+            <param name="newValue">
+            The value of the property after the change reported by the 
+            relevant event or state change.
+            </param>
+        </member>
+        <member name="M:Awesomium.Windows.Data.DataSourceProvider.OnPropertyChanged(System.Windows.DependencyPropertyChangedEventArgs)">
+            <inheritdoc />
+        </member>
         <member name="M:Awesomium.Windows.Data.DataSourceProvider.GetDataSource">
             <summary>
             Called by the <see cref="T:Awesomium.Windows.Controls.WebSessionProvider"/>, when a
@@ -5360,6 +5540,38 @@
             indicates the asset domain the <see cref="T:Awesomium.Core.Data.DataSource"/> provided by this
             <see cref="T:Awesomium.Windows.Data.DataSourceProvider"/>, will be bound to.
             </returns>
+        </member>
+        <member name="F:Awesomium.Windows.Data.DataSourceProvider.ParentProviderProperty">
+            <summary>
+            Identifies the <see cref="P:Awesomium.Windows.Data.DataSourceProvider.ParentProvider"/> dependency property.
+            </summary>
+        </member>
+        <member name="F:Awesomium.Windows.Data.DataSourceProvider.AssetHostProperty">
+            <summary>
+            Identifies the <see cref="P:Awesomium.Windows.Data.DataSourceProvider.AssetHost"/> dependency property.
+            </summary>
+        </member>
+        <member name="E:Awesomium.Windows.Data.DataSourceProvider.PropertyChanged">
+            <summary>
+            Raised when the value of a property of this class, has changed.
+            </summary>
+        </member>
+        <member name="P:Awesomium.Windows.Data.DataSourceProvider.ParentProvider">
+            <summary>
+            Gets the <see cref="T:Awesomium.Windows.Controls.WebSessionProvider"/> instance this <see cref="T:Awesomium.Windows.Data.DataSourceProvider"/> is assigned to.
+            </summary>
+        </member>
+        <member name="P:Awesomium.Windows.Data.DataSourceProvider.AssetHost">
+            <summary>
+            Gets or sets the asset domain that the <see cref="T:Awesomium.Core.Data.DataSource"/> provided by this
+            <see cref="T:Awesomium.Windows.Data.DataSourceProvider"/>, will be bound to.
+            </summary>
+            <remarks>
+            The <c>key</c> (or <c>x:Key</c> in XAML) defined when adding
+            this <see cref="T:Awesomium.Windows.Data.DataSourceProvider"/> to <see cref="P:Awesomium.Windows.Controls.WebSessionProvider.DataSources"/>,
+            indicates the asset domain the <see cref="T:Awesomium.Core.Data.DataSource"/> provided by this
+            <see cref="T:Awesomium.Windows.Data.DataSourceProvider"/>, will be bound to.
+            </remarks>
         </member>
         <member name="M:Awesomium.Windows.Data.ResourceDataSourceProvider.GetDataSource">
             <inheritdoc />
@@ -5444,6 +5656,31 @@
             Represents a collection of pairs of asset hosts and <see cref="T:Awesomium.Windows.Data.DataSourceProvider"/> instances.
             </summary>
             <seealso cref="P:Awesomium.Windows.Controls.WebSessionProvider.DataSources"/>
+        </member>
+        <member name="M:Awesomium.Windows.Data.DataSourceDictionary.ContainsValue(Awesomium.Windows.Data.DataSourceProvider)">
+            <summary>
+            Determines whether the dictionary contains a specific value.
+            </summary>
+            <param name="value">
+            The value to locate in the dictionary.
+            </param>
+            <returns>
+            <c>true</c> if the dictionary contains an element with the specified value;
+            otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:Awesomium.Windows.Data.DataSourceDictionary.GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through the collection.
+            </summary>
+            <returns>
+            A <see cref="T:System.Collections.Generic.IEnumerator`1"/> that can be used to iterate through the collection.
+            </returns>
+        </member>
+        <member name="P:Awesomium.Windows.Data.DataSourceDictionary.Count">
+            <summary>
+            Gets the number of <see cref="T:Awesomium.Windows.Data.DataSourceProvider"/> instances currently added to this dictionary.
+            </summary>
         </member>
         <member name="T:Awesomium.Windows.Data.DirectoryDataSourceProvider">
             <summary>
@@ -6092,6 +6329,11 @@
               Looks up a localized string similar to Copy Link Address.
             </summary>
         </member>
+        <member name="P:Awesomium.Windows.Controls.WPFResources.CreateInspectorView">
+            <summary>
+              Looks up a localized string similar to Inspect Page.
+            </summary>
+        </member>
         <member name="P:Awesomium.Windows.Controls.WPFResources.CreateObject">
             <summary>
               Looks up a localized string similar to Create Object.
@@ -6166,6 +6408,41 @@
             <summary>
             Process pending operations down to the specified <paramref name="priority"/>.
             </summary>
+        </member>
+        <member name="M:Awesomium.Windows.Controls.Utilities.SetCulture(System.Windows.Application,System.Globalization.CultureInfo)">
+            <summary>
+            Sets the culture for the specified <see cref="T:System.Windows.Application"/>.
+            </summary>
+            <param name="application">
+            The WPF <see cref="T:System.Windows.Application"/> to set the culture for.
+            </param>
+            <param name="cultureInfo">
+            A <see cref="T:System.Globalization.CultureInfo"/> instance representing the locale to apply to 
+            the <paramref name="application"/>.
+            </param>
+            <remarks>
+            This helper method sets the main culture, UI culture and the language of 
+            FrameworkElements specified in XAML.
+            <p/>
+            <note type="caution">
+            The method must be called from the UI thread, before <see cref="M:Awesomium.Core.WebCore.Initialize(Awesomium.Core.WebConfig)"/>
+            (if explicitly called) or before the creation of the first <see cref="T:Awesomium.Core.WebSession"/>
+            or web-view component (<see cref="T:Awesomium.Windows.Controls.WebControl"/> or other).
+            </note>
+            <p/>
+            The current culture affects the locale of Awesomium.NET UI elements (such as
+            context menus) and the locale of integrated JavaScript frameworks (such as
+            PDF.js).
+            <note>
+            The current culture is also returned from the JavaScript <c>navigator.language</c>
+            property.
+            </note>
+            </remarks>
+            <returns>
+            <c>true</c> if the culture was successfully set; <c>false</c> otherwise. The method
+            can return <c>false</c> if for example the application's <see cref="T:System.Windows.Threading.Dispatcher"/>
+            is not created yet or if the application has been shut down.
+            </returns>
         </member>
         <member name="M:Awesomium.Windows.Controls.Utilities.GetCursor(Awesomium.Core.CursorType)">
             <summary>

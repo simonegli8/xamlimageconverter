@@ -14,7 +14,10 @@ using XamlImageConverter;
 namespace XamlImageConverter.MSBuild {
 	/////////////////////////////////////////////////////////////////////////////
 	// My MSBuild Task
-	public class XamlImageConverter: Task {
+	public class XamlImageConverter : Task {
+
+		public string Mode { get; set; } = "Both";
+
 		private ICompiler compiler = null;
 
 		/// <summary>
@@ -37,7 +40,8 @@ namespace XamlImageConverter.MSBuild {
 		/// List of Python source files that should be compiled into the assembly
 		/// </summary>
 		[Required()]
-		public string[] SourceFiles {
+		public string[] SourceFiles
+		{
 			get { return sourceFiles; }
 			set { sourceFiles = value; }
 		}
@@ -46,10 +50,14 @@ namespace XamlImageConverter.MSBuild {
 		/// <summary>
 		/// This should be set to $(MSBuildProjectDirectory)
 		/// </summary>
-		public string ProjectPath {
+		public string ProjectPath
+		{
 			get { return projectPath; }
 			set { projectPath = value; }
 		}
+
+
+		public string Parameters { get; set; }
 
 		public string LibraryPath { get; set; }
 
@@ -72,6 +80,14 @@ namespace XamlImageConverter.MSBuild {
 			compiler.SourceFiles = SourceFiles.ToList();
 			compiler.ProjectPath = ProjectPath;
 			compiler.LibraryPath = LibraryPath;
+			Compiler.Modes mode;
+			if (!Enum.TryParse<Compiler.Modes>(Mode, out mode))
+				throw new ArgumentOutOfRangeException("Valid values for Mode in XamlImageConverter are Loose, Compiled or Both");
+			else compiler.Mode = mode;
+			if (!string.IsNullOrEmpty(Parameters)) {
+				var pars = Parameters.Split(';').Select(p => p.Split('=').Select(t => t.Trim()));
+				foreach (var par in pars) compiler.Parameters.Add(par.First(), par.Last());
+			}
 			compiler.Loggers.Add(new Logger(Log));
 			compiler.Loggers.Add(new FileLogger());
 			compiler.SeparateAppDomain = true;

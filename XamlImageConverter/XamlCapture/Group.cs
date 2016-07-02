@@ -23,8 +23,8 @@ namespace XamlImageConverter {
 		bool MustRunSequential { get; }
 	}
 
-	public class Group: Canvas {
-		
+	public class Group : Canvas {
+
 		public string Source { get; set; }
 		public string AssemblyName { get; set; }
 		public string TypeName { get; set; }
@@ -36,7 +36,7 @@ namespace XamlImageConverter {
 		Compiler compiler;
 		public Compiler Compiler { get { return Master.compiler; } set { Master.compiler = value; } }
 		public List<string> DependsOn { get; set; }
-		public string Dependencies { set { DependsOn = (value ?? "").Split(',', ';').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList(); } } 
+		public string Dependencies { set { DependsOn = (value ?? "").Split(',', ';').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList(); } }
 		public string cultures;
 		public virtual string CulturesString { get { return Setting(g => g.cultures) ?? ""; } set { cultures = value; } }
 		public virtual List<string> Cultures { get { return CulturesString.Split(',', ';').Select(c => c.Trim()).Where(c => !string.IsNullOrEmpty(c)).ToList(); } }
@@ -74,7 +74,7 @@ namespace XamlImageConverter {
 		Errors errors = null;
 		public Errors Errors { get { return Master.errors ?? (Master.errors = Compiler.Errors.Clone(Master.Filename)); } set { Master.errors = value; } }
 		Dictionary<string, FixedDocument> xpsDocs;
-		public Dictionary<string, FixedDocument> XpsDocs { get { return Root.xpsDocs ?? (Root.xpsDocs = new Dictionary<string,FixedDocument>()); } set { Root.xpsDocs = value; } }
+		public Dictionary<string, FixedDocument> XpsDocs { get { return Root.xpsDocs ?? (Root.xpsDocs = new Dictionary<string, FixedDocument>()); } set { Root.xpsDocs = value; } }
 		public bool? parallel = false;
 		public bool Parallel { get { return parallel ?? (Parent != null ? Parent.Parallel : true); } set { parallel = value; } }
 		public System.Windows.Interop.RenderMode? renderMode = null;
@@ -101,13 +101,13 @@ namespace XamlImageConverter {
 		public System.Diagnostics.Process NewProcess(string exe, string args = "", string workingdir = null) {
 			lock (Processes)
 			lock (Master) {
-				System.Diagnostics.Process p = null;
-				if (exe != null) {
-					p = new System.Diagnostics.Process();
-					workingdir = workingdir ?? Path.GetDirectoryName(exe);
-					var pinfo = p.StartInfo;
-					pinfo.FileName = exe;
-					pinfo.Arguments = args;
+					System.Diagnostics.Process p = null;
+					if (exe != null) {
+						p = new System.Diagnostics.Process();
+						workingdir = workingdir ?? Path.GetDirectoryName(exe);
+						var pinfo = p.StartInfo;
+						pinfo.FileName = exe;
+						pinfo.Arguments = args;
 #if DEBUG
 					pinfo.CreateNoWindow = false;
 					pinfo.UseShellExecute = true;
@@ -115,41 +115,43 @@ namespace XamlImageConverter {
 					pinfo.RedirectStandardError = false;
 					pinfo.RedirectStandardInput = false;
 #else
-					pinfo.CreateNoWindow = true;
-					pinfo.UseShellExecute = false;
-					pinfo.RedirectStandardOutput = true;
-					pinfo.RedirectStandardError = true;
-					pinfo.RedirectStandardInput = true;
+						pinfo.CreateNoWindow = true;
+						pinfo.UseShellExecute = false;
+						pinfo.RedirectStandardOutput = true;
+						pinfo.RedirectStandardError = true;
+						pinfo.RedirectStandardInput = true;
 #endif
-					pinfo.WorkingDirectory = workingdir;
-					p.EnableRaisingEvents = true;
-					Processes.Add(p);
+						pinfo.WorkingDirectory = workingdir;
+						p.EnableRaisingEvents = true;
+						Processes.Add(p);
+					}
+					LocalProcesses.Add(p);
+					ProcessCount++;
+					return p;
 				}
-				LocalProcesses.Add(p);
-				ProcessCount++;
-				return p;
-			}
 		}
 
 		public void ExitProcess(System.Diagnostics.Process p) {
 			lock (Processes)
 			lock (Master) {
-				if (p != null) {
-					Processes.Remove(p);
-					LocalProcesses.Remove(p);
-					ProcessCount--;
+					if (p != null) {
+						Processes.Remove(p);
+						LocalProcesses.Remove(p);
+						ProcessCount--;
+					}
+					if (ProcessCount == 0) {
+						var time = DateTime.Now - Master.Start;
+						Errors.Message("{0} images rendered in {1:G3} seconds.", Master.CreatedImages, time.TotalSeconds);
+						Errors.Flush();
+					}
 				}
-				if (ProcessCount == 0) {
-					var time = DateTime.Now - Master.Start;
-					Errors.Message("{0} images rendered in {1:G3} seconds.", Master.CreatedImages, time.TotalSeconds);
-					Errors.Flush();
-				}
-			}
 		}
 
 		public Group scene = null;
-		public Group Scene {
-			get {
+		public Group Scene
+		{
+			get
+			{
 				if (scene == null) {
 					if (IsScene) scene = this;
 					else if (Parent == null) scene = null;
@@ -171,9 +173,11 @@ namespace XamlImageConverter {
 			Scene.XamlPath = TempPath;
 			return System.IO.Path.Combine(TempPath, System.IO.Path.ChangeExtension(name, ".xaml"));
 		}
-		
-		public IEnumerable<Group> Ancestors {
-			get {
+
+		public IEnumerable<Group> Ancestors
+		{
+			get
+			{
 				var g = this;
 				do {
 					yield return g;
@@ -187,13 +191,15 @@ namespace XamlImageConverter {
 			return a != null ? f(a) : default(T);
 		}
 
-		public class HtmlSource: FrameworkElement {
+		public class HtmlSource : FrameworkElement {
 			public string Source { get; set; }
 		}
 
 		FrameworkElement element = null;
-		public FrameworkElement Element {
-			get {
+		public FrameworkElement Element
+		{
+			get
+			{
 				if (element == null) {
 
 					if (Parent == null) { // root element
@@ -389,13 +395,23 @@ namespace XamlImageConverter {
 							element = Scene.Element;
 						}
 					}
-					
+
 				}
 
 				return element;
 			}
 			set { element = value; }
 		}
+
+		public Compiler.Modes Mode {
+			get {
+				if (!string.IsNullOrEmpty(TypeName) ||
+					XamlElement.Attribute((XNamespace)"http://schemas.microsoft.com/winfx/2006/xaml"+"Class") != null) return Compiler.Modes.Compiled;
+				else return Compiler.Modes.Loose;
+			}
+		}
+
+		public bool Enabled => Mode == compiler.Mode || compiler.Mode == Compiler.Modes.Both;
 
 		public void Load() {
 			element = Element;
@@ -471,7 +487,7 @@ namespace XamlImageConverter {
 							locks = Locks.ToList();
 						}
 #pragma warning disable
-						foreach (var tlock in locks) lock (tlock) ;
+						foreach (var tlock in locks) lock (tlock);
 #pragma warning restore
 					}
 				}
@@ -563,8 +579,10 @@ namespace XamlImageConverter {
 		}
 
 		Group window = null;
-		public Group Window {
-			get {
+		public Group Window
+		{
+			get
+			{
 				if (Parent == null) return null;
 
 				if (window == null) {
@@ -588,8 +606,8 @@ namespace XamlImageConverter {
 						Canvas.SetLeft(window, bounds.X - parentBounds.X);
 						Canvas.SetTop(window, bounds.Y - parentBounds.Y);
 					} else { */
-						Canvas.SetLeft(window, bounds.X);
-						Canvas.SetTop(window, bounds.Y);
+					Canvas.SetLeft(window, bounds.X);
+					Canvas.SetTop(window, bounds.Y);
 					//}
 					window.MeasureAndArrange(new Size(window.Width, window.Height));
 
@@ -611,8 +629,10 @@ namespace XamlImageConverter {
 			}
 		}
 
-		public Group ElementGroup {
-			get {
+		public Group ElementGroup
+		{
+			get
+			{
 				if (Parent == null) return null;
 				if (IsScene || !string.IsNullOrEmpty(ElementName)) return this;
 				return Parent.ElementGroup;
@@ -627,13 +647,15 @@ namespace XamlImageConverter {
 		public IEnumerable<Point> Offsets { get { return Ancestors.SkipLast(1).Select(a => a.RelativeOffset); } }
 #endif
 
-		public Transform Transform {
-			get {
+		public Transform Transform
+		{
+			get
+			{
 				if (Window.Parent == null) return new TranslateTransform(0, 0);
 				var offset = Window.Bounds(Scene.Window).TopLeft;
 				return new TranslateTransform(-offset.X, -offset.Y);
 			}
-		} 
+		}
 
 		//public FileInfo FileInfo { get; set; }
 
@@ -652,9 +674,9 @@ namespace XamlImageConverter {
 		public IEnumerable<Step> Steps() { return Flatten(); }
 
 		public virtual void Cleanup() {
-			foreach (var child in Children.OfType<Group>()) child.Cleanup(); 
+			foreach (var child in Children.OfType<Group>()) child.Cleanup();
 		}
-		
+
 		string Utf16(string text) {
 			if (string.IsNullOrEmpty(text)) return "()";
 			var str = new StringBuilder();
@@ -748,40 +770,40 @@ namespace XamlImageConverter {
 
 				r = "-r" + ((int)(snapshot.Scale * (snapshot.Dpi ?? 96.0) + 0.5)).ToString();
 				switch (ext) {
-					case ".pdf":
-					default:
-						device = "pdfwrite";
-						exe = "gxps-9.05-win32.exe";
-						r = "-dEmbedAllFonts=true -dSubsetFonts=true -dPDFSETTINGS=/prepress -dAutoRotatePages=/None -dAutoFilterColorImages=false " +
-								"-dColorImageFilter=/FlateEncode -dAutoFilterGrayImages=false -dGrayImageFilter=/FlateEncode -dAutoFilterMonoImages=false -dMonoImageFilter=/FlateEncode -dEmbedAllFonts=true " +
-								"-dSubsetFonts=true -dDownsampleColorImages=false -dDownsampleGrayImages=false -dDownsampleMonoImages=false";
-						break;
-					case ".ps":
-					case ".eps":
-						device = "ps2write";
-						exe = "gxps-9.07-win32.exe";
-						r = "";
-						break;
-					case ".jpg":
-					case ".jpeg":
-						exe = "gxps-9.05-win32.exe";
-						device = "jpeg";
-						break;
-					case ".png":
-						exe = "gxps-9.05-win32.exe";
-						device = "png16m";
-						break;
-					case ".tif":
-					case ".tiff":
-						exe = "gxps-9.05-win32.exe";
-						device = "tiffg32d";
-						break;
+				case ".pdf":
+				default:
+					device = "pdfwrite";
+					exe = "gxps-9.05-win32.exe";
+					r = "-dEmbedAllFonts=true -dSubsetFonts=true -dPDFSETTINGS=/prepress -dAutoRotatePages=/None -dAutoFilterColorImages=false " +
+							"-dColorImageFilter=/FlateEncode -dAutoFilterGrayImages=false -dGrayImageFilter=/FlateEncode -dAutoFilterMonoImages=false -dMonoImageFilter=/FlateEncode -dEmbedAllFonts=true " +
+							"-dSubsetFonts=true -dDownsampleColorImages=false -dDownsampleGrayImages=false -dDownsampleMonoImages=false";
+					break;
+				case ".ps":
+				case ".eps":
+					device = "ps2write";
+					exe = "gxps-9.07-win32.exe";
+					r = "";
+					break;
+				case ".jpg":
+				case ".jpeg":
+					exe = "gxps-9.05-win32.exe";
+					device = "jpeg";
+					break;
+				case ".png":
+					exe = "gxps-9.05-win32.exe";
+					device = "png16m";
+					break;
+				case ".tif":
+				case ".tiff":
+					exe = "gxps-9.05-win32.exe";
+					device = "tiffg32d";
+					break;
 				}
 				exe = Compiler.BinPath("Lazy\\gxps\\" + exe);
 				//if (!File.Exists(exe)) exe = Path.Combine(path, @"\gxps.exe");
 				string args;
 				args = string.Format("-sDEVICE={0} -dNOPAUSE \"-sOutputFile={1}\" {2} \"{3}\"", device, filename2, r, key2);
-				
+
 				TempFiles.Add(filename2);
 
 				var process = NewProcess(exe, args, Path.GetDirectoryName(filename));
@@ -921,8 +943,10 @@ namespace XamlImageConverter {
 		}
 
 		string localFilename = null;
-		public string LocalFilename {
-			get {
+		public string LocalFilename
+		{
+			get
+			{
 				if (localFilename != null) return localFilename;
 
 				var list = new List<string>();
@@ -949,7 +973,7 @@ namespace XamlImageConverter {
 
 						list.Add(new FileInfo(Compiler.MapPath(Path.Combine(path, file))).FullName);
 					}
-				}	
+				}
 				var sb = new StringBuilder();
 				if (list.Count > 0) sb.Append(list[0]);
 				int i = 1;
@@ -961,8 +985,10 @@ namespace XamlImageConverter {
 			}
 		}
 
-		public DateTime OutputVersion {
-			get {
+		public DateTime OutputVersion
+		{
+			get
+			{
 				if (LocalFilename.Contains(',') || LocalFilename.Contains(';')) {
 					var locks = new List<IDisposable>();
 					try {
@@ -998,8 +1024,11 @@ namespace XamlImageConverter {
 			}
 		}
 
-		public virtual bool NeedsBuilding {
-			get {
+		public virtual bool NeedsBuilding
+		{
+			get
+			{
+				if (!Enabled) return false;
 				if (OutputVersion >= Scene.Version) return false;
 				EnsureOutputDir();
 				return true;

@@ -22,7 +22,7 @@ namespace XamlImageConverter {
 			}
 
 			if (a.Count == 0 || new[] { "-h", "help", "-help", "?", "/?", "-?" }.Any(s => a.Any(at => s == at.Trim().ToLower()))) {
-				Console.WriteLine("XamlImageConverter 3.12 by Chris Cavanagh & David Egli");
+				Console.WriteLine("XamlImageConverter 3.2 by Chris Cavanagh & David Egli");
 				Console.WriteLine("Creates snapshots, gif animations or html image maps from XAML, SVG & PSD images\n\r");
 				Console.Error.WriteLine("XamlImageConverter [-x] [-w] [-1] [-s [running time]] [-r] [-v]");
 				Console.Error.WriteLine("   [-l librarypath] [-p projectpath] configFile { configFile }");
@@ -43,6 +43,8 @@ namespace XamlImageConverter {
 				Console.Error.WriteLine("  -v option: Create logfiles.");
 				Console.Error.WriteLine("  -f option: Don't use separate AppDomain for each sourcefile.");
 				Console.Error.WriteLine("             Speeds up compilation but uses more memory.");
+				Console.Error.WriteLine("  -m option: Specificy compiler mode, either Loose, Compiled or Both,");
+				Console.Error.WriteLine("             for compiling only loose or compiled xaml or both.");
 				Console.Error.WriteLine("  -? option: Show this help text.");
 				a.Remove("-h");
 				a.Remove("help");
@@ -50,8 +52,8 @@ namespace XamlImageConverter {
 				a.Remove("?");
 				a.Remove("/?");
 				a.Remove("-?");
-			} 
-			
+			}
+
 			if (a.Contains("-w")) {
 				a.Remove("-w");
 				waitForKey = true;
@@ -88,6 +90,14 @@ namespace XamlImageConverter {
 				a.Remove("-f");
 			}
 
+			Compiler.Modes mode = Compiler.Modes.Both;
+			if (a.Contains("-m")) {
+				var ix = a.IndexOf("-m");
+				if (ix < a.Count-1) mode = (Compiler.Modes)Enum.Parse(typeof(Compiler.Modes), a[ix+1]);
+				a.RemoveAt(ix);
+				a.Remove("-f");
+			}
+
 			bool log = false;
 			if (a.Contains("-v")) {
 				log = true;
@@ -113,7 +123,7 @@ namespace XamlImageConverter {
 			List<string> files = new List<string>();
 			foreach (var f in a) {
 				var appRoot = projectPath;
-					 var file = f;
+				var file = f;
 				if (appRoot.EndsWith("\\")) appRoot = appRoot.Substring(0, appRoot.Length - 1);
 				file = file.Replace("~", appRoot)
 					.Replace("/", "\\");
@@ -133,7 +143,7 @@ namespace XamlImageConverter {
 				var cserver = new CompilerServer();
 				if (RunTime.Ticks != 0) cserver.RunTime = RunTime;
 				if (test) {
-					ThreadPool.QueueUserWorkItem(delegate(object state) {
+					ThreadPool.QueueUserWorkItem(delegate (object state) {
 						Thread.Sleep(20);
 						var compiler = new Compiler();
 						compiler.LibraryPath = libraryPath;
@@ -147,7 +157,7 @@ namespace XamlImageConverter {
 					});
 				}
 				cserver.Start();
-  
+
 			} else {
 				var compiler = new Compiler();
 				compiler.LibraryPath = libraryPath;

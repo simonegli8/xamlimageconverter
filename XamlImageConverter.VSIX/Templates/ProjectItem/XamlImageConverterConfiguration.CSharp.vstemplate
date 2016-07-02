@@ -13,7 +13,7 @@
 		<ProjectItem SubType="Code" TargetFileName="$fileinputname$.xic.xaml" ReplaceParameters="true">CreateImages.xic.xaml</ProjectItem>
 	</TemplateContent>
 	<WizardExtension>
-		<Assembly>XamlImageConverter.ItemWizard, Version=3.12.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45</Assembly>
+		<Assembly>XamlImageConverter.ItemWizard, Version=3.2.0.0, Culture=neutral, PublicKeyToken=60c2ec984bc1bb45</Assembly>
 		<FullClassName>XamlImageConverter.ItemWizard</FullClassName>
 	</WizardExtension>
 </VSTemplate>

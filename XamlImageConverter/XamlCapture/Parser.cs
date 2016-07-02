@@ -16,13 +16,13 @@ using System.Globalization;
 namespace XamlImageConverter {
 
 	[Serializable]
-	public class Parser: MarshalByRefObject {
+	public class Parser : MarshalByRefObject {
 
 		[NonSerialized]
 		Errors errors = null;
 		public Errors Errors { get { if (errors == null) errors = new Errors(); return errors; } set { errors = value; } }
 
-		public Compiler Compiler { get { return this as Compiler; } } 
+		public Compiler Compiler { get { return this as Compiler; } }
 
 		[NonSerialized]
 		public static XNamespace xic = "http://schemas.johnshope.com/XamlImageConverter/2012";
@@ -80,7 +80,7 @@ namespace XamlImageConverter {
 				Root.OutputPath = (string)config.Attribute("OutputPath");
 
 				foreach (var x in config.Elements()) {
-					if (x.Name == ns+"Scene") {
+					if (x.Name == ns+"Scene" || x.Name == "Group") {
 						Group scene = null;
 						try {
 							scene = ParseScene(Root, Version, x);
@@ -93,7 +93,8 @@ namespace XamlImageConverter {
 						if (scene != null) {
 							yield return scene;
 						}
-					} else {
+					} else if (x.Name == ns+"Snapshot") {
+
 						Root.Errors.Error("Invalid element " + x.Name.LocalName, "24", x);
 					}
 				}
@@ -144,7 +145,7 @@ namespace XamlImageConverter {
 			} else {
 				string assemblyName = (string)xaml.Attribute("Assembly");
 				string typename = (string)xaml.Attribute("Type");
-				
+
 				scene.AssemblyName = assemblyName;
 				scene.TypeName = typename;
 
@@ -155,7 +156,7 @@ namespace XamlImageConverter {
 			}
 
 			if (xaml.Attribute("Dynamic") != null && xaml.Attribute("Dynamic").Value == "true") Version = DateTime.Now.ToUniversalTime();
-	
+
 
 			// parse dependencies
 			foreach (var dependency in x.Elements().Where(child => child.Name == ns+"Depends")) {
@@ -205,6 +206,13 @@ namespace XamlImageConverter {
 			if (x.Attribute("Width") != null) item.Width = (double)x.Attribute("Width");
 			if (x.Attribute("Height") != null) item.Height = (double)x.Attribute("Height");
 			if (x.Attribute("Cultures") != null) item.CulturesString = (string)x.Attribute("Cultures");
+			if (x.Attribute("Source") != null) item.Source = (string)x.Attribute("Source");
+			if (x.Attribute("Type") != null) item.TypeName = (string)x.Attribute("TypeName");
+			var xaml = x.Elements(ns+"Xaml").SingleOrDefault();
+			xaml = x.Elements(ns+"Source").SingleOrDefault() ?? xaml;
+			if (x.Attribute("Source") != null || x.Attribute("File") != null || x.Attribute("Type") != null) xaml = x;
+			item.XamlElement = xaml;
+			item.IsScene = !string.IsNullOrEmpty(item.Source) || !string.IsNullOrEmpty(item.TypeName) || xaml != null;
 
 			ParseStyle(x, item);
 
@@ -263,16 +271,27 @@ namespace XamlImageConverter {
 					OutputCondition = (string)x.Attribute("OutputCondition"),
 					Author = (string)x.Attribute("Author"),
 					Subject = (string)x.Attribute("Subject"),
-					Keywords = (string)x.Attribute("Keywords")
+					Keywords = (string)x.Attribute("Keywords"),
+					Source = (string)x.Attribute("Source"),
+					TypeName = (string)x.Attribute("Type")
 				};
-				ValidAttributes(x, container, "Element", "Storyboard", "Frames", "Filmstrip", "Dpi", "Quality", "Filename", "Left", "Top", "Right", "Bottom", "Width", "Height", "Cultures", "Page", "FitToPage", 
+				ValidAttributes(x, container, "Element", "Storyboard", "Frames", "Filmstrip", "Dpi", "Quality", "Filename", "Left", "Top", "Right", "Bottom", "Width", "Height", "Cultures", "Page", "FitToPage",
 					"File", "Loop", "Pause", "Skin", "Theme", "TextMode", "Type", "Image", "Culture", "Hash", "Layer", "Scale", "Parallel", "Ghost", "RenderMode", "Verbose", "Title", "Profile", "Info", "RegistryName", "OutputCondition",
-					"Author", "Subject", "Keywords");
+					"Author", "Subject", "Keywords", "Type", "Source");
+
+				var xaml = x.Elements(ns+"Xaml").SingleOrDefault();
+				xaml = x.Elements(ns+"Source").SingleOrDefault() ?? xaml;
+				if (x.Attribute("Source") != null || x.Attribute("Type") != null) xaml = x;
+
+				result.XamlElement = xaml;
+				result.IsScene = !string.IsNullOrEmpty(result.Source) || !string.IsNullOrEmpty(result.TypeName) || xaml != null;
+
 				break;
 			case "ImageMap":
 			case "Map":
 				var map = new ImageMap {
 					Image = (string)x.Attribute("Image"),
+					Source=(string)x.Attribute("Source"),
 					Scale = (double?)x.Attribute("Scale"),
 					XScale = (double?)x.Attribute("XScale"),
 					YScale = (double?)x.Attribute("YScale"),
@@ -300,11 +319,19 @@ namespace XamlImageConverter {
 				var ident = (string)x.Attribute("Ident");
 				if (ident != null) map.Ident = (ImageMap.IdentChars)Enum.Parse(typeof(ImageMap.IdentChars), ident);
 
-				var predefined = new string[] { "Image", "Scale", "XScale", "YScale", "XOffset", "YOffset", "Angle", "Filename", "File", "Type", "Flatness", "FileType", "Dpi", "Ident" };
+				var predefined = new string[] { "Image", "Scale", "XScale", "YScale", "XOffset", "YOffset", "Angle", "Filename", "File", "Type", "Flatness", "FileType", "Dpi", "Ident", "Source" };
 				foreach (var attribute in x.Attributes().Where(a => predefined.All(p => p != a.Name))) map.Attributes.Add(attribute);
 
 				map.Areas.AddRange(x.Elements());
 				result = map;
+
+				xaml = x.Elements(ns+"Xaml").SingleOrDefault();
+				xaml = x.Elements(ns+"Source").SingleOrDefault() ?? xaml;
+				if (x.Attribute("Source") != null) xaml = x;
+
+				result.XamlElement = xaml;
+				result.IsScene = !string.IsNullOrEmpty(result.Source) || xaml != null;
+
 				break;
 			case "Set":
 				result = new Parameters(x);
@@ -318,8 +345,8 @@ namespace XamlImageConverter {
 				ValidAttributes(x, container);
 				break;
 			case "Group":
-				result = new Group { OutputPath = (string)x.Attribute("OutputPath") };
-				ValidAttributes(x, container, "Element", "OutputPath", "Left", "Top", "Right", "Bottom", "Width", "Height", "Skin", "Theme", "TextMode", "RenderMode", "Parallel", "Ghost", "Verbose");
+				result = new Group { OutputPath = (string)x.Attribute("OutputPath"), TypeName = (string)x.Attribute("Type"), Source=(string)x.Attribute("Source") };
+				ValidAttributes(x, container, "Element", "OutputPath", "Left", "Top", "Right", "Bottom", "Width", "Height", "Skin", "Theme", "TextMode", "RenderMode", "Parallel", "Ghost", "Verbose", "Type", "Source");
 				break;
 			default:
 				container.Errors.Error("Invalid element " +  x.Name.LocalName, "20", x);

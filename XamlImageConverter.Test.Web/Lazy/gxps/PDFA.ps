@@ -1,0 +1,46 @@
+%!
+% $Id: PDFA_def.ps 8284 2007-10-10 17:40:38Z giles $
+% This is a sample prefix file for creating a PDF/A document.
+% Feel free to modify entries marked with "Customize".
+
+% This assumes an ICC profile to reside in the file (ISO Coated sb.icc),
+% unless the user modifies the corresponding line below.
+
+% stack: valueName defaulValue
+/checkSysValue { exch dup systemdict exch known {dup systemdict exch get def pop} {exch def} ifelse } def
+
+/PDFATitle () checkSysValue
+/PDFAOutputConditionIdentifier (Custom) checkSysValue
+
+% test PDFAICCProfile
+systemdict /PDFAICCProfile known not {(ERROR: Need PDFAICCProfile.) = /PDFAICCProfile cvx /undefinedfilename signalerror} if
+
+% add optional entries
+/addOptEntry {
+	dup systemdict exch known { dup systemdict exch get dup length 0 gt {put}{pop pop pop} ifelse} {pop pop} ifelse
+} def
+
+/addOptEntries {
+	dup /PDFAOutputCondition addOptEntry
+	dup /PDFARegistryName addOptEntry
+	dup /PDFAInfo addOptEntry
+} def
+
+% Define entries to the document Info dictionary :
+[ /Title currentdict /PDFATitle get
+  /Creator (PDF24 Creator)
+  /DOCINFO pdfmark
+
+% Define an ICC profile :
+[/_objdef {icc_PDFA} /type /stream /OBJ pdfmark
+[{icc_PDFA} <</N systemdict /ProcessColorModel get /DeviceGray eq {1} {4} ifelse >> /PUT pdfmark
+[{icc_PDFA} systemdict /PDFAICCProfile get (r) file /PUT pdfmark
+
+% Define the output intent dictionary :
+[/_objdef {OutputIntent_PDFA} /type /dict /OBJ pdfmark
+[{OutputIntent_PDFA} <<
+  /Type /OutputIntent             % Must be so (the standard requires).
+  /S /GTS_PDFA1                   % Must be so (the standard requires).
+  /DestOutputProfile {icc_PDFA}            % Must be so (see above).
+>> addOptEntries /PUT pdfmark
+[{Catalog} <</OutputIntents [ {OutputIntent_PDFA} ]>> /PUT pdfmark
